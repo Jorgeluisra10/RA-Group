@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { FaGasPump, FaDoorOpen, FaCogs } from "react-icons/fa";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Link from "next/link";
 
 // Cargar react-slick dinámicamente solo en cliente
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
@@ -67,9 +68,12 @@ const CarCard = ({ car }) => {
           </div>
         </div>
 
-        <button className="mt-4 w-full bg-blue-900 text-white py-2 rounded-md font-medium hover:bg-blue-800 transition duration-200">
+        <Link
+          href={`/carro/${car.id}`}
+          className="mt-4 w-full inline-block text-center bg-blue-900 text-white py-2 rounded-md font-medium hover:bg-blue-800 transition duration-200"
+        >
           Ver Detalles
-        </button>
+        </Link>
       </div>
     </div>
   );
