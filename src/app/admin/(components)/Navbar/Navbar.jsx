@@ -1,4 +1,7 @@
-'use client';
+"use client";
+
+import Image from "next/image";
+import perfilImg from "../../images/Perfil-Luis-Rodriguez.jpg";
 
 export default function Navbar() {
   return (
@@ -8,9 +11,15 @@ export default function Navbar() {
         <p className="text-gray-600">Gestiona tus propiedades y clientes</p>
       </div>
       <div className="flex items-center space-x-2">
-        <img src="/avatar.png" alt="admin" className="w-10 h-10 rounded-full" />
+        <Image
+          src={perfilImg}
+          alt="admin"
+          width={40}
+          height={40}
+          className="rounded-full"
+        />
         <div>
-          <p className="font-semibold">Alejandro Méndez</p>
+          <p className="font-semibold">Luis Rodríguez</p>
           <p className="text-sm text-gray-500">Administrador</p>
         </div>
       </div>
