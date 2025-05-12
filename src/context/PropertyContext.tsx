@@ -10,8 +10,18 @@ export const PropertyProvider = ({ children }) => {
     setProperties((prev) => [...prev, newProperty]);
   };
 
+  const editarPropiedad = (id, updatedProperty) => {
+  setProperties((prev) =>
+    prev.map((prop) => (prop.id === id ? { ...prop, ...updatedProperty } : prop))
+  );
+};
+
+  const eliminarPropiedad = (id) => {
+  setProperties((prev) => prev.filter((prop) => prop.id !== id));
+};
+
   return (
-    <PropertyContext.Provider value={{ properties, agregarPropiedad }}>
+    <PropertyContext.Provider value={{ properties, agregarPropiedad, editarPropiedad, eliminarPropiedad }}>
       {children}
     </PropertyContext.Provider>
   );

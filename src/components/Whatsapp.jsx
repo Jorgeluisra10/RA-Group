@@ -1,7 +1,7 @@
 'use client'; // Agrega esta línea para que Next.js lo considere un Client Component.
 
 const WhatsAppButton = () => {
-    const phoneNumber = '5491123456789'; // Reemplaza con tu número de WhatsApp
+    const phoneNumber = '573103216174'; // Reemplaza con tu número de WhatsApp
     const message = '¡Hola! Estoy interesado en más información'; // Mensaje que aparecerá al hacer clic en el botón
   
     const handleClick = () => {

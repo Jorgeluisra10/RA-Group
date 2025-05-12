@@ -9,9 +9,9 @@ const car = [
     doors: 4,
     transmission: "Automática",
     badge: "Destacado",
+    videoId: "hZQfsFGRI8w", // <-- Video de YouTube
     description:
       "Se Vende Camioneta FORD 150XLT Scab. Cabina y media. Modelo 2016. Motor 3500 Biturbo, gasolina, Ecobost. Automatica 4x4 con bajo . Color gris 5 puestos. Carpa plana platon Cámara de reversa, sensores de parqueo. 185.000 kms de recorrido.  Precio $105.900.000.",
-
     images: [
       "/images/cars/Ford-F150-001/8.jpg",
       "/images/cars/Ford-F150-001/1.jpg",
@@ -35,9 +35,9 @@ const car = [
     doors: 4,
     transmission: "Automática",
     badge: "Destacado",
+    videoId: "hZQfsFGRI8w", // <-- Video de YouTube
     description:
       "Se Vende Camioneta FORD 150XLT Scab. Cabina y media. Modelo 2016. Motor 3500 Biturbo, gasolina, Ecobost. Automatica 4x4 con bajo . Color gris 5 puestos. Carpa plana platon Cámara de reversa, sensores de parqueo. 185.000 kms de recorrido.  Precio $105.900.000.",
-
     images: [
       "/images/cars/Ford-F150-001/8.jpg",
       "/images/cars/Ford-F150-001/1.jpg",
@@ -51,6 +51,7 @@ const car = [
       "/images/cars/Ford-F150-001/10.jpg",
     ],
   },
+  
 ];
 
 export default car;

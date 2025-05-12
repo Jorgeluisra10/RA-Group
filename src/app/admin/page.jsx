@@ -39,7 +39,7 @@ export default function AdminPage() {
         />
         <KPI
           title="Ventas Mensuales"
-          value="€1.2M"
+          value="$1.2M COP"
           percent="↑ 12.5%"
           color="bg-yellow-400"
         />
