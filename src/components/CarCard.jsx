@@ -52,7 +52,7 @@ const CarCard = ({ car }) => {
       <div className="p-4 border-t">
         <div className="flex items-center justify-between">
           <h2 className="mt-6 text-base font-semibold text-gray-900">{car.title}</h2>
-          <span className="text-yellow-600 font-bold text-sm">${car.price.toLocaleString()}</span>
+          <span className="text-yellow-600 font-bold text-sm">${car.price.toLocaleString("es-CO")}</span>
         </div>
         <p className="text-sm text-gray-500 mb-3">{car.location}</p>
 
