@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# 🏠 RA Group - Sitio Web Inmobiliario
 
-First, run the development server:
+Este proyecto es un sitio web inmobiliario desarrollado para RA Group, una empresa familiar dedicada a la venta de propiedades y autos en Colombia. El objetivo es ofrecer una plataforma moderna, rápida y fácil de usar para que los clientes puedan explorar disponibilidad, obtener información detallada y contactar fácilmente a la empresa.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Tecnologías Utilizadas
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Framework**: [Next.js](https://nextjs.org/)
+- **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
+- **Lenguaje**: JavaScript / TypeScript
+- **Despliegue**: Vercel (opcional)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 📁 Estructura del Proyecto
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/`: Contiene los componentes y páginas principales del sitio.
+- `public/`: Archivos estáticos como imágenes y favicon.
+- `styles/`: Archivos de estilos globales y configuraciones de Tailwind CSS.
 
-## Learn More
+## 🛠️ Instalación y Ejecución
 
-To learn more about Next.js, take a look at the following resources:
+1. Clona el repositorio:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   git clone https://github.com/Jorgeluisra10/RA-Group.git
+   cd RA-Group
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Instala las dependencias:
 
-## Deploy on Vercel
+   ```bash
+   npm install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Inicia el servidor de desarrollo:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm run dev
+   ```
+
+   El sitio estará disponible en [http://localhost:3000](http://localhost:3000).
+
+## 📸 Capturas de Pantalla
+
+![image](https://github.com/user-attachments/assets/6968558b-c6b4-433f-a717-f9860b70c901)
+![image](https://github.com/user-attachments/assets/ac8c54bd-ad2a-4a4f-aa67-0123460d3ce2)
+![image](https://github.com/user-attachments/assets/e9080d9b-870d-4541-8535-de2ab01e4141)
+
+## 📬 Contacto
+
+Para más información o consultas, puedes contactar a RA Group a través de:
+
+- **Correo electrónico**: [correo@ragroup.com](mailto:correo@ragroup.com)
+- **Teléfono**: +57 123 456 7890
+- **Sitio web**: [www.ragroup.com](https://www.ragroup.com)
+
+---
+
+¡Gracias por visitar nuestro proyecto!
