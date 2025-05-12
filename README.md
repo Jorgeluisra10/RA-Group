@@ -49,9 +49,8 @@ Este proyecto es un sitio web inmobiliario desarrollado para RA Group, una empre
 
 Para más información o consultas, puedes contactar a RA Group a través de:
 
-- **Correo electrónico**: [correo@ragroup.com](mailto:correo@ragroup.com)
-- **Teléfono**: +57 123 456 7890
-- **Sitio web**: [www.ragroup.com](https://www.ragroup.com)
+- **Correo electrónico**: [jorgerodriguez1053@gmail.com](mailto:correo@ragroup.com)
+- **Teléfono**: +54 911 5023 0176
 
 ---
 
