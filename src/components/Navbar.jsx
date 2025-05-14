@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -11,7 +10,7 @@ export default function Navbar() {
     { label: "Inicio", path: "/" },
     { label: "Propiedades", path: "/propiedades" },
     { label: "Autos", path: "/carros" },
-    { label: "Quiero Vender", path: "/admin" },
+    { label: "Quiero Vender", path: "/vender" },
     { label: "Sobre nosotros", path: "/sobre-nosotros" },
   ];
 
