@@ -39,12 +39,6 @@ Este proyecto es un sitio web inmobiliario desarrollado para RA Group, una empre
 
    El sitio estará disponible en [http://localhost:3000](http://localhost:3000).
 
-## 📸 Capturas de Pantalla
-
-![image](https://github.com/user-attachments/assets/6968558b-c6b4-433f-a717-f9860b70c901)
-![image](https://github.com/user-attachments/assets/ac8c54bd-ad2a-4a4f-aa67-0123460d3ce2)
-![image](https://github.com/user-attachments/assets/e9080d9b-870d-4541-8535-de2ab01e4141)
-
 ## 📬 Contacto
 
 Para más información o consultas, puedes contactar a RA Group a través de:
