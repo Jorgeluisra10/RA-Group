@@ -1,4 +1,4 @@
-export const properties = [
+const properties = [
   {
     id: 1,
     title: "Casa Chiquinquirá",
@@ -121,3 +121,5 @@ export const properties = [
   },
   
 ];
+
+export default properties;

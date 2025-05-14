@@ -1,8 +1,9 @@
 'use client';
-import { properties } from "../../../data/properties";
+import { ArrowLeftCircle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import dynamic from "next/dynamic";
+import properties from "../../../data/properties";
+
 
 // Carrusel de imágenes con efecto de lupa al hacer hover
 const ImageGallery = ({ images }) => {
@@ -46,9 +47,9 @@ const PropertyDetail = ({ params }) => {
       {/* Volver */}
       <Link
         href="/propiedades"
-        className="inline-block text-blue-600 hover:text-blue-800 transition-colors underline"
+        className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-700 font-medium mb-6 transition-all bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-full shadow"
       >
-        ← Volver a Propiedades
+        <ArrowLeftCircle className="w-5 h-5" /> Volver a Propiedades
       </Link>
 
       {/* Encabezado */}

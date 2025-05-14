@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
-  const [active, setActive] = useState("Home");
+  const pathname = usePathname();
 
   const navItems = [
-    "Home",
-    "Listings",
-    "Property",
-    "About Us",
-    "Admin",
-    "Contact",
+    { label: "Inicio", path: "/" },
+    { label: "Propiedades", path: "/propiedades" },
+    { label: "Autos", path: "/carros" },
+    { label: "Quiero Vender", path: "/admin" },
+    { label: "Sobre nosotros", path: "/sobre-nosotros" },
   ];
 
   return (
@@ -32,21 +33,21 @@ export default function Navbar() {
       </div>
 
       <div className="space-x-6 flex items-center">
-        {navItems.map((label) => (
-          <button
-            key={label}
-            onClick={() => setActive(label)}
-            className={`relative text-gray-700 font-medium transition-all duration-200 hover:text-indigo-900
-              after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-yellow-400
-              after:transition-all after:duration-300
-              ${
-                active === label
-                  ? "text-indigo-900 after:w-full"
-                  : "after:w-0 hover:after:w-full"
-              }`}
-          >
-            {label}
-          </button>
+        {navItems.map(({ label, path }) => (
+          <Link key={label} href={path}>
+            <span
+              className={`relative cursor-pointer text-gray-700 font-medium transition-all duration-200 hover:text-indigo-900
+                after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-yellow-400
+                after:transition-all after:duration-300
+                ${
+                  pathname === path
+                    ? "text-indigo-900 after:w-full"
+                    : "after:w-0 hover:after:w-full"
+                }`}
+            >
+              {label}
+            </span>
+          </Link>
         ))}
       </div>
     </nav>
