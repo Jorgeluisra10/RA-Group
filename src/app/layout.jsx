@@ -1,6 +1,5 @@
 // app/layout.jsx
 "use client";
-
 import { usePathname } from "next/navigation";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
@@ -34,18 +33,21 @@ import GlobalLoader from "../components/GlobalLoader";
 //   },
 // };
 
+
+
 export default function RootLayout({ children }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  const isAuthPage = pathname === "/login" || pathname.startsWith("/admin");
 
   return (
     <html lang="es">
       <body className="min-h-screen">
         <PropertyProvider>
           <GlobalLoader />
-          {!isAdmin && <Navbar />}
+          {/* Solo mostramos el Navbar y Footer si no estamos en la página de login ni en rutas que comienzan con /admin */}
+          {!isAuthPage && <Navbar />}
           <main className="flex-1">{children}</main>
-          {!isAdmin && <Footer />}
+          {!isAuthPage && <Footer />}
         </PropertyProvider>
       </body>
     </html>
