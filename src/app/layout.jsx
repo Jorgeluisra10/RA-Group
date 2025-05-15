@@ -43,11 +43,11 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body className="min-h-screen">
         <PropertyProvider>
-          <GlobalLoader />
           {/* Solo mostramos el Navbar y Footer si no estamos en la página de login ni en rutas que comienzan con /admin */}
           {!isAuthPage && <Navbar />}
           <main className="flex-1">{children}</main>
           {!isAuthPage && <Footer />}
+          <GlobalLoader />
         </PropertyProvider>
       </body>
     </html>
