@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import PropertyFilterSidebar from "../../components/PropertyFilterSidebar";
 import PropertyCard from "../../components/PropertyCard";
-import { getSupabaseClient } from "../../lib/supabaseClient"; // <- Cambiado aquí
+import { supabase } from "../../lib/supabaseClient"; // <- Cambiado aquí
 import { SlidersHorizontal } from "lucide-react";
 
 export default function PropiedadesPage() {
@@ -21,7 +21,6 @@ export default function PropiedadesPage() {
   }, []);
 
   useEffect(() => {
-    const supabase = getSupabaseClient();
 
     const fetchProperties = async () => {
       let { data: propsData, error } = await supabase

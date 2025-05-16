@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import CarFilterSidebar from "../../components/CarFilterSidebar"; // Ajusta ruta si es necesario
 import CarCard from "../../components/CarCard"; // Ajusta ruta si es necesario
-import { getSupabaseClient } from "../../lib/supabaseClient";
+import {supabase} from "../../lib/supabaseClient";
 import { SlidersHorizontal } from "lucide-react";
 
 export default function CarListPage() {
