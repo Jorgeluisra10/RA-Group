@@ -272,7 +272,7 @@ export default function NuevaPropiedadForm() {
           type="submit"
           className="bg-[#0B1D3B] text-white px-6 py-3 rounded-md font-semibold hover:bg-[#10294f] transition duration-200"
         >
-          Publicar propiedad
+          Publicar
         </button>
       </div>
     </form>
