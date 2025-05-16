@@ -92,7 +92,7 @@ export default function NuevaPropiedadForm() {
     if (!title.trim()) newErrors.title = "El título es obligatorio.";
     if (!description.trim()) newErrors.description = "La descripción es obligatoria.";
     if (!price || isNaN(price) || Number(price) <= 0) newErrors.price = "El precio debe ser un número mayor a 0.";
-    if (imageFiles.length === 0) newErrors.image = "Debes seleccionar al menos una imagen.";
+    // if (imageFiles.length === 0) newErrors.image = "Debes seleccionar al menos una imagen.";
     if (!direccion.trim()) newErrors.direccion = "La dirección es obligatoria.";
     if (!tipo) newErrors.tipo = "El tipo es obligatorio.";
     if (!estado) newErrors.estado = "El estado es obligatorio.";
