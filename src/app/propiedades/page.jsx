@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import PropertyFilterSidebar from "../../components/PropertyFilterSidebar";
 import PropertyCard from "../../components/PropertyCard";
-import { supabase } from "../../lib/supabaseClient";
+import { getSupabaseClient } from "../../lib/supabaseClient"; // <- Cambiado aquí
 import { SlidersHorizontal } from "lucide-react";
 
 export default function PropiedadesPage() {
@@ -13,7 +13,6 @@ export default function PropiedadesPage() {
   const [appliedFilters, setAppliedFilters] = useState(null);
   const [sortOption, setSortOption] = useState("recent");
 
-  // Detectar móvil
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -21,10 +20,10 @@ export default function PropiedadesPage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Fetch propiedades + imágenes desde Supabase
   useEffect(() => {
+    const supabase = getSupabaseClient();
+
     const fetchProperties = async () => {
-      // Obtener propiedades desde tabla "properties"
       let { data: propsData, error } = await supabase
         .from("properties")
         .select("*");
@@ -34,8 +33,6 @@ export default function PropiedadesPage() {
         return;
       }
 
-      // Por cada propiedad obtener URLs públicas de las imágenes
-      // Asumiendo que hay un campo 'images' que es array de nombres de archivo
       const propsWithUrls = await Promise.all(
         propsData.map(async (prop) => {
           if (!prop.images || prop.images.length === 0) return { ...prop, images: [] };
@@ -54,7 +51,6 @@ export default function PropiedadesPage() {
     fetchProperties();
   }, []);
 
-  // Aplicar filtros y orden (igual que antes)
   const sortProperties = (props) => {
     switch (sortOption) {
       case "price_low":

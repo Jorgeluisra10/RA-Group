@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import CarFilterSidebar from "../../components/CarFilterSidebar"; // Ajusta ruta si es necesario
 import CarCard from "../../components/CarCard"; // Ajusta ruta si es necesario
-import { supabase } from "../../lib/supabaseClient";
+import { getSupabaseClient } from "../../lib/supabaseClient";
 import { SlidersHorizontal } from "lucide-react";
 
 export default function CarListPage() {
@@ -24,6 +24,8 @@ export default function CarListPage() {
 
   // Fetch carros y sus imágenes desde Supabase
   useEffect(() => {
+    const supabase = getSupabaseClient();
+
     const fetchCars = async () => {
       let { data: carsData, error } = await supabase.from("cars").select("*");
 
@@ -60,26 +62,20 @@ export default function CarListPage() {
 
     if (filters) {
       filtered = cars.filter((car) => {
-        // Filtro transmisión (OR entre opciones activas)
         const transmissionKeys = Object.keys(filters.transmission || {}).filter(
           (key) => filters.transmission[key]
         );
         if (transmissionKeys.length && !transmissionKeys.includes(car.transmission)) return false;
 
-        // Filtro combustible (OR)
         const fuelKeys = Object.keys(filters.fuel || {}).filter((key) => filters.fuel[key]);
         if (fuelKeys.length && !fuelKeys.includes(car.fuel)) return false;
 
-        // Puertas (exacto o 0 para cualquiera)
         if (filters.doors !== 0 && car.doors !== filters.doors) return false;
 
-        // Precio (rango)
         if (car.price < filters.price.min || car.price > filters.price.max) return false;
 
-        // Año (rango)
         if (car.year < filters.year.min || car.year > filters.year.max) return false;
 
-        // Features (todos los que estén en true deben cumplirse)
         for (const [feature, enabled] of Object.entries(filters.features || {})) {
           if (enabled && !car.features?.includes(feature)) {
             return false;
@@ -93,7 +89,6 @@ export default function CarListPage() {
     setFilteredCars(sortCars(filtered));
   }, [filters, sortOption, cars]);
 
-  // Función para ordenar carros
   const sortCars = (carsArray) => {
     switch (sortOption) {
       case "price_low":
@@ -105,13 +100,12 @@ export default function CarListPage() {
       case "year_old":
         return [...carsArray].sort((a, b) => a.year - b.year);
       default:
-        return carsArray; // recent o sin orden
+        return carsArray;
     }
   };
 
   return (
     <div className="relative max-w-screen-xl mx-auto px-4 md:px-8 py-12">
-      {/* Botón filtros y selector ordenar para móvil */}
       {isMobile && (
         <div className="sticky top-0 z-40 mb-6 bg-white pt-2 pb-4 flex justify-between items-center gap-2">
           <button
@@ -141,14 +135,12 @@ export default function CarListPage() {
       )}
 
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Sidebar filtros */}
         <CarFilterSidebar
           onApplyFilters={setFilters}
           isOpen={isFilterOpen}
           onClose={() => setIsFilterOpen(false)}
         />
 
-        {/* Listado de carros */}
         <section className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
           {filteredCars.length > 0 ? (
             filteredCars.map((car) => <CarCard key={car.id} car={car} />)
