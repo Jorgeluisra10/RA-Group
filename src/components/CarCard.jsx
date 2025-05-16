@@ -6,13 +6,14 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Link from "next/link";
 
-// Cargar react-slick dinámicamente solo en cliente
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 const CarCard = ({ car }) => {
-  if (!car || !Array.isArray(car.images)) {
-    return <div className="text-red-500">No hay imágenes disponibles</div>;
+  if (!car) {
+    return <div className="text-red-500">Datos del carro no disponibles</div>;
   }
+
+  const images = Array.isArray(car.images) && car.images.length > 0 ? car.images : null;
 
   const settings = {
     dots: true,
@@ -25,7 +26,6 @@ const CarCard = ({ car }) => {
 
   return (
     <div className="relative bg-white rounded-xl overflow-hidden shadow-md border transition transform hover:scale-[1.02] hover:shadow-lg duration-300">
-      {/* Badge */}
       {car.badge && (
         <div
           className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded-md text-white ${
@@ -36,41 +36,47 @@ const CarCard = ({ car }) => {
         </div>
       )}
 
-      {/* Carrusel de imágenes */}
       <div className="h-48 w-full bg-gray-200">
-        <Slider {...settings}>
-          {car.images.map((img, idx) => (
-            <img
-              key={idx}
-              src={img}
-              alt={`${car.title} ${idx + 1}`}
-              className="h-48 w-full object-cover"
-            />
-          ))}
-        </Slider>
+        {images ? (
+          <Slider {...settings}>
+            {images.map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                alt={`${car.title ?? "Carro"} imagen ${idx + 1}`}
+                className="h-48 w-full object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.src = "https://via.placeholder.com/300x200?text=Sin+imagen";
+                }}
+              />
+            ))}
+          </Slider>
+        ) : (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            No hay imágenes disponibles
+          </div>
+        )}
       </div>
 
-      {/* Detalles */}
       <div className="p-4 border-t">
         <div className="flex items-center justify-between">
-          <h2 className="mt-6 text-base font-semibold text-gray-900">
-            {car.title}
-          </h2>
+          <h2 className="mt-6 text-base font-semibold text-gray-900">{car.title ?? "Sin título"}</h2>
           <span className="text-yellow-600 font-bold text-sm">
-            ${car.price.toLocaleString("es-CO")}
+            ${car.price ? car.price.toLocaleString("es-CO") : "0"}
           </span>
         </div>
-        <p className="text-sm text-gray-500 mb-3">{car.location}</p>
+        <p className="text-sm text-gray-500 mb-3">{car.location ?? "Ubicación no disponible"}</p>
 
         <div className="flex justify-between text-xs text-gray-600">
           <div className="flex items-center gap-1">
-            <FaGasPump className="text-gray-500" /> {car.engine}
+            <FaGasPump className="text-gray-500" /> {car.engine ?? "N/A"}
           </div>
           <div className="flex items-center gap-1">
-            <FaDoorOpen className="text-gray-500" /> {car.doors} Puertas
+            <FaDoorOpen className="text-gray-500" /> {car.doors ?? "N/A"} Puertas
           </div>
           <div className="flex items-center gap-1">
-            <FaCogs className="text-gray-500" /> {car.transmission}
+            <FaCogs className="text-gray-500" /> {car.transmission ?? "N/A"}
           </div>
         </div>
 

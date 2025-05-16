@@ -1,10 +1,24 @@
 import { supabase } from './supabaseClient';
 
+// Validar tipo y tamaño de archivo (máx 5MB, solo imágenes jpg/png/jpeg/gif)
+function validarArchivo(file) {
+  const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+  const maxSizeMB = 5;
+  if (!validTypes.includes(file.type)) {
+    throw new Error(`Tipo de archivo no permitido: ${file.type}`);
+  }
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    throw new Error(`Archivo demasiado grande, máximo ${maxSizeMB}MB`);
+  }
+}
+
 // Subir imágenes a un bucket dado
 async function subirImagenes(files, bucket) {
   const uploadedNames = [];
 
   for (const file of files) {
+    validarArchivo(file);
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
 
@@ -22,7 +36,7 @@ async function subirImagenes(files, bucket) {
   return uploadedNames;
 }
 
-// ✅ Insertar propiedad con imágenes (bucket: "properties")
+// Insertar propiedad con imágenes (bucket: "properties")
 export async function insertarPropiedad(propiedad, files) {
   try {
     let imagenes = [];
@@ -45,7 +59,7 @@ export async function insertarPropiedad(propiedad, files) {
   }
 }
 
-// ✅ Insertar carro con imágenes (bucket: "cars")
+// Insertar carro con imágenes (bucket: "cars")
 export async function insertarCarro(carro, files) {
   try {
     let imagenes = [];

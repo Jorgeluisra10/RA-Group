@@ -1,14 +1,34 @@
-// src/lib/api.js
 import { supabase } from './supabaseClient';
 
-export async function getCars() {
-  const { data, error } = await supabase.from('cars').select('*');
-  if (error) throw error;
+// Opcional: parámetros para paginación
+export async function getCars({ page = 1, pageSize = 20 } = {}) {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, error } = await supabase
+    .from('cars')
+    .select('*')
+    .range(from, to);
+
+  if (error) {
+    throw new Error(`Error al obtener carros: ${error.message}`);
+  }
+
   return data;
 }
 
-export async function getProperties() {
-  const { data, error } = await supabase.from('properties').select('*');
-  if (error) throw error;
+export async function getProperties({ page = 1, pageSize = 20 } = {}) {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, error } = await supabase
+    .from('properties')
+    .select('*')
+    .range(from, to);
+
+  if (error) {
+    throw new Error(`Error al obtener propiedades: ${error.message}`);
+  }
+
   return data;
 }

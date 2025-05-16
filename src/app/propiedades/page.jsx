@@ -3,14 +3,23 @@
 import { useState, useEffect } from "react";
 import PropertyFilterSidebar from "../../components/PropertyFilterSidebar";
 import PropertyCard from "../../components/PropertyCard";
-import { supabase } from "../../lib/supabaseClient"; // <- Cambiado aquí
+import { supabase } from "../../lib/supabaseClient";
 import { SlidersHorizontal } from "lucide-react";
+
+const defaultFilters = {
+  type: {},
+  price: { min: 0, max: 100000000 },
+  beds: 0,
+  baths: 0,
+  area: { min: 0, max: 10000 },
+  features: {},
+};
 
 export default function PropiedadesPage() {
   const [properties, setProperties] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [appliedFilters, setAppliedFilters] = useState(null);
+  const [appliedFilters, setAppliedFilters] = useState(defaultFilters);
   const [sortOption, setSortOption] = useState("recent");
 
   useEffect(() => {
@@ -21,7 +30,6 @@ export default function PropiedadesPage() {
   }, []);
 
   useEffect(() => {
-
     const fetchProperties = async () => {
       let { data: propsData, error } = await supabase
         .from("properties")
@@ -31,6 +39,9 @@ export default function PropiedadesPage() {
         console.error("Error fetching properties:", error);
         return;
       }
+
+      // Ordeno por created_at descendente para recent (asegúrate que exista ese campo)
+      propsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
       const propsWithUrls = await Promise.all(
         propsData.map(async (prop) => {
@@ -60,8 +71,12 @@ export default function PropiedadesPage() {
         return [...props].sort((a, b) => b.area - a.area);
       case "beds_high":
         return [...props].sort((a, b) => b.beds - a.beds);
+      case "recent":
       default:
-        return props;
+        // Orden por fecha si no se ordenó antes
+        return [...props].sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
     }
   };
 
@@ -98,7 +113,7 @@ export default function PropiedadesPage() {
   );
 
   const handleApplyFilters = (filters) => {
-    setAppliedFilters(filters);
+    setAppliedFilters(filters || defaultFilters);
     if (isMobile) setFiltersOpen(false);
   };
 
