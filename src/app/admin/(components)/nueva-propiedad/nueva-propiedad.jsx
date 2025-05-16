@@ -80,7 +80,7 @@ export default function NuevaPropiedadForm() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files).slice(0, 10); // máximo 10 archivos
-    setImageFiles(files);
+    setImageFiles(files)
     const previews = files.map((file) => URL.createObjectURL(file));
     setImagePreviews(previews);
   };
