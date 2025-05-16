@@ -1,4 +1,4 @@
-import { supabase } from './superbaseClient';
+import { supabase } from './supabaseClient';
 
 // Subir imágenes a un bucket dado
 async function subirImagenes(files, bucket) {
@@ -32,7 +32,7 @@ export async function insertarPropiedad(propiedad, files) {
     }
 
     const { data, error } = await supabase
-      .from('propiedades')
+      .from('properties')
       .insert([{ ...propiedad, images: imagenes }]);
 
     if (error) {
