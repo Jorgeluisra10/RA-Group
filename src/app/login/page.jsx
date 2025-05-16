@@ -19,17 +19,29 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-teal-400">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Iniciar sesión</h2>
-        <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-yellow-600">
+      <div className="bg-white/90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md animate-fade-in">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          Iniciar sesión
+          <div className="w-16 h-1 mx-auto mt-2 bg-yellow-400 rounded-full" />
+        </h2>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
+          className="space-y-6"
+        >
           <div>
-            <label htmlFor="email" className="block text-gray-600 font-medium">Correo electrónico</label>
+            <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
+              Correo electrónico
+            </label>
             <input
               id="email"
               type="email"
-              placeholder="Correo electrónico"
-              className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="usuario@correo.com"
+              className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -37,12 +49,14 @@ export default function Login() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-gray-600 font-medium">Contraseña</label>
+            <label htmlFor="password" className="block text-gray-700 font-medium mb-1">
+              Contraseña
+            </label>
             <input
               id="password"
               type="password"
-              placeholder="Contraseña"
-              className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="********"
+              className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -51,19 +65,11 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-yellow-400 text-gray-900 font-semibold py-3 rounded-lg hover:bg-yellow-500 transition-all duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
           >
             Ingresar
           </button>
         </form>
-
-        <div className="text-center mt-4">
-          <a href="#" className="text-blue-600 hover:underline">¿Olvidaste tu contraseña?</a>
-        </div>
-
-        <div className="text-center mt-4">
-          <p className="text-gray-600">¿No tienes cuenta? <a href="#" className="text-blue-600 hover:underline">Regístrate</a></p>
-        </div>
       </div>
     </div>
   );

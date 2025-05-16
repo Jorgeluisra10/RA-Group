@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.6",
+    "@supabase/supabase-js": "^2.49.4",
+    "clsx": "^2.1.1",
     "firebase": "^11.7.1",
     "framer-motion": "^12.10.4",
     "leaflet": "^1.9.4",

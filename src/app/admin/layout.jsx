@@ -6,28 +6,30 @@ import { Toaster } from "react-hot-toast";
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="flex h-screen">
+    <div className="min-h-screen bg-gray-100">
       <Sidebar />
-      <main className="flex-1 bg-gray-100 p-6 overflow-auto">
-        <Navbar />
-        {children}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: "#111827",
-              color: "#fff",
-              borderRadius: "10px",
-            },
-            success: {
-              iconTheme: {
-                primary: "#3b82f6", // azul
-                secondary: "#ffffff",
+      <div className="md:pl-64">
+        <main className="p-6">
+          <Navbar />
+          {children}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: "#111827",
+                color: "#fff",
+                borderRadius: "10px",
               },
-            },
-          }}
-        />
-      </main>
+              success: {
+                iconTheme: {
+                  primary: "#3b82f6",
+                  secondary: "#ffffff",
+                },
+              },
+            }}
+          />
+        </main>
+      </div>
     </div>
   );
 }

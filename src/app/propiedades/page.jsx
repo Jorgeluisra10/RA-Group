@@ -1,147 +1,155 @@
 "use client";
 
-import properties from "../../data/properties";
-import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import PropertyFilterSidebar from "../../components/PropertyFilterSidebar";
+import PropertyCard from "../../components/PropertyCard";
+import { supabase } from "../../lib/supabaseClient";
+import { SlidersHorizontal } from "lucide-react";
 
 export default function PropiedadesPage() {
-  const [selectedCities, setSelectedCities] = useState([]);
-  const [selectedBeds, setSelectedBeds] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(Infinity);
+  const [properties, setProperties] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState(null);
+  const [sortOption, setSortOption] = useState("recent");
 
-  const uniqueCities = [...new Set(properties.map((p) => p.location))];
-  const uniqueBeds = [...new Set(properties.map((p) => p.beds))].sort((a, b) => a - b);
+  // Detectar móvil
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
-  const toggleCity = (city) => {
-    setSelectedCities((prev) =>
-      prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city]
-    );
+  // Fetch propiedades + imágenes desde Supabase
+  useEffect(() => {
+    const fetchProperties = async () => {
+      // Obtener propiedades desde tabla "properties"
+      let { data: propsData, error } = await supabase
+        .from("properties")
+        .select("*");
+
+      if (error) {
+        console.error("Error fetching properties:", error);
+        return;
+      }
+
+      // Por cada propiedad obtener URLs públicas de las imágenes
+      // Asumiendo que hay un campo 'images' que es array de nombres de archivo
+      const propsWithUrls = await Promise.all(
+        propsData.map(async (prop) => {
+          if (!prop.images || prop.images.length === 0) return { ...prop, images: [] };
+
+          const imagesUrls = prop.images.map((imgName) =>
+            supabase.storage.from("properties").getPublicUrl(imgName).publicURL
+          );
+
+          return { ...prop, images: imagesUrls };
+        })
+      );
+
+      setProperties(propsWithUrls);
+    };
+
+    fetchProperties();
+  }, []);
+
+  // Aplicar filtros y orden (igual que antes)
+  const sortProperties = (props) => {
+    switch (sortOption) {
+      case "price_low":
+        return [...props].sort((a, b) => a.price - b.price);
+      case "price_high":
+        return [...props].sort((a, b) => b.price - a.price);
+      case "area_high":
+        return [...props].sort((a, b) => b.area - a.area);
+      case "beds_high":
+        return [...props].sort((a, b) => b.beds - a.beds);
+      default:
+        return props;
+    }
   };
 
-  const toggleBeds = (beds) => {
-    setSelectedBeds((prev) =>
-      prev.includes(beds) ? prev.filter((b) => b !== beds) : [...prev, beds]
-    );
-  };
+  const filteredProperties = sortProperties(
+    properties.filter((prop) => {
+      if (!appliedFilters) return true;
 
-  const filteredProperties = properties.filter((prop) => {
-    const matchesCity =
-      selectedCities.length === 0 || selectedCities.includes(prop.location);
-    const matchesBeds =
-      selectedBeds.length === 0 || selectedBeds.some((b) => prop.beds >= b);
-    const matchesPrice = prop.price <= maxPrice;
-    return matchesCity && matchesBeds && matchesPrice;
-  });
+      const matchesType =
+        Object.values(appliedFilters.type).every((v) => !v) ||
+        appliedFilters.type[prop.type?.toLowerCase()];
+      const matchesPrice =
+        prop.price >= appliedFilters.price.min &&
+        prop.price <= appliedFilters.price.max;
+      const matchesBeds =
+        appliedFilters.beds === 0 || prop.beds >= appliedFilters.beds;
+      const matchesBaths =
+        appliedFilters.baths === 0 || prop.baths >= appliedFilters.baths;
+      const matchesArea =
+        prop.area >= appliedFilters.area.min &&
+        prop.area <= appliedFilters.area.max;
+      const matchesFeatures = Object.entries(appliedFilters.features).every(
+        ([key, val]) => (val ? prop.features?.includes(key) : true)
+      );
+
+      return (
+        matchesType &&
+        matchesPrice &&
+        matchesBeds &&
+        matchesBaths &&
+        matchesArea &&
+        matchesFeatures
+      );
+    })
+  );
+
+  const handleApplyFilters = (filters) => {
+    setAppliedFilters(filters);
+    if (isMobile) setFiltersOpen(false);
+  };
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-12">
-      <div className="text-center pb-10">
-        <h1 className="text-4xl font-extrabold text-gray-900">Explora nuestras propiedades</h1>
-        <p className="text-gray-600 mt-2 text-lg">Encuentra la opción ideal para ti</p>
-      </div>
+    <div className="relative max-w-screen-xl mx-auto px-4 md:px-8 py-12">
+      {isMobile && (
+        <div className="sticky top-0 z-40 mb-6 bg-white pt-2 pb-4 flex justify-between items-center gap-2">
+          <button
+            onClick={() => setFiltersOpen(true)}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-md text-sm"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            Filtros
+          </button>
+          <div className="flex items-center text-sm gap-2">
+            <span className="text-gray-700">Ordenar por:</span>
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="border rounded-md px-2 py-1 text-sm"
+            >
+              <option value="recent">Más recientes</option>
+              <option value="price_low">Precio: menor a mayor</option>
+              <option value="price_high">Precio: mayor a menor</option>
+              <option value="area_high">Mayor área</option>
+              <option value="beds_high">Más habitaciones</option>
+            </select>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col md:flex-row gap-10">
-        {/* Filtros a la izquierda */}
-        <aside className="md:w-1/4 bg-gradient-to-b from-blue-900 to-blue-700 text-white p-6 rounded-3xl shadow-lg">
-          <h2 className="text-2xl font-semibold mb-6">Filtros</h2>
-          <div className="space-y-8">
-            {/* Ciudad */}
-            <div>
-              <h3 className="text-sm font-semibold mb-2 uppercase tracking-wide text-blue-100">Ciudad</h3>
-              {uniqueCities.map((city) => (
-                <label key={city} className="block text-sm mb-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedCities.includes(city)}
-                    onChange={() => toggleCity(city)}
-                    className="mr-2 accent-yellow-400"
-                  />
-                  {city}
-                </label>
-              ))}
-            </div>
+        <div>
+          <PropertyFilterSidebar
+            onApplyFilters={handleApplyFilters}
+            isOpen={filtersOpen}
+            onClose={() => setFiltersOpen(false)}
+          />
+        </div>
 
-            {/* Habitaciones */}
-            <div>
-              <h3 className="text-sm font-semibold mb-2 uppercase tracking-wide text-blue-100">Habitaciones mínimas</h3>
-              {uniqueBeds.map((beds) => (
-                <label key={beds} className="block text-sm mb-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedBeds.includes(beds)}
-                    onChange={() => toggleBeds(beds)}
-                    className="mr-2 accent-yellow-400"
-                  />
-                  {beds} o más
-                </label>
-              ))}
-            </div>
-
-            {/* Precio */}
-            <div>
-              <label className="block text-sm font-semibold mb-2 uppercase tracking-wide text-blue-100">
-                Precio máximo
-              </label>
-              <input
-                type="number"
-                placeholder="Ej: 500000000"
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full bg-white text-black px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              />
-            </div>
-
-            <button
-              onClick={() => {
-                setSelectedCities([]);
-                setSelectedBeds([]);
-                setMaxPrice(Infinity);
-              }}
-              className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2 rounded-md text-sm transition"
-            >
-              Limpiar filtros
-            </button>
-          </div>
-        </aside>
-
-        {/* Propiedades a la derecha */}
         <section className="md:w-3/4 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProperties.map((prop) => (
-            <Link
-              key={prop.id}
-              href={`/propiedad/${prop.id}`}
-              className="bg-white rounded-3xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden group"
-            >
-              <div className="relative h-48 w-full">
-                <Image
-                  src={prop.image}
-                  alt={prop.title}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <div className="p-4 space-y-2">
-                <h2 className="text-xl font-semibold text-gray-800">{prop.title}</h2>
-                <p className="text-sm text-gray-500">{prop.location}</p>
-                <p className="text-blue-700 font-bold text-lg">
-                  ${prop.price.toLocaleString()}
-                </p>
-                <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                  <span className="bg-gray-100 px-2 py-1 rounded-full">{prop.area} m²</span>
-                  <span className="bg-gray-100 px-2 py-1 rounded-full">{prop.beds} hab</span>
-                  <span className="bg-gray-100 px-2 py-1 rounded-full">{prop.baths} baños</span>
-                  <span className="bg-gray-100 px-2 py-1 rounded-full">{prop.garage} parqueaderos</span>
-                </div>
-                {prop.badge && (
-                  <div className="inline-block bg-yellow-400 text-white text-xs font-semibold px-2 py-1 rounded-full mt-2">
-                    {prop.badge}
-                  </div>
-                )}
-              </div>
-            </Link>
-          ))}
-
-          {filteredProperties.length === 0 && (
+          {filteredProperties.length > 0 ? (
+            filteredProperties.map((prop) => (
+              <PropertyCard key={prop.id} property={prop} />
+            ))
+          ) : (
             <p className="col-span-full text-center text-gray-500 mt-8">
               No se encontraron propiedades con esos filtros.
             </p>

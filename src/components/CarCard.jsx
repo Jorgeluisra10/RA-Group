@@ -11,7 +11,7 @@ const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 const CarCard = ({ car }) => {
   if (!car || !Array.isArray(car.images)) {
-    return <div className="text-red-500"></div>;
+    return <div className="text-red-500">No hay imágenes disponibles</div>;
   }
 
   const settings = {
@@ -27,9 +27,11 @@ const CarCard = ({ car }) => {
     <div className="relative bg-white rounded-xl overflow-hidden shadow-md border transition transform hover:scale-[1.02] hover:shadow-lg duration-300">
       {/* Badge */}
       {car.badge && (
-        <div className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded-md text-white ${
-          car.badge === "Featured" ? "bg-yellow-500" : "bg-blue-600"
-        }`}>
+        <div
+          className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded-md text-white ${
+            car.badge === "Featured" ? "bg-yellow-500" : "bg-blue-600"
+          }`}
+        >
           {car.badge}
         </div>
       )}
@@ -51,8 +53,12 @@ const CarCard = ({ car }) => {
       {/* Detalles */}
       <div className="p-4 border-t">
         <div className="flex items-center justify-between">
-          <h2 className="mt-6 text-base font-semibold text-gray-900">{car.title}</h2>
-          <span className="text-yellow-600 font-bold text-sm">${car.price.toLocaleString("es-CO")}</span>
+          <h2 className="mt-6 text-base font-semibold text-gray-900">
+            {car.title}
+          </h2>
+          <span className="text-yellow-600 font-bold text-sm">
+            ${car.price.toLocaleString("es-CO")}
+          </span>
         </div>
         <p className="text-sm text-gray-500 mb-3">{car.location}</p>
 
@@ -80,4 +86,3 @@ const CarCard = ({ car }) => {
 };
 
 export default CarCard;
-// This component is a card that displays car details, including a carousel of images, title, price, location, and specifications like engine type, number of doors, and transmission type. It also includes a button to view more details about the car.
