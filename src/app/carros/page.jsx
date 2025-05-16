@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import CarFilterSidebar from "../../components/CarFilterSidebar"; // Ajusta ruta si es necesario
 import CarCard from "../../components/CarCard"; // Ajusta ruta si es necesario
-import {supabase} from "../../lib/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
 import { SlidersHorizontal } from "lucide-react";
 
 export default function CarListPage() {
@@ -24,7 +24,6 @@ export default function CarListPage() {
 
   // Fetch carros y sus imágenes desde Supabase
   useEffect(() => {
-    const supabase = getSupabaseClient();
 
     const fetchCars = async () => {
       let { data: carsData, error } = await supabase.from("cars").select("*");
@@ -37,10 +36,12 @@ export default function CarListPage() {
       // Para cada carro, obtener URLs públicas de las imágenes (asumiendo campo images con array de nombres)
       const carsWithUrls = await Promise.all(
         carsData.map(async (car) => {
-          if (!car.images || car.images.length === 0) return { ...car, images: [] };
+          if (!car.images || car.images.length === 0)
+            return { ...car, images: [] };
 
-          const imagesUrls = car.images.map((imgName) =>
-            supabase.storage.from("cars").getPublicUrl(imgName).publicURL
+          const imagesUrls = car.images.map(
+            (imgName) =>
+              supabase.storage.from("cars").getPublicUrl(imgName).publicURL
           );
 
           return { ...car, images: imagesUrls };
@@ -65,18 +66,28 @@ export default function CarListPage() {
         const transmissionKeys = Object.keys(filters.transmission || {}).filter(
           (key) => filters.transmission[key]
         );
-        if (transmissionKeys.length && !transmissionKeys.includes(car.transmission)) return false;
+        if (
+          transmissionKeys.length &&
+          !transmissionKeys.includes(car.transmission)
+        )
+          return false;
 
-        const fuelKeys = Object.keys(filters.fuel || {}).filter((key) => filters.fuel[key]);
+        const fuelKeys = Object.keys(filters.fuel || {}).filter(
+          (key) => filters.fuel[key]
+        );
         if (fuelKeys.length && !fuelKeys.includes(car.fuel)) return false;
 
         if (filters.doors !== 0 && car.doors !== filters.doors) return false;
 
-        if (car.price < filters.price.min || car.price > filters.price.max) return false;
+        if (car.price < filters.price.min || car.price > filters.price.max)
+          return false;
 
-        if (car.year < filters.year.min || car.year > filters.year.max) return false;
+        if (car.year < filters.year.min || car.year > filters.year.max)
+          return false;
 
-        for (const [feature, enabled] of Object.entries(filters.features || {})) {
+        for (const [feature, enabled] of Object.entries(
+          filters.features || {}
+        )) {
           if (enabled && !car.features?.includes(feature)) {
             return false;
           }
@@ -118,7 +129,9 @@ export default function CarListPage() {
           </button>
 
           <div className="flex items-center text-sm gap-2">
-            <span className="text-gray-700 whitespace-nowrap">Ordenar por:</span>
+            <span className="text-gray-700 whitespace-nowrap">
+              Ordenar por:
+            </span>
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
