@@ -1,24 +1,40 @@
 "use client";
 import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../config/firebase";
 import { useRouter } from "next/navigation";
+import { supabase } from "../lib/supabaseClient"; // asegúrate que este path sea correcto
 
 export default function PrivateRoute({ children }) {
   const [user, setUser] = useState(undefined);
   const router = useRouter();
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser) {
+    // Verifica si hay una sesión activa
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
         router.push("/login");
       } else {
-        setUser(firebaseUser);
+        setUser(session.user);
       }
-    });
+    };
 
-    return () => unsub();
-  }, []);
+    getUser();
+
+    // Escucha cambios de sesión (login/logout)
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session?.user) {
+          router.push("/login");
+        } else {
+          setUser(session.user);
+        }
+      }
+    );
+
+    return () => {
+      subscription?.subscription?.unsubscribe();
+    };
+  }, [router]);
 
   if (user === undefined) return <p>Cargando...</p>;
   return children;

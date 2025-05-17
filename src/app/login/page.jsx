@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../config/firebase";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -10,11 +9,15 @@ export default function Login() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/admin");
-    } catch (error) {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
       alert("Credenciales incorrectas");
+    } else {
+      router.push("/admin");
     }
   };
 
