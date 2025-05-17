@@ -79,8 +79,8 @@ export default function NuevaPropiedadForm() {
   const esCarro = tipo === "Carro";
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 10); // máximo 10 archivos
-    setImageFiles(files)
+    const files = Array.from(e.target.files).slice(0, 10);
+    setImageFiles(files);
     const previews = files.map((file) => URL.createObjectURL(file));
     setImagePreviews(previews);
   };
@@ -92,7 +92,6 @@ export default function NuevaPropiedadForm() {
     if (!title.trim()) newErrors.title = "El título es obligatorio.";
     if (!description.trim()) newErrors.description = "La descripción es obligatoria.";
     if (!price || isNaN(price) || Number(price) <= 0) newErrors.price = "El precio debe ser un número mayor a 0.";
-    // if (imageFiles.length === 0) newErrors.image = "Debes seleccionar al menos una imagen.";
     if (!direccion.trim()) newErrors.direccion = "La dirección es obligatoria.";
     if (!tipo) newErrors.tipo = "El tipo es obligatorio.";
     if (!estado) newErrors.estado = "El estado es obligatorio.";
@@ -121,10 +120,7 @@ export default function NuevaPropiedadForm() {
     }
 
     try {
-      // Definir bucket según tipo
       const bucket = esCarro ? "cars" : "properties";
-
-      // Subir cada imagen a Supabase Storage y obtener URLs públicas
       const uploadedImageUrls = [];
 
       for (const file of imageFiles) {
@@ -147,12 +143,10 @@ export default function NuevaPropiedadForm() {
         uploadedImageUrls.push(publicUrlData.publicUrl);
       }
 
-      // Insertar en tabla correspondiente
       const commonData = {
         title,
         description,
         price: Number(price),
-        images: uploadedImageUrls, // guardamos array de URLs
         estado,
         agente,
         ciudad,
@@ -161,30 +155,55 @@ export default function NuevaPropiedadForm() {
         direccion,
       };
 
+      let insertedId = null;
+
       if (esCarro) {
-        const { error } = await supabase.from("cars").insert([
-          {
+        const { data, error } = await supabase.from("cars")
+          .insert([{
             ...commonData,
             marca,
             modelo: Number(modelo),
             combustible,
             transmision,
             puertas: Number(puertas),
-          },
-        ]);
+          }])
+          .select("id")
+          .single();
+
         if (error) throw error;
+        insertedId = data.id;
+
+        const imageInserts = uploadedImageUrls.map((url) => ({
+          car_id: insertedId,
+          url,
+        }));
+
+        const { error: imgError } = await supabase.from("car_images").insert(imageInserts);
+        if (imgError) throw imgError;
+
       } else {
-        const { error } = await supabase.from("properties").insert([
-          {
+        const { data, error } = await supabase.from("properties")
+          .insert([{
             ...commonData,
             tipo,
             habitaciones: Number(habitaciones) || null,
             banos: Number(banos) || null,
             area: Number(area) || null,
             garaje: Number(garaje) || null,
-          },
-        ]);
+          }])
+          .select("id")
+          .single();
+
         if (error) throw error;
+        insertedId = data.id;
+
+        const imageInserts = uploadedImageUrls.map((url) => ({
+          property_id: insertedId,
+          url,
+        }));
+
+        const { error: imgError } = await supabase.from("property_images").insert(imageInserts);
+        if (imgError) throw imgError;
       }
 
       toast.success("Propiedad agregada con éxito");
