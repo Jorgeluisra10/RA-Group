@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import PropertyFilterSidebar from "../../components/PropertyFilterSidebar";
 import PropertyCard from "../../components/PropertyCard";
-import { supabase } from "../../lib/supabaseClient";
+import { getProperties } from "../../lib/api";
 import { SlidersHorizontal } from "lucide-react";
 
 const defaultFilters = {
@@ -31,36 +31,23 @@ export default function PropiedadesPage() {
 
   useEffect(() => {
     const fetchProperties = async () => {
-      let { data: propsData, error } = await supabase
-        .from("properties")
-        .select("*");
+      try {
+        // Puedes pasar page y pageSize si implementas paginado
+        const data = await getProperties();
 
-      if (error) {
-        console.error("Error fetching properties:", error);
-        return;
+        // Ordena por fecha reciente
+        data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        setProperties(data);
+      } catch (error) {
+        console.error("Error al obtener propiedades:", error);
       }
-
-      // Ordeno por created_at descendente para recent (asegúrate que exista ese campo)
-      propsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-      const propsWithUrls = await Promise.all(
-        propsData.map(async (prop) => {
-          if (!prop.images || prop.images.length === 0) return { ...prop, images: [] };
-
-          const imagesUrls = prop.images.map((imgName) =>
-            supabase.storage.from("properties").getPublicUrl(imgName).publicURL
-          );
-
-          return { ...prop, images: imagesUrls };
-        })
-      );
-
-      setProperties(propsWithUrls);
     };
 
     fetchProperties();
   }, []);
 
+  // Aquí la función para ordenar y filtrar igual que antes
   const sortProperties = (props) => {
     switch (sortOption) {
       case "price_low":
@@ -70,10 +57,9 @@ export default function PropiedadesPage() {
       case "area_high":
         return [...props].sort((a, b) => b.area - a.area);
       case "beds_high":
-        return [...props].sort((a, b) => b.beds - a.beds);
+        return [...props].sort((a, b) => b.habitaciones - a.habitaciones);
       case "recent":
       default:
-        // Orden por fecha si no se ordenó antes
         return [...props].sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
@@ -86,17 +72,22 @@ export default function PropiedadesPage() {
 
       const matchesType =
         Object.values(appliedFilters.type).every((v) => !v) ||
-        appliedFilters.type[prop.type?.toLowerCase()];
+        appliedFilters.type[prop.tipo?.toLowerCase()];
+
       const matchesPrice =
         prop.price >= appliedFilters.price.min &&
         prop.price <= appliedFilters.price.max;
+
       const matchesBeds =
-        appliedFilters.beds === 0 || prop.beds >= appliedFilters.beds;
+        appliedFilters.beds === 0 || prop.habitaciones >= appliedFilters.beds;
+
       const matchesBaths =
-        appliedFilters.baths === 0 || prop.baths >= appliedFilters.baths;
+        appliedFilters.baths === 0 || prop.banos >= appliedFilters.baths;
+
       const matchesArea =
         prop.area >= appliedFilters.area.min &&
         prop.area <= appliedFilters.area.max;
+
       const matchesFeatures = Object.entries(appliedFilters.features).every(
         ([key, val]) => (val ? prop.features?.includes(key) : true)
       );

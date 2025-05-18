@@ -3,25 +3,43 @@
 import { useState, useEffect } from "react";
 import CarFilterSidebar from "../../components/CarFilterSidebar";
 import CarCard from "../../components/CarCard";
-import { supabase } from "../../lib/supabaseClient";
+import { getCars } from "../../lib/api";
 import { SlidersHorizontal } from "lucide-react";
 
-const defaultFilters = {
-  transmission: {},
-  fuel: {},
-  doors: 0,
-  price: { min: 0, max: 100000000 },
-  year: { min: 1900, max: new Date().getFullYear() },
-  features: {},
-};
+const defaultPrice = { min: 0, max: 100000000 };
+const defaultYear = { min: 1900, max: new Date().getFullYear() };
 
-export default function CarListPage() {
+export default function CarrosPage() {
   const [cars, setCars] = useState([]);
-  const [filteredCars, setFilteredCars] = useState([]);
-  const [filters, setFilters] = useState(defaultFilters);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState(null);
   const [sortOption, setSortOption] = useState("recent");
+
+  const generateBrandFilter = (cars) => {
+    const brands = {};
+    cars.forEach((car) => {
+      if (car.marca) brands[car.marca.toLowerCase()] = true;
+    });
+    return brands;
+  };
+
+  const generateTransmissionFilter = (cars) => {
+    const transmissions = {};
+    cars.forEach((car) => {
+      if (car.transmision)
+        transmissions[car.transmision.toLowerCase()] = true;
+    });
+    return transmissions;
+  };
+
+  const generateFuelFilter = (cars) => {
+    const fuels = {};
+    cars.forEach((car) => {
+      if (car.combustible) fuels[car.combustible.toLowerCase()] = true;
+    });
+    return fuels;
+  };
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -32,120 +50,115 @@ export default function CarListPage() {
 
   useEffect(() => {
     const fetchCars = async () => {
-      let { data: carsData, error } = await supabase.from("cars").select("*");
+      try {
+        const carsData = await getCars();
 
-      if (error) {
-        console.error("Error fetching cars:", error);
-        return;
+        carsData.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() -
+            new Date(a.created_at).getTime()
+        );
+
+        setCars(carsData);
+
+        setAppliedFilters({
+          brand: generateBrandFilter(carsData),
+          price: defaultPrice,
+          year: defaultYear,
+          transmission: generateTransmissionFilter(carsData),
+          fuel: generateFuelFilter(carsData),
+          doors: 0,
+        });
+      } catch (error) {
+        console.error("Error fetching cars:", error.message);
       }
-
-      // Ordenar por created_at descendente para recent (asegúrate que exista el campo)
-      carsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-      const carsWithUrls = await Promise.all(
-        carsData.map(async (car) => {
-          if (!car.images || car.images.length === 0)
-            return { ...car, images: [] };
-
-          const imagesUrls = car.images.map(
-            (imgName) =>
-              supabase.storage.from("cars").getPublicUrl(imgName).publicURL
-          );
-
-          return { ...car, images: imagesUrls };
-        })
-      );
-
-      setCars(carsWithUrls);
-      setFilteredCars(carsWithUrls);
     };
 
     fetchCars();
   }, []);
 
-  useEffect(() => {
-    if (!cars.length) return;
-
-    let filtered = cars;
-
-    if (filters) {
-      filtered = cars.filter((car) => {
-        const transmissionKeys = Object.keys(filters.transmission || {}).filter(
-          (key) => filters.transmission[key]
-        );
-        if (
-          transmissionKeys.length &&
-          !transmissionKeys.includes(car.transmission)
-        )
-          return false;
-
-        const fuelKeys = Object.keys(filters.fuel || {}).filter(
-          (key) => filters.fuel[key]
-        );
-        if (fuelKeys.length && !fuelKeys.includes(car.fuel)) return false;
-
-        // Puertas: si es 0 no filtrar, si no igualar
-        if (filters.doors && car.doors !== filters.doors) return false;
-
-        if (
-          car.price < filters.price.min ||
-          car.price > filters.price.max ||
-          car.year < filters.year.min ||
-          car.year > filters.year.max
-        )
-          return false;
-
-        const features = filters.features || {};
-        if (
-          Object.entries(features).some(
-            ([key, val]) => val && !car.features?.includes(key)
-          )
-        )
-          return false;
-
-        return true;
-      });
-    }
-
-    // Ordenar después de filtrar
-    filtered = sortCars(filtered);
-
-    setFilteredCars(filtered);
-  }, [filters, cars, sortOption]);
-
-  const sortCars = (carList) => {
+  const sortCars = (list) => {
     switch (sortOption) {
       case "price_low":
-        return [...carList].sort((a, b) => a.price - b.price);
+        return [...list].sort((a, b) => a.price - b.price);
       case "price_high":
-        return [...carList].sort((a, b) => b.price - a.price);
-      case "year_high":
-        return [...carList].sort((a, b) => b.year - a.year);
+        return [...list].sort((a, b) => b.price - a.price);
+      case "year_new":
+        return [...list].sort((a, b) => b.modelo - a.modelo);
+      case "year_old":
+        return [...list].sort((a, b) => a.modelo - b.modelo);
       case "recent":
       default:
-        return [...carList].sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        return [...list].sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() -
+            new Date(a.created_at).getTime()
         );
     }
   };
 
-  const handleApplyFilters = (newFilters) => {
-    setFilters(newFilters || defaultFilters);
-    if (isMobile) setIsFilterOpen(false);
+  const isFilterActive = (filterObj) =>
+    filterObj && Object.values(filterObj).some((v) => v);
+
+  const filteredCars = appliedFilters
+    ? sortCars(
+        cars.filter((car) => {
+          const carMarca = car.marca?.toLowerCase() || "";
+          const carTransmision = car.transmision?.toLowerCase() || "";
+          const carCombustible = car.combustible?.toLowerCase() || "";
+
+          const matchesBrand =
+            !isFilterActive(appliedFilters.brand) ||
+            appliedFilters.brand[carMarca];
+
+          const matchesPrice =
+            Number(car.price) >= appliedFilters.price.min &&
+            Number(car.price) <= appliedFilters.price.max;
+
+          const matchesYear =
+            Number(car.modelo) >= appliedFilters.year.min &&
+            Number(car.modelo) <= appliedFilters.year.max;
+
+          const matchesTransmission =
+            !isFilterActive(appliedFilters.transmission) ||
+            appliedFilters.transmission[carTransmision];
+
+          const matchesFuel =
+            !isFilterActive(appliedFilters.fuel) ||
+            appliedFilters.fuel[carCombustible];
+
+          const matchesDoors =
+            !appliedFilters.doors ||
+            Number(car.puertas) === Number(appliedFilters.doors);
+
+          return (
+            matchesBrand &&
+            matchesPrice &&
+            matchesYear &&
+            matchesTransmission &&
+            matchesFuel &&
+            matchesDoors
+          );
+        })
+      )
+    : [];
+
+  const handleApplyFilters = (filters) => {
+    setAppliedFilters(filters || appliedFilters);
+    if (isMobile) setFiltersOpen(false);
   };
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-12">
+    <div className="relative max-w-screen-xl mx-auto px-4 md:px-8 py-12">
       {isMobile && (
         <div className="sticky top-0 z-40 mb-6 bg-white pt-2 pb-4 flex justify-between items-center gap-2">
           <button
-            onClick={() => setIsFilterOpen(true)}
+            onClick={() => setFiltersOpen(true)}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-md text-sm"
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filtros
           </button>
-
           <div className="flex items-center text-sm gap-2">
             <span className="text-gray-700">Ordenar por:</span>
             <select
@@ -156,7 +169,8 @@ export default function CarListPage() {
               <option value="recent">Más recientes</option>
               <option value="price_low">Precio: menor a mayor</option>
               <option value="price_high">Precio: mayor a menor</option>
-              <option value="year_high">Año más nuevo</option>
+              <option value="year_new">Año: más nuevo</option>
+              <option value="year_old">Año: más viejo</option>
             </select>
           </div>
         </div>
@@ -165,19 +179,20 @@ export default function CarListPage() {
       <div className="flex flex-col md:flex-row gap-10">
         <div>
           <CarFilterSidebar
-            isOpen={isFilterOpen}
-            onClose={() => setIsFilterOpen(false)}
             onApplyFilters={handleApplyFilters}
-            filters={filters}
+            isOpen={filtersOpen}
+            onClose={() => setFiltersOpen(false)}
           />
         </div>
 
         <section className="md:w-3/4 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCars.length > 0 ? (
-            filteredCars.map((car) => <CarCard key={car.id} car={car} />)
+            filteredCars.map((car) => (
+              <CarCard key={car.id} car={car} />
+            ))
           ) : (
             <p className="col-span-full text-center text-gray-500 mt-8">
-              No se encontraron autos con esos filtros.
+              No se encontraron carros con esos filtros.
             </p>
           )}
         </section>

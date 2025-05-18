@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
 const initialFilters = {
-  brand: {},
+  brand: {}, // Esto lo podrías llenar si tienes marcas dinámicas
   transmission: {
     automática: false,
     manual: false,
@@ -50,13 +50,27 @@ export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
   };
 
   const handleRangeChange = (section, key, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: Number(value),
-      },
-    }));
+    value = Number(value);
+
+    setFilters((prev) => {
+      let newMin = prev[section].min;
+      let newMax = prev[section].max;
+
+      if (key === "min") {
+        newMin = Math.min(value, prev[section].max);
+      } else {
+        newMax = Math.max(value, prev[section].min);
+      }
+
+      return {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          min: newMin,
+          max: newMax,
+        },
+      };
+    });
   };
 
   const handleNumberSelect = (section, value) => {
@@ -78,7 +92,7 @@ export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
 
   if (isMobile === null) return null;
 
-  // Móvil: filtros en la parte superior, modal deslizante
+  // Móvil: filtros en modal deslizante
   if (isMobile) {
     return (
       <div
@@ -118,7 +132,7 @@ export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
     );
   }
 
-  // Desktop: sidebar fijo a la izquierda
+  // Desktop: sidebar fijo
   return (
     <aside className="bg-white w-full md:min-w-[280px] md:max-w-[320px] p-6 rounded-2xl shadow-lg h-fit sticky top-20">
       <h2 className="text-lg font-semibold mb-4">Filtros</h2>

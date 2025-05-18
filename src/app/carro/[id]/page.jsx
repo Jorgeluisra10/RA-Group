@@ -1,29 +1,56 @@
 "use client";
 
-import { use, useState } from "react";
-import car from "../../../data/Cars";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Car,
+  MapPin,
+  Settings,
+  Gauge,
+  DoorOpen,
+  ArrowLeftCircle,
+} from "lucide-react";
+
 import YoutubeEmbed from "../../../components/YoutubeEmbed";
 import FuelEfficiencyCard from "../../../components/FuelEfficiencyCard";
-import { ChevronLeft, ChevronRight, Car, MapPin, Settings, Gauge, DoorOpen, ArrowLeftCircle } from "lucide-react";
-import dynamic from "next/dynamic";
+import { getCars } from "../../../lib/api";
 
-const MapView = dynamic(() => import("../../../components/MapView"), { ssr: false });
+const MapView = dynamic(() => import("../../../components/MapView"), {
+  ssr: false,
+});
 
 const tabs = ["Video", "Mapa"];
 
-const CarDetailPage = ({ params }) => {
-  const id = Number(params.id);
-  const carro = car.find((item) => item.id === id);
+const CarDetailPage = () => {
+  const { id } = useParams();
+  const [carro, setCarro] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
   const [activeTab, setActiveTab] = useState("Video");
   const [thumbStart, setThumbStart] = useState(0);
   const visibleThumbs = 4;
 
-  if (!carro) {
-    return <div className="p-8">Carro no encontrado.</div>;
-  }
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchCarro = async () => {
+      try {
+        const cars = await getCars();
+        const foundCar = cars.find((c) => c.id.toString() === id.toString());
+        setCarro(foundCar);
+      } catch (error) {
+        console.error("Error al obtener el carro:", error);
+      }
+    };
+
+    fetchCarro();
+  }, [id]);
+
+  if (!carro) return <div className="p-8">Cargando...</div>;
 
   const handleThumbNav = (direction) => {
     if (direction === "prev" && thumbStart > 0) {
@@ -65,7 +92,6 @@ const CarDetailPage = ({ params }) => {
                 className={`absolute inset-0 object-cover w-full h-full transition-opacity duration-500 ease-in-out ${
                   idx === activeImage ? "opacity-100" : "opacity-0"
                 }`}
-                style={{ transitionProperty: "opacity" }}
               />
             ))}
           </div>
@@ -77,6 +103,7 @@ const CarDetailPage = ({ params }) => {
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
+
             <div className="flex gap-3 overflow-hidden">
               {carro.images
                 .slice(thumbStart, thumbStart + visibleThumbs)
@@ -103,6 +130,7 @@ const CarDetailPage = ({ params }) => {
                   );
                 })}
             </div>
+
             <button
               onClick={() => handleThumbNav("next")}
               className="p-2 rounded-full hover:bg-gray-200 transition"

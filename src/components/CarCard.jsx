@@ -1,19 +1,25 @@
 "use client";
+
 import React from "react";
 import dynamic from "next/dynamic";
-import { FaGasPump, FaDoorOpen, FaCogs } from "react-icons/fa";
+import Image from "next/image";
+import { FaGasPump, FaDoorClosed, FaCogs } from "react-icons/fa";
+import Link from "next/link";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Link from "next/link";
 
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
-const CarCard = ({ car }) => {
+export default function CarCard({ car }) {
   if (!car) {
     return <div className="text-red-500">Datos del carro no disponibles</div>;
   }
 
-  const images = Array.isArray(car.images) && car.images.length > 0 ? car.images : null;
+  const images = Array.isArray(car.images)
+    ? car.images.filter((img) => typeof img === "string")
+    : [];
+
+    console.log("Car images:", car.images);
 
   const settings = {
     dots: true,
@@ -26,34 +32,23 @@ const CarCard = ({ car }) => {
 
   return (
     <div className="relative bg-white rounded-xl overflow-hidden shadow-md border transition transform hover:scale-[1.02] hover:shadow-lg duration-300">
-      {car.badge && (
-        <div
-          className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded-md text-white ${
-            car.badge === "Featured" ? "bg-yellow-500" : "bg-blue-600"
-          }`}
-        >
-          {car.badge}
-        </div>
-      )}
-
-      <div className="h-48 w-full bg-gray-200">
-        {images ? (
+      <div className="h-40 w-full bg-gray-200 relative">
+        {images.length > 0 ? (
           <Slider {...settings}>
             {images.map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                alt={`${car.title ?? "Carro"} imagen ${idx + 1}`}
-                className="h-48 w-full object-cover"
-                loading="lazy"
-                onError={(e) => {
-                  e.currentTarget.src = "https://via.placeholder.com/300x200?text=Sin+imagen";
-                }}
-              />
+              <div key={idx} className="h-40 w-full relative">
+                <Image
+                  src={img}
+                  alt={car.title}
+                  fill
+                  className="object-cover w-full h-full"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+              </div>
             ))}
           </Slider>
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
+          <div className="flex items-center justify-center h-40 w-full bg-gray-100 text-gray-500 text-sm">
             No hay imágenes disponibles
           </div>
         )}
@@ -61,34 +56,38 @@ const CarCard = ({ car }) => {
 
       <div className="p-4 border-t">
         <div className="flex items-center justify-between">
-          <h2 className="mt-6 text-base font-semibold text-gray-900">{car.title ?? "Sin título"}</h2>
+          <h2 className="text-base font-semibold text-gray-900">
+            {car.marca ?? "Sin marca"} {car.modelo ?? ""}
+          </h2>
           <span className="text-yellow-600 font-bold text-sm">
-            ${car.price ? car.price.toLocaleString("es-CO") : "0"}
+            ${car.price ? Number(car.price).toLocaleString() : "0"}
           </span>
         </div>
-        <p className="text-sm text-gray-500 mb-3">{car.location ?? "Ubicación no disponible"}</p>
 
-        <div className="flex justify-between text-xs text-gray-600">
+        <p className="text-sm text-gray-500 mb-3">Año: {car.modelo ?? "N/A"}</p>
+
+        <div className="flex justify-between text-xs text-gray-600 mb-3">
           <div className="flex items-center gap-1">
-            <FaGasPump className="text-gray-500" /> {car.engine ?? "N/A"}
+            <FaGasPump className="text-gray-500" />
+            {car.combustible ?? "N/A"}
           </div>
           <div className="flex items-center gap-1">
-            <FaDoorOpen className="text-gray-500" /> {car.doors ?? "N/A"} Puertas
+            <FaCogs className="text-gray-500" />
+            {car.transmision ?? "N/A"}
           </div>
           <div className="flex items-center gap-1">
-            <FaCogs className="text-gray-500" /> {car.transmission ?? "N/A"}
+            <FaDoorClosed className="text-gray-500" />
+            {car.puertas ?? "N/A"} puertas
           </div>
         </div>
 
         <Link
           href={`/carro/${car.id}`}
-          className="mt-4 w-full inline-block text-center bg-blue-900 text-white py-2 rounded-md font-medium hover:bg-blue-800 transition duration-200"
+          className="block text-center bg-blue-900 text-white py-2 rounded-md hover:bg-blue-800 transition-colors"
         >
-          Ver Detalles
+          Ver detalles
         </Link>
       </div>
     </div>
   );
-};
-
-export default CarCard;
+}

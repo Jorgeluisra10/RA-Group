@@ -10,10 +10,16 @@ const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 export default function PropertyCard({ property }) {
   if (!property) {
-    return <div className="text-red-500">Datos de la propiedad no disponibles</div>;
+    return (
+      <div className="text-red-500 p-4 border rounded-md">
+        Datos de la propiedad no disponibles
+      </div>
+    );
   }
 
-  const images = Array.isArray(property.images) && property.images.length > 0 ? property.images : null;
+  const images = Array.isArray(property.images) && property.images.length > 0
+    ? property.images
+    : null;
 
   const settings = {
     dots: true,
@@ -24,18 +30,11 @@ export default function PropertyCard({ property }) {
     slidesToScroll: 1,
   };
 
-  return (
-    <div className="relative bg-white rounded-xl overflow-hidden shadow-md border transition transform hover:scale-[1.02] hover:shadow-lg duration-300">
-      {property.badge && (
-        <div
-          className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded-md text-white ${
-            property.badge === "Featured" ? "bg-yellow-500" : "bg-blue-600"
-          }`}
-        >
-          {property.badge}
-        </div>
-      )}
+  const formatPrice = (price) =>
+    typeof price === "number" ? `$${price.toLocaleString()}` : "Precio no disponible";
 
+  return (
+    <div className="relative bg-white rounded-xl overflow-hidden shadow-md border transition-transform hover:scale-[1.02] hover:shadow-lg duration-300">
       <div className="h-40 w-full bg-gray-200">
         {images ? (
           <Slider {...settings}>
@@ -43,46 +42,54 @@ export default function PropertyCard({ property }) {
               <img
                 key={idx}
                 src={img}
-                alt={`${property.title ?? "Propiedad"} imagen ${idx + 1}`}
+                alt={`${property.title || "Propiedad"} imagen ${idx + 1}`}
                 className="h-40 w-full object-cover"
                 loading="lazy"
                 onError={(e) => {
+                  e.currentTarget.onerror = null;
                   e.currentTarget.src = "https://via.placeholder.com/300x200?text=Sin+imagen";
                 }}
               />
             ))}
           </Slider>
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
+          <div className="flex items-center justify-center h-full text-gray-500 text-sm">
             No hay imágenes disponibles
           </div>
         )}
       </div>
 
       <div className="p-4 border-t">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-900">{property.title ?? "Sin título"}</h2>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-base font-semibold text-gray-900 truncate">
+            {property.title || "Sin título"}
+          </h2>
           <span className="text-yellow-600 font-bold text-sm">
-            ${property.price ? property.price.toLocaleString() : "0"}
+            {formatPrice(property.price)}
           </span>
         </div>
-        <p className="text-sm text-gray-500 mb-3">{property.location ?? "Ubicación no disponible"}</p>
+        <p className="text-sm text-gray-500 mb-3 truncate">
+          {`${property.barrio || ""}, ${property.ciudad || ""}`}
+        </p>
 
-        <div className="flex justify-between text-xs text-gray-600">
+        <div className="flex justify-between text-xs text-gray-600 mb-3">
           <div className="flex items-center gap-1">
-            <FaRulerCombined className="text-gray-500" /> {property.area ?? "N/A"} m²
+            <FaRulerCombined className="text-gray-500" />
+            {property.area ?? "N/A"} m²
           </div>
           <div className="flex items-center gap-1">
-            <FaBed className="text-gray-500" /> {property.beds ?? "N/A"} Beds
+            <FaBed className="text-gray-500" />
+            {property.habitaciones ?? "N/A"} Hab.
           </div>
           <div className="flex items-center gap-1">
-            <FaBath className="text-gray-500" /> {property.baths ?? "N/A"} Baths
+            <FaBath className="text-gray-500" />
+            {property.banos ?? "N/A"} Baños
           </div>
         </div>
 
         <Link
           href={`/propiedad/${property.id}`}
-          className="mt-4 w-full inline-block text-center bg-blue-900 text-white py-2 rounded-md font-medium hover:bg-blue-800 transition duration-200"
+          className="block text-center bg-blue-900 text-white py-2 rounded-md font-medium hover:bg-blue-800 transition duration-200"
         >
           Ver Detalles
         </Link>

@@ -1,9 +1,9 @@
 'use client';
 import { ArrowLeftCircle } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import properties from "../../../data/properties";
-
+import { useEffect, useState, use } from "react";
+import { getProperties } from "../../../lib/api"; // Asegúrate de tener esta función
+import Image from "next/image";
 
 // Carrusel de imágenes con efecto de lupa al hacer hover
 const ImageGallery = ({ images }) => {
@@ -12,23 +12,31 @@ const ImageGallery = ({ images }) => {
   return (
     <div className="w-full">
       <div className="relative overflow-hidden group rounded-lg">
-        <img
+        <Image
           src={mainImage}
           alt="Vista principal"
+          width={800}
+          height={400}
           className="w-full h-[400px] object-cover transition-transform duration-300 group-hover:scale-110"
+          priority
         />
       </div>
       <div className="flex gap-3 mt-4">
         {images.map((img, idx) => (
-          <img
+          <div
             key={idx}
-            src={img}
-            onClick={() => setMainImage(img)}
-            alt={`img-${idx}`}
-            className={`w-24 h-24 object-cover rounded cursor-pointer border ${
+            className={`w-24 h-24 rounded cursor-pointer border ${
               img === mainImage ? "border-blue-500" : "border-transparent"
-            } hover:scale-105 transition-transform duration-300`}
-          />
+            } hover:scale-105 transition-transform duration-300 relative`}
+            onClick={() => setMainImage(img)}
+          >
+            <Image
+              src={img}
+              alt={`img-${idx}`}
+              fill
+              className="object-cover rounded"
+            />
+          </div>
         ))}
       </div>
     </div>
@@ -36,7 +44,23 @@ const ImageGallery = ({ images }) => {
 };
 
 const PropertyDetail = ({ params }) => {
-  const property = properties.find((prop) => prop.id === Number(params.id));
+  const { id } = use(params);
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProperty = async () => {
+      const data = await getProperties(); // Función que trae todas las propiedades
+      const prop = data.find((item) => String(item.id) === id);
+      setProperty(prop);
+      setLoading(false);
+    };
+    fetchProperty();
+  }, [id]);
+
+  if (loading) {
+    return <div className="p-8">Cargando propiedad...</div>;
+  }
 
   if (!property) {
     return <div className="p-8">Propiedad no encontrada.</div>;
@@ -93,8 +117,8 @@ const PropertyDetail = ({ params }) => {
       <div className="bg-gray-100 p-4 rounded-md flex items-center gap-4">
         <div className="w-12 h-12 bg-gray-300 rounded-full" />
         <div>
-          <p className="font-semibold">{property.agent.name}</p>
-          <p className="text-sm text-gray-500">{property.agent.email}</p>
+          <p className="font-semibold">{property.agent?.name || "Sin agente"}</p>
+          <p className="text-sm text-gray-500">{property.agent?.email || "-"}</p>
         </div>
       </div>
 
@@ -102,16 +126,19 @@ const PropertyDetail = ({ params }) => {
       <div>
         <h2 className="text-xl font-semibold mb-4">Características</h2>
         <div className="grid md:grid-cols-3 gap-6">
-          {Object.entries(property.features).map(([key, values]) => (
-            <div key={key}>
-              <h3 className="font-semibold capitalize text-gray-600">{key}</h3>
-              <ul className="list-disc ml-5 mt-2 text-sm text-gray-700">
-                {values.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {property.features
+            ? Object.entries(property.features).map(([key, values]) => (
+                <div key={key}>
+                  <h3 className="font-semibold capitalize text-gray-600">{key}</h3>
+                  <ul className="list-disc ml-5 mt-2 text-sm text-gray-700">
+                    {values.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            : <p className="text-gray-500">No hay características disponibles.</p>
+          }
         </div>
       </div>
 
@@ -119,7 +146,7 @@ const PropertyDetail = ({ params }) => {
       <div className="mt-4">
         <h2 className="text-xl font-semibold mb-2">Certificación energética</h2>
         <span className="inline-block bg-green-500 text-white px-3 py-1 rounded-full">
-          {property.energyCertificate}
+          {property.energyCertificate || "-"}
         </span>
       </div>
 
@@ -127,14 +154,17 @@ const PropertyDetail = ({ params }) => {
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-2">Planos de la propiedad</h2>
         <div className="flex flex-wrap gap-4">
-          {property.plans.map((plan, idx) => (
-            <img
-              key={idx}
-              src={`/images/planos/${plan}`}
-              alt={`Plano ${idx}`}
-              className="w-60 h-40 object-cover rounded shadow hover:scale-105 transition-transform"
-            />
-          ))}
+          {property.plans?.map((plan, idx) => (
+            <div key={idx} className="w-60 h-40 relative rounded shadow hover:scale-105 transition-transform overflow-hidden">
+              <Image
+                src={`/images/planos/${plan}`}
+                alt={`Plano ${idx}`}
+                fill
+                className="object-cover"
+                priority={idx === 0}
+              />
+            </div>
+          )) || <p className="text-gray-500">No hay planos disponibles.</p>}
         </div>
       </div>
 
