@@ -8,6 +8,7 @@ import Comments from "../components/Comments";
 import FindHome from "../components/FindHome";
 import Atencion from "../components/Atencion";
 
+
 export default function Home() {
   const propertyRef = useRef(null);
   const carRef = useRef(null);

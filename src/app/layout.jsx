@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 import { PropertyProvider } from "../context/PropertyContext";
 import "./globals.css";
 import GlobalLoader from "../components/GlobalLoader";
+import WhatsAppButton from "../components/Whatsapp";
 
 // 🔹 SEO metadata global
 // export const metadata = {
@@ -47,6 +48,7 @@ export default function RootLayout({ children }) {
           {!isAuthPage && <Navbar />}
           <main className="flex-1">{children}</main>
           {!isAuthPage && <Footer />}
+          {!isAuthPage && <WhatsAppButton/>}
           <GlobalLoader />
         </PropertyProvider>
       </body>
