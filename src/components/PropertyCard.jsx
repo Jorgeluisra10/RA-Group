@@ -5,6 +5,7 @@ import { FaBed, FaBath, FaRulerCombined } from "react-icons/fa";
 import Link from "next/link";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Image from "next/image";
 
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
@@ -17,9 +18,8 @@ export default function PropertyCard({ property }) {
     );
   }
 
-  const images = Array.isArray(property.images) && property.images.length > 0
-    ? property.images
-    : null;
+  // ✅ Siempre usar array
+  const images = Array.isArray(property.images) ? property.images : [];
 
   const settings = {
     dots: true,
@@ -31,27 +31,37 @@ export default function PropertyCard({ property }) {
   };
 
   const formatPrice = (price) =>
-    typeof price === "number" ? `$${price.toLocaleString()}` : "Precio no disponible";
+    typeof price === "number"
+      ? `$${price.toLocaleString()}`
+      : "Precio no disponible";
 
   return (
     <div className="relative bg-white rounded-xl overflow-hidden shadow-md border transition-transform hover:scale-[1.02] hover:shadow-lg duration-300">
       <div className="h-40 w-full bg-gray-200">
-        {images ? (
+        {images.length > 1 ? (
           <Slider {...settings}>
             {images.map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                alt={`${property.title || "Propiedad"} imagen ${idx + 1}`}
-                className="h-40 w-full object-cover"
-                loading="lazy"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = "https://via.placeholder.com/300x200?text=Sin+imagen";
-                }}
-              />
+              <div key={idx} className="h-40 w-full relative">
+                <Image
+                  src={img}
+                  alt={`Imagen ${idx + 1}`}
+                  fill
+                  className="object-cover w-full h-full"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+              </div>
             ))}
           </Slider>
+        ) : images.length === 1 ? (
+          <div className="h-40 w-full relative">
+            <Image
+              src={images[0]}
+              alt="Imagen única"
+              fill
+              className="object-cover w-full h-full"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
+          </div>
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500 text-sm">
             No hay imágenes disponibles
