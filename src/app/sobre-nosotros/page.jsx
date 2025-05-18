@@ -6,7 +6,7 @@ export default function SobreNosotros() {
   return (
     <main className="bg-white">
       {/* Encabezado */}
-      <section className="bg-[#1A295C] text-white py-16 relative overflow-hidden">
+      <section className="bg-[#1A295C] text-white py-16 relative overflow-hidden mt-15">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <motion.h1
             className="text-4xl md:text-5xl font-bold mb-4"

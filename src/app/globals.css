@@ -49,6 +49,10 @@ body {
   background-color: #1a295c;
 }
 
+.clip-path-diagonal {
+  clip-path: polygon(0 0, 100% 20%, 80% 100%, 0% 80%);
+}
+
 /* Scrollbar personalizado para Firefox */
 /*  {
   scrollbar-width: thin;

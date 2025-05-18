@@ -1,6 +1,6 @@
 const Comments = () => {
     return (
-      <div className="bg-white py-12 px-4 text-center">
+      <div className="bg-white px-4 text-center">
         {/* Título */}
         <div className="mb-2">
           <h2 className="text-3xl font-bold text-gray-800">

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { FaBed, FaBath, FaRulerCombined } from "react-icons/fa";
 import Link from "next/link";
@@ -10,6 +10,8 @@ import Image from "next/image";
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 export default function PropertyCard({ property }) {
+  const [autoplay, setAutoplay] = useState(false);
+
   if (!property) {
     return (
       <div className="text-red-500 p-4 border rounded-md">
@@ -18,16 +20,22 @@ export default function PropertyCard({ property }) {
     );
   }
 
-  // ✅ Siempre usar array
-  const images = Array.isArray(property.images) ? property.images : [];
+  const images = Array.isArray(property.images)
+    ? property.images.filter((img) => typeof img === "string")
+    : [];
+
+  const hasMultipleImages = images.length > 1;
 
   const settings = {
     dots: true,
     arrows: false,
     infinite: true,
     speed: 500,
+    autoplay: hasMultipleImages && autoplay,
+    autoplaySpeed: 2000,
     slidesToShow: 1,
     slidesToScroll: 1,
+    pauseOnHover: false,
   };
 
   const formatPrice = (price) =>
@@ -36,29 +44,37 @@ export default function PropertyCard({ property }) {
       : "Precio no disponible";
 
   return (
-    <div className="relative bg-white rounded-xl overflow-hidden shadow-md border transition-transform hover:scale-[1.02] hover:shadow-lg duration-300">
-      <div className="h-40 w-full bg-gray-200">
-        {images.length > 1 ? (
-          <Slider {...settings}>
+    <div
+      className="relative bg-white rounded-xl overflow-hidden shadow-md border transition-transform hover:scale-[1.02] hover:shadow-lg duration-300"
+      onMouseEnter={() => setAutoplay(true)}
+      onMouseLeave={() => setAutoplay(false)}
+    >
+      <div className="h-[210px] w-full bg-gray-200 relative">
+        {hasMultipleImages ? (
+          <Slider
+            {...settings}
+            key={autoplay ? "autoplay" : "no-autoplay"}
+            className="[&_.slick-dots]:!bottom-2 [&_.slick-dots]:!z-10"
+          >
             {images.map((img, idx) => (
-              <div key={idx} className="h-40 w-full relative">
+              <div key={idx} className="h-[210px] w-full relative">
                 <Image
                   src={img}
                   alt={`Imagen ${idx + 1}`}
                   fill
-                  className="object-cover w-full h-full"
+                  className="object-cover"
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
               </div>
             ))}
           </Slider>
         ) : images.length === 1 ? (
-          <div className="h-40 w-full relative">
+          <div className="h-[210px] w-full relative">
             <Image
               src={images[0]}
               alt="Imagen única"
               fill
-              className="object-cover w-full h-full"
+              className="object-cover"
               sizes="(max-width: 768px) 100vw, 33vw"
             />
           </div>

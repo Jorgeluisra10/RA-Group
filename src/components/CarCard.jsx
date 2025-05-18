@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { FaGasPump, FaDoorClosed, FaCogs } from "react-icons/fa";
@@ -11,6 +11,8 @@ import "slick-carousel/slick/slick-theme.css";
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 export default function CarCard({ car }) {
+  const [autoplay, setAutoplay] = useState(false);
+
   if (!car) {
     return <div className="text-red-500">Datos del carro no disponibles</div>;
   }
@@ -19,36 +21,45 @@ export default function CarCard({ car }) {
     ? car.images.filter((img) => typeof img === "string")
     : [];
 
-    console.log("Car images:", car.images);
-
   const settings = {
     dots: true,
     arrows: false,
     infinite: true,
     speed: 500,
+    autoplay,
+    autoplaySpeed: 2000,
     slidesToShow: 1,
     slidesToScroll: 1,
+    pauseOnHover: false,
   };
 
   return (
-    <div className="relative bg-white rounded-xl overflow-hidden shadow-md border transition transform hover:scale-[1.02] hover:shadow-lg duration-300">
-      <div className="h-40 w-full bg-gray-200 relative">
+    <div
+      className="relative bg-white rounded-xl overflow-hidden shadow-md border transition transform hover:scale-[1.02] hover:shadow-lg duration-300"
+      onMouseEnter={() => setAutoplay(true)}
+      onMouseLeave={() => setAutoplay(false)}
+    >
+      <div className="h-[210px] w-full bg-gray-200 relative">
         {images.length > 0 ? (
-          <Slider {...settings}>
+          <Slider
+            {...settings}
+            key={autoplay ? "autoplay" : "no-autoplay"}
+            className="[&_.slick-dots]:!bottom-2 [&_.slick-dots]:!z-10"
+          >
             {images.map((img, idx) => (
-              <div key={idx} className="h-40 w-full relative">
+              <div key={idx} className="h-[210px] w-full relative">
                 <Image
                   src={img}
                   alt={car.title}
                   fill
-                  className="object-cover w-full h-full"
+                  className="object-cover"
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
               </div>
             ))}
           </Slider>
         ) : (
-          <div className="flex items-center justify-center h-40 w-full bg-gray-100 text-gray-500 text-sm">
+          <div className="flex items-center justify-center h-[210px] w-full bg-gray-100 text-gray-500 text-sm">
             No hay imágenes disponibles
           </div>
         )}
@@ -64,7 +75,9 @@ export default function CarCard({ car }) {
           </span>
         </div>
 
-        <p className="text-sm text-gray-500 mb-3">Año: {car.modelo ?? "N/A"}</p>
+        <p className="text-sm text-gray-500 mb-3">
+          Año: {car.modelo ?? "N/A"}
+        </p>
 
         <div className="flex justify-between text-xs text-gray-600 mb-3">
           <div className="flex items-center gap-1">

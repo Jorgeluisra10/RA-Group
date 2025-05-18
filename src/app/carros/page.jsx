@@ -149,7 +149,7 @@ export default function CarrosPage() {
   };
 
   return (
-    <div className="relative max-w-screen-xl mx-auto px-4 md:px-8 py-12">
+    <div className="relative max-w-screen-xl mx-auto px-4 md:px-8 py-12 mt-12">
       {isMobile && (
         <div className="sticky top-0 z-40 mb-6 bg-white pt-2 pb-4 flex justify-between items-center gap-2">
           <button
