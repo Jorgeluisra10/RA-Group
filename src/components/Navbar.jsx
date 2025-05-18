@@ -43,7 +43,7 @@ export default function Navbar() {
       className={`transition-all duration-300 fixed top-0 w-full z-50 ${
         isScrolled
           ? "bg-white shadow-md rounded-none"
-          : "bg-white shadow-md rounded-b-2xl mb-6"
+          : "bg-white/70 backdrop-blur-lg shadow-none rounded-b-3xl"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -63,16 +63,17 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         {(isDesktop || typeof window === "undefined") && (
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="flex items-center space-x-6">
             {navItems.map(({ label, path }) => (
               <Link
                 key={label}
                 href={path}
-                className={`relative text-sm font-medium text-gray-700 hover:text-[#0F1C46] transition
-                  after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-yellow-400 after:transition-all after:duration-300
+                className={`relative cursor-pointer text-gray-700 font-medium transition-all duration-200 hover:text-indigo-900
+                  after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-yellow-400
+                  after:transition-all after:duration-300
                   ${
                     pathname === path
-                      ? "text-[#0F1C46] after:w-full"
+                      ? "text-indigo-900 after:w-full"
                       : "after:w-0 hover:after:w-full"
                   }`}
               >
@@ -91,7 +92,11 @@ export default function Navbar() {
               type="button"
               className="text-[#0F1C46]"
             >
-              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {menuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         )}
@@ -101,7 +106,9 @@ export default function Navbar() {
       {!isDesktop && (
         <div
           className={`fixed inset-0 z-40 transition-all duration-300 ${
-            menuOpen ? "pointer-events-auto bg-black/50" : "pointer-events-none"
+            menuOpen
+              ? "pointer-events-auto backdrop-blur-sm bg-white/30"
+              : "pointer-events-none"
           }`}
           onClick={() => setMenuOpen(false)}
         >
@@ -113,7 +120,7 @@ export default function Navbar() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative p-4 border-b text-center">
-              <span className="text-xl font-semibold text-[#0F1C46] block">
+              <span className="text-xl font-semibold text-[#0F1C46] w-full block">
                 Menú
               </span>
               <button
@@ -124,18 +131,18 @@ export default function Navbar() {
               </button>
             </div>
 
-            <div className="flex flex-col items-center px-6 py-6 space-y-6">
+            <div className="flex flex-col items-center text-center px-6 py-6 space-y-6">
               {navItems.map(({ label, path }) => (
                 <Link
                   key={label}
                   href={path}
                   onClick={() => setMenuOpen(false)}
-                  className={`relative text-base text-gray-700 font-medium transition-all duration-200 hover:text-[#0F1C46]
+                  className={`relative cursor-pointer text-lg text-gray-700 font-medium transition-all duration-200 hover:text-indigo-900
                     after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-[2px] after:bg-yellow-400
                     after:transition-all after:duration-300
                     ${
                       pathname === path
-                        ? "text-[#0F1C46] after:w-full"
+                        ? "text-indigo-900 after:w-full"
                         : "after:w-0 hover:after:w-full"
                     }`}
                 >
