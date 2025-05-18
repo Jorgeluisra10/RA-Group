@@ -4,46 +4,61 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CarFront, Building2, Route } from "lucide-react";
 
-const FuelEfficiencyCard = ({
-  fuelType = "Gasolina Corriente",
-  pricePerGallon = 15827,
-  cityKmPerLiter = 12,
-  highwayKmPerLiter = 16,
-  tankCapacity = 45,
-}) => {
+const FuelEfficiencyCard = ({ car }) => {
   const [usageType, setUsageType] = useState("mixto");
   const [stats, setStats] = useState(null);
 
+  const pricePerGallonMap = {
+    "Gasolina Corriente": 15827,
+    "Gasolina Extra": 19500,
+    "Diésel": 9065,
+    "Gas Natural": 10000,
+  };
+
   useEffect(() => {
+    if (!car) return;
+
+    const {
+      fuel_type = "Gasolina Corriente",
+      tank_capacity = 45,
+      fuel_efficiency_city = 12,
+      fuel_efficiency_highway = 16,
+    } = car;
+
+    const pricePerGallon = pricePerGallonMap[fuel_type] || 15827;
+    const costPerLiter = pricePerGallon / 3.785;
+
     let kmPerLiter;
 
     switch (usageType) {
       case "ciudad":
-        kmPerLiter = cityKmPerLiter;
+        kmPerLiter = fuel_efficiency_city;
         break;
       case "carretera":
-        kmPerLiter = highwayKmPerLiter;
+        kmPerLiter = fuel_efficiency_highway;
         break;
       default:
-        kmPerLiter = (cityKmPerLiter + highwayKmPerLiter) / 2;
+        kmPerLiter = (fuel_efficiency_city + fuel_efficiency_highway) / 2;
     }
 
     const litersPer100 = 100 / kmPerLiter;
-    const autonomy = tankCapacity * kmPerLiter;
-    const costPerLiter = pricePerGallon / 3.785;
-    const fillCost = costPerLiter * tankCapacity;
-    const costPerKm = costPerLiter / kmPerLiter;
+    const costPer100km = litersPer100 * costPerLiter;
+    const fillCost = costPerLiter * tank_capacity;
+    const autonomy = kmPerLiter * tank_capacity;
 
     setStats({
+      fuelType: fuel_type,
+      pricePerGallon,
+      costPerLiter: costPerLiter.toFixed(0),
       kmPerLiter: kmPerLiter.toFixed(1),
       litersPer100: litersPer100.toFixed(2),
-      autonomy: autonomy.toFixed(0),
+      costPer100km: costPer100km.toFixed(0),
       fillCost: fillCost.toFixed(0),
-      costPerKm: costPerKm.toFixed(0),
+      autonomy: autonomy.toFixed(0),
     });
-  }, [usageType, cityKmPerLiter, highwayKmPerLiter, tankCapacity, pricePerGallon]);
+  }, [car, usageType]);
 
-  if (!stats) {
+  if (!car || !stats) {
     return (
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 w-full text-gray-500 text-center">
         Calculando consumo...
@@ -56,54 +71,47 @@ const FuelEfficiencyCard = ({
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 w-full"
+      className="relative bg-white rounded-2xl shadow-lg border border-gray-100 p-6 w-full overflow-hidden"
     >
-      <h3 className="text-xl font-bold text-gray-800 mb-4">Consumo y Autonomía</h3>
+      {/* Difuminado top/bottom */}
+      <div className="absolute top-0 left-0 w-full h-6 bg-gradient-to-b from-white to-transparent z-10 rounded-t-2xl" />
+      <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white to-transparent z-10 rounded-b-2xl" />
 
-      <div className="mb-4">
+      <h3 className="text-xl font-bold text-gray-800 mb-4 z-20 relative">Consumo y Autonomía</h3>
+
+      <div className="mb-4 relative z-20">
         <p className="text-sm font-medium text-gray-600 mb-1">Tipo de combustible:</p>
         <p className="font-semibold text-blue-600">
-          {fuelType} (${pricePerGallon.toLocaleString()} COP/galón)
+          {stats.fuelType} (${Number(stats.pricePerGallon).toLocaleString()} COP/galón)
         </p>
       </div>
 
-      <div className="flex justify-between items-center gap-2 mb-4">
-        <button
-          onClick={() => setUsageType("ciudad")}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-            usageType === "ciudad"
-              ? "bg-blue-100 text-blue-700"
-              : "bg-gray-100 text-gray-600 hover:bg-blue-50"
-          }`}
-        >
-          <Building2 className="w-4 h-4" />
-          Ciudad
-        </button>
-        <button
-          onClick={() => setUsageType("carretera")}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-            usageType === "carretera"
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-100 text-gray-600 hover:bg-green-50"
-          }`}
-        >
-          <Route className="w-4 h-4" />
-          Carretera
-        </button>
-        <button
-          onClick={() => setUsageType("mixto")}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-            usageType === "mixto"
-              ? "bg-yellow-100 text-yellow-700"
-              : "bg-gray-100 text-gray-600 hover:bg-yellow-50"
-          }`}
-        >
-          <CarFront className="w-4 h-4" />
-          Mixto
-        </button>
+      <div className="flex justify-between items-center gap-2 mb-4 relative z-20">
+        {[
+          { label: "Ciudad", value: "ciudad", icon: Building2 },
+          { label: "Carretera", value: "carretera", icon: Route },
+          { label: "Mixto", value: "mixto", icon: CarFront },
+        ].map(({ label, value, icon: Icon }) => (
+          <button
+            key={value}
+            onClick={() => setUsageType(value)}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+              usageType === value
+                ? value === "ciudad"
+                  ? "bg-blue-100 text-blue-700"
+                  : value === "carretera"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-yellow-100 text-yellow-700"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            <Icon className="w-4 h-4" />
+            {label}
+          </button>
+        ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+      <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 relative z-20">
         <div>
           <p className="font-medium">Consumo:</p>
           <p>{stats.kmPerLiter} km/L</p>
@@ -113,8 +121,12 @@ const FuelEfficiencyCard = ({
           <p>{stats.litersPer100} L/100km</p>
         </div>
         <div>
+          <p className="font-medium">Costo x 100km:</p>
+          <p>${Number(stats.costPer100km).toLocaleString()} COP</p>
+        </div>
+        <div>
           <p className="font-medium">Capacidad tanque:</p>
-          <p>{tankCapacity} L</p>
+          <p>{car.tank_capacity} L</p>
         </div>
         <div>
           <p className="font-medium">Costo de llenado:</p>
@@ -122,15 +134,9 @@ const FuelEfficiencyCard = ({
             ${Number(stats.fillCost).toLocaleString()} COP
           </p>
         </div>
-        <div className="col-span-2">
+        <div>
           <p className="font-medium">Autonomía estimada:</p>
           <p>{stats.autonomy} km</p>
-        </div>
-        <div className="col-span-2">
-          <p className="font-medium text-green-700">Costo por kilómetro:</p>
-          <p className="text-lg font-bold text-green-600">
-            ${Number(stats.costPerKm).toLocaleString()} COP/km
-          </p>
         </div>
       </div>
     </motion.div>

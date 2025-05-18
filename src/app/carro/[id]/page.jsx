@@ -151,11 +151,12 @@ const CarDetailPage = () => {
 
         <div className="md:w-[500px] mt-6 md:mt-0 space-y-6">
           <FuelEfficiencyCard
-            fuelType={carro.fuelType}
-            pricePerGallon={carro.pricePerGallon}
-            cityKmPerLiter={carro.cityKmPerLiter}
-            highwayKmPerLiter={carro.highwayKmPerLiter}
-            tankCapacity={carro.tankCapacity}
+            car={{
+              fuel_type: carro.combustible,
+              fuel_efficiency_city: carro.ciudad_consumo,
+              fuel_efficiency_highway: carro.carretera_consumo,
+              tank_capacity: carro.capacidad_tanque,
+            }}
           />
 
           <div className="bg-white rounded-2xl shadow-md p-6 hover:shadow-2xl transition-shadow duration-300">
@@ -167,35 +168,35 @@ const CarDetailPage = () => {
                 <Car className="text-blue-600 w-5 h-5" />
                 <div>
                   <p className="text-sm font-semibold">Modelo</p>
-                  <p className="text-sm">{carro.model}</p>
+                  <p className="text-sm">{carro.modelo}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-blue-50 transition">
                 <MapPin className="text-blue-600 w-5 h-5" />
                 <div>
                   <p className="text-sm font-semibold">Ubicación</p>
-                  <p className="text-sm">{carro.location}</p>
+                  <p className="text-sm">{carro.direccion}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-blue-50 transition">
                 <Gauge className="text-blue-600 w-5 h-5" />
                 <div>
                   <p className="text-sm font-semibold">Motor</p>
-                  <p className="text-sm">{carro.engine}</p>
+                  <p className="text-sm">{carro.combustible}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-blue-50 transition">
                 <Settings className="text-blue-600 w-5 h-5" />
                 <div>
                   <p className="text-sm font-semibold">Transmisión</p>
-                  <p className="text-sm">{carro.transmission}</p>
+                  <p className="text-sm">{carro.transmision}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-blue-50 transition">
                 <DoorOpen className="text-blue-600 w-5 h-5" />
                 <div>
                   <p className="text-sm font-semibold">Puertas</p>
-                  <p className="text-sm">{carro.doors}</p>
+                  <p className="text-sm">{carro.puertas}</p>
                 </div>
               </div>
             </div>
@@ -223,7 +224,7 @@ const CarDetailPage = () => {
         <div className="mt-6">
           {activeTab === "Video" && (
             <div>
-              <YoutubeEmbed videoId={carro.videoId} />
+              <YoutubeEmbed youtubeUrl={carro.youtube} />
             </div>
           )}
           {activeTab === "Mapa" && (
@@ -231,7 +232,7 @@ const CarDetailPage = () => {
               <div className="absolute top-3 left-3 z-10 bg-white/90 text-sm px-4 py-1 rounded-full shadow text-gray-800">
                 Muestra la ubicación aproximada del auto respecto a ti
               </div>
-              <MapView city={carro.location} />
+              <MapView city={carro.ciudad} />
             </div>
           )}
         </div>

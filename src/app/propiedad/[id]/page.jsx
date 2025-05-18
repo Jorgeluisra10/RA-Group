@@ -94,15 +94,15 @@ const PropertyDetail = ({ params }) => {
           <p>Área</p>
         </div>
         <div>
-          <strong>{property.beds}</strong>
+          <strong>{property.habitaciones}</strong>
           <p>Habitaciones</p>
         </div>
         <div>
-          <strong>{property.baths}</strong>
+          <strong>{property.banos}</strong>
           <p>Baños</p>
         </div>
         <div>
-          <strong>{property.garage}</strong>
+          <strong>{property.garaje}</strong>
           <p>Parqueaderos</p>
         </div>
       </div>

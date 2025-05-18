@@ -9,25 +9,15 @@ export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 768);
     };
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
 
     handleResize();
-    handleScroll();
-
     window.addEventListener("resize", handleResize);
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const navItems = [
@@ -39,13 +29,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav
-      className={`transition-all duration-300 fixed top-0 w-full z-50 ${
-        isScrolled
-          ? "bg-white shadow-md rounded-none"
-          : "bg-white/70 backdrop-blur-lg shadow-none rounded-b-3xl"
-      }`}
-    >
+    <nav className="fixed top-0 w-full z-50 bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-2">
@@ -61,8 +45,8 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Desktop Nav */}
-        {(isDesktop || typeof window === "undefined") && (
+        {/* Desktop Navigation */}
+        {isDesktop && (
           <div className="flex items-center space-x-6">
             {navItems.map(({ label, path }) => (
               <Link
@@ -83,38 +67,33 @@ export default function Navbar() {
           </div>
         )}
 
-        {/* Mobile Menu Toggle */}
+        {/* Mobile Toggle */}
         {!isDesktop && (
-          <div className="md:hidden">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="Toggle menu"
-              type="button"
-              className="text-[#0F1C46]"
-            >
-              {menuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
-          </div>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+            type="button"
+            className="text-[#0F1C46]"
+          >
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         )}
       </div>
 
-      {/* Overlay + Side Panel */}
+      {/* Overlay + Side Menu for Mobile */}
       {!isDesktop && (
-        <div
-          className={`fixed inset-0 z-40 transition-all duration-300 ${
-            menuOpen
-              ? "pointer-events-auto backdrop-blur-sm bg-white/30"
-              : "pointer-events-none"
-          }`}
-          onClick={() => setMenuOpen(false)}
-        >
+        <div>
+          {/* Overlay */}
+          <div
+            className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${
+              menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            }`}
+            onClick={() => setMenuOpen(false)}
+          ></div>
+
           {/* Side Panel */}
           <div
-            className={`fixed right-0 top-0 h-full w-3/4 max-w-xs bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+            className={`fixed right-0 top-0 z-50 h-full w-3/4 max-w-xs bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
               menuOpen ? "translate-x-0" : "translate-x-full"
             }`}
             onClick={(e) => e.stopPropagation()}
