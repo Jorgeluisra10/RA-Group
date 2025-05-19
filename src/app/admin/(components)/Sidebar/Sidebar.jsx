@@ -3,6 +3,7 @@
 import {
   Home,
   Building,
+  Car,
   Users,
   Calendar,
   ClipboardList,
@@ -25,6 +26,7 @@ const navItems = [
     links: [
       { label: "Panel Principal", icon: Home, href: "/admin" },
       { label: "Propiedades", icon: Building, href: "/admin/propiedades" },
+      { label: "Carros", icon: Car, href: "/admin/carros" },
       { label: "Clientes", icon: Users, href: "/admin/clientes" },
       { label: "Calendario", icon: Calendar, href: "/admin/calendario" },
       { label: "Tareas", icon: ClipboardList, href: "/admin/tareas" },
