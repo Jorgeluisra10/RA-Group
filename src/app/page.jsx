@@ -114,11 +114,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section>
-        <div>
-          <Atencion />
-        </div>
-      </section>
       {/* Autos */}
       <section className="py-10 relative px-4 sm:px-6 lg:px-12 bg-white">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[#1A295C]">
@@ -158,6 +153,11 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+            <section>
+        <div>
+          <Atencion />
         </div>
       </section>
 
