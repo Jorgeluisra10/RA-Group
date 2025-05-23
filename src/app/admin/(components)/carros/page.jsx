@@ -227,7 +227,7 @@ export default function CarrosPage() {
               </h3>
               <p className="text-sm text-gray-500">{car.location}</p>
               <p className="text-[#0B1D3B] text-lg font-bold">
-                €{car.price.toLocaleString()}
+                ${car.price.toLocaleString()}
               </p>
               <p className="text-sm text-gray-400">
                 Publicado: {format(new Date(car.created_at), "dd/MM/yyyy")}

@@ -229,7 +229,7 @@ export default function PropiedadesPage() {
               </h3>
               <p className="text-sm text-gray-500">{prop.location}</p>
               <p className="text-[#0B1D3B] text-lg font-bold">
-                €{prop.price.toLocaleString()}
+                ${prop.price.toLocaleString()}
               </p>
               <p className="text-sm text-gray-400">
                 Publicado: {format(new Date(prop.created_at), "dd/MM/yyyy")}
