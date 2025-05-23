@@ -50,3 +50,57 @@ export async function getProperties({ page = 1, pageSize = 20 } = {}) {
     images: property.property_images?.map(img => img.url) || []
   }));
 }
+
+// Editar un carro por ID
+export async function updateCar(id, updatedData) {
+  const { data, error } = await supabase
+    .from('cars')
+    .update(updatedData)
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    throw new Error(`Error al actualizar el carro: ${error.message}`);
+  }
+
+  return data;
+}
+
+// Eliminar un carro por ID
+export async function deleteCar(id) {
+  const { error } = await supabase
+    .from('cars')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Error al eliminar el carro: ${error.message}`);
+  }
+}
+
+// Editar una propiedad por ID
+export async function updateProperty(id, updatedData) {
+  const { data, error } = await supabase
+    .from('properties')
+    .update(updatedData)
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    throw new Error(`Error al actualizar la propiedad: ${error.message}`);
+  }
+
+  return data;
+}
+
+// Eliminar una propiedad por ID
+export async function deleteProperty(id) {
+  const { error } = await supabase
+    .from('properties')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Error al eliminar la propiedad: ${error.message}`);
+  }
+}

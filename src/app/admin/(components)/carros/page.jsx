@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCars } from "../../../../lib/api";
+import { getCars, deleteCar } from "../../../../lib/api";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { CalendarIcon, PlusCircle, LayoutGrid, List } from "lucide-react";
@@ -59,10 +59,26 @@ export default function CarrosPage() {
   );
   const totalPages = Math.ceil(filteredCars.length / pageSize);
 
+  const handleDelete = async (id) => {
+  const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este elemento?");
+  if (!confirmDelete) return;
+
+  try {
+    await deleteCar(id); // o deleteCar(id)
+    alert("Eliminado correctamente.");
+    // Opcionalmente: refrescar lista de propiedades o navegar
+  } catch (error) {
+    console.error("Error al eliminar:", error.message);
+    alert("Ocurrió un error al eliminar.");
+  }
+};
+
+
   const handleFilterChange = (key, value) => {
     setFilters({ ...filters, [key]: value });
     setCurrentPage(1);
   };
+
 
   const Button = ({ children, className = "", ...props }) => (
     <button
@@ -226,7 +242,9 @@ export default function CarrosPage() {
                   Editar
                 </Button>
 
-                <Button className="bg-red-600 text-white hover:bg-red-700 text-sm">
+                <Button 
+                onClick={() => handleDelete(car.id)}
+                className="bg-red-600 text-white hover:bg-red-700 text-sm">
                   Eliminar
                 </Button>
               </div>

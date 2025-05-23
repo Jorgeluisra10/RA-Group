@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProperties } from "../../../../lib/api";
+import { getProperties, deleteProperty } from "../../../../lib/api";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { CalendarIcon, PlusCircle, LayoutGrid, List } from "lucide-react";
+import Link from "next/link";
 
 const pageSize = 20;
 
@@ -26,7 +27,6 @@ export default function PropiedadesPage() {
       try {
         const data = await getProperties();
         setProperties(data);
-
         const uniqueLocations = [...new Set(data.map((prop) => prop.location))];
         setLocations(uniqueLocations);
       } catch (error) {
@@ -37,15 +37,42 @@ export default function PropiedadesPage() {
   }, []);
 
   const filteredProperties = properties.filter((prop) => {
-    const matchesTitle = prop.title.toLowerCase().includes(filters.title.toLowerCase());
-    const matchesLocation = filters.location ? prop.location === filters.location : true;
-    const matchesStatus = filters.status ? prop.status === filters.status : true;
-    const matchesDate = filters.date ? format(new Date(prop.created_at), "dd/MM/yyyy") === filters.date : true;
+    const matchesTitle = prop.title
+      .toLowerCase()
+      .includes(filters.title.toLowerCase());
+    const matchesLocation = filters.location
+      ? prop.location === filters.location
+      : true;
+    const matchesStatus = filters.status
+      ? prop.status === filters.status
+      : true;
+    const matchesDate = filters.date
+      ? format(new Date(prop.created_at), "dd/MM/yyyy") === filters.date
+      : true;
     return matchesTitle && matchesLocation && matchesStatus && matchesDate;
   });
 
-  const paginatedProperties = filteredProperties.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const paginatedProperties = filteredProperties.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
   const totalPages = Math.ceil(filteredProperties.length / pageSize);
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "¿Estás seguro de que quieres eliminar este elemento?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await deleteProperty(id); // o deleteCar(id)
+      alert("Eliminado correctamente.");
+      // Opcionalmente: refrescar lista de propiedades o navegar
+    } catch (error) {
+      console.error("Error al eliminar:", error.message);
+      alert("Ocurrió un error al eliminar.");
+    }
+  };
 
   const handleFilterChange = (key, value) => {
     setFilters({ ...filters, [key]: value });
@@ -69,7 +96,11 @@ export default function PropiedadesPage() {
   );
 
   const Badge = ({ children, className = "" }) => (
-    <span className={`inline-block text-xs font-semibold px-2 py-1 rounded-xl ${className}`}>{children}</span>
+    <span
+      className={`inline-block text-xs font-semibold px-2 py-1 rounded-xl ${className}`}
+    >
+      {children}
+    </span>
   );
 
   const CardContent = ({ children, className = "" }) => (
@@ -79,49 +110,94 @@ export default function PropiedadesPage() {
   return (
     <div className="px-4 py-8 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-[#0B1D3B]">Propiedades Publicadas</h1>
+        <h1 className="text-2xl font-bold text-[#0B1D3B]">
+          Propiedades Publicadas
+        </h1>
         <Button className="bg-[#0B1D3B] text-white hover:bg-[#13294b] flex items-center gap-2">
           <PlusCircle className="w-4 h-4" /> Agregar Nueva Propiedad
         </Button>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-6 items-end">
-        <Input placeholder="Buscar propiedad..." value={filters.title} onChange={(e) => handleFilterChange("title", e.target.value)} className="w-48" />
-        <select className="border rounded-xl px-2 py-2 text-sm" value={filters.location} onChange={(e) => handleFilterChange("location", e.target.value)}>
+        <Input
+          placeholder="Buscar propiedad..."
+          value={filters.title}
+          onChange={(e) => handleFilterChange("title", e.target.value)}
+          className="w-48"
+        />
+        <select
+          className="border rounded-xl px-2 py-2 text-sm"
+          value={filters.location}
+          onChange={(e) => handleFilterChange("location", e.target.value)}
+        >
           <option value="">Todas las ubicaciones</option>
           {locations.map((loc) => (
-            <option key={loc} value={loc}>{loc}</option>
+            <option key={loc} value={loc}>
+              {loc}
+            </option>
           ))}
         </select>
-        <select className="border rounded-xl px-2 py-2 text-sm" value={filters.status} onChange={(e) => handleFilterChange("status", e.target.value)}>
+        <select
+          className="border rounded-xl px-2 py-2 text-sm"
+          value={filters.status}
+          onChange={(e) => handleFilterChange("status", e.target.value)}
+        >
           <option value="">Todos los estados</option>
           <option value="Activo">Activo</option>
           <option value="Inactivo">Inactivo</option>
         </select>
         <div className="relative">
-          <Input type="text" placeholder="dd/mm/aaaa" value={filters.date} onChange={(e) => handleFilterChange("date", e.target.value)} className="pr-10 w-36" />
+          <Input
+            type="text"
+            placeholder="dd/mm/aaaa"
+            value={filters.date}
+            onChange={(e) => handleFilterChange("date", e.target.value)}
+            className="pr-10 w-36"
+          />
           <CalendarIcon className="absolute right-2 top-2.5 h-4 w-4 text-gray-400" />
         </div>
-        <Button className="border bg-white hover:bg-gray-50" onClick={() => setFilters({ title: "", location: "", status: "", date: "" })}>
+        <Button
+          className="border bg-white hover:bg-gray-50"
+          onClick={() =>
+            setFilters({ title: "", location: "", status: "", date: "" })
+          }
+        >
           Limpiar filtros
         </Button>
       </div>
 
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-gray-500">
-          Mostrando {paginatedProperties.length} de {filteredProperties.length} propiedades
+          Mostrando {paginatedProperties.length} de {filteredProperties.length}{" "}
+          propiedades
         </p>
         <div className="flex gap-2">
-          <Button className={`${view === "grid" ? "bg-[#0B1D3B] text-white" : "border bg-white"}`} onClick={() => setView("grid")}>
+          <Button
+            className={`${
+              view === "grid" ? "bg-[#0B1D3B] text-white" : "border bg-white"
+            }`}
+            onClick={() => setView("grid")}
+          >
             <LayoutGrid className="w-4 h-4" />
           </Button>
-          <Button className={`${view === "list" ? "bg-[#0B1D3B] text-white" : "border bg-white"}`} onClick={() => setView("list")}>
+          <Button
+            className={`${
+              view === "list" ? "bg-[#0B1D3B] text-white" : "border bg-white"
+            }`}
+            onClick={() => setView("list")}
+          >
             <List className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      <div className={`grid ${view === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"} gap-6`}>
+      <div
+        className={`grid ${
+          view === "grid"
+            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            : "grid-cols-1"
+        } gap-6`}
+      >
         {paginatedProperties.map((prop) => (
           <motion.div
             key={prop.id}
@@ -130,19 +206,47 @@ export default function PropiedadesPage() {
             animate={{ opacity: 1, y: 0 }}
           >
             {view === "grid" && prop.images && prop.images.length > 0 ? (
-              <img src={prop.images[0]} alt={prop.title} className="w-full h-44 object-cover" />
+              <img
+                src={prop.images[0]}
+                alt={prop.title}
+                className="w-full h-44 object-cover"
+              />
             ) : view === "grid" ? (
-              <div className="w-full h-44 bg-gray-200 flex items-center justify-center text-gray-400 text-sm">Sin imagen</div>
+              <div className="w-full h-44 bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                Sin imagen
+              </div>
             ) : null}
             <CardContent>
-              <Badge className={`absolute top-2 left-2 ${prop.status === "Activo" ? "bg-green-500" : "bg-red-500"} text-white`}>{prop.status}</Badge>
-              <h3 className="text-md font-semibold text-[#0B1D3B]">{prop.title}</h3>
+              <Badge
+                className={`absolute top-2 left-2 ${
+                  prop.status === "Activo" ? "bg-green-500" : "bg-red-500"
+                } text-white`}
+              >
+                {prop.status}
+              </Badge>
+              <h3 className="text-md font-semibold text-[#0B1D3B]">
+                {prop.title}
+              </h3>
               <p className="text-sm text-gray-500">{prop.location}</p>
-              <p className="text-[#0B1D3B] text-lg font-bold">€{prop.price.toLocaleString()}</p>
-              <p className="text-sm text-gray-400">Publicado: {format(new Date(prop.created_at), "dd/MM/yyyy")}</p>
+              <p className="text-[#0B1D3B] text-lg font-bold">
+                €{prop.price.toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-400">
+                Publicado: {format(new Date(prop.created_at), "dd/MM/yyyy")}
+              </p>
               <div className="flex gap-4 mt-2">
-                <Button className="border bg-white text-gray-800 hover:bg-gray-50 text-sm">Editar</Button>
-                <Button className="bg-red-600 text-white hover:bg-red-700 text-sm">Eliminar</Button>
+                <Link
+                  href={`/admin/propiedades/editar-propiedad/${prop.id}`}
+                  className="px-4 py-2 rounded-xl border bg-white text-gray-800 hover:bg-gray-50 text-sm font-medium transition"
+                >
+                  Editar
+                </Link>
+                <Button
+                  onClick={() => handleDelete(prop.id)}
+                  className="bg-red-600 text-white hover:bg-red-700 text-sm"
+                >
+                  Eliminar
+                </Button>
               </div>
             </CardContent>
           </motion.div>
@@ -154,7 +258,11 @@ export default function PropiedadesPage() {
           {[...Array(totalPages)].map((_, index) => (
             <Button
               key={index}
-              className={`text-sm ${currentPage === index + 1 ? "bg-[#0B1D3B] text-white" : "border bg-white"}`}
+              className={`text-sm ${
+                currentPage === index + 1
+                  ? "bg-[#0B1D3B] text-white"
+                  : "border bg-white"
+              }`}
               onClick={() => setCurrentPage(index + 1)}
             >
               {index + 1}
