@@ -27,10 +27,7 @@ export async function getCars({ page = 1, pageSize = 20 } = {}) {
 }
 
 // Obtener propiedades con imágenes
-export async function getProperties({ page = 1, pageSize = 20 } = {}) {
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-
+export async function getProperties() {
   const { data, error } = await supabase
     .from('properties')
     .select(`
@@ -38,8 +35,7 @@ export async function getProperties({ page = 1, pageSize = 20 } = {}) {
       property_images (
         url
       )
-    `)
-    .range(from, to);
+    `);
 
   if (error) {
     throw new Error(`Error al obtener propiedades: ${error.message}`);
@@ -50,6 +46,7 @@ export async function getProperties({ page = 1, pageSize = 20 } = {}) {
     images: property.property_images?.map(img => img.url) || []
   }));
 }
+
 
 // Editar un carro por ID
 export async function updateCar(id, updatedData) {

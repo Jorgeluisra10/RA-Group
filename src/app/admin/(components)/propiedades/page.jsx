@@ -4,31 +4,21 @@ import { useEffect, useState } from "react";
 import { getProperties, deleteProperty } from "../../../../lib/api";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { CalendarIcon, PlusCircle, LayoutGrid, List } from "lucide-react";
+import { PlusCircle, LayoutGrid, List } from "lucide-react";
 import Link from "next/link";
 
-const pageSize = 20;
+const pageSize = 50;
 
 export default function PropiedadesPage() {
   const [properties, setProperties] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState("grid");
-  const [locations, setLocations] = useState([]);
-
-  const [filters, setFilters] = useState({
-    title: "",
-    location: "",
-    status: "",
-    date: "",
-  });
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
         const data = await getProperties();
         setProperties(data);
-        const uniqueLocations = [...new Set(data.map((prop) => prop.location))];
-        setLocations(uniqueLocations);
       } catch (error) {
         console.error("Error al obtener propiedades:", error);
       }
@@ -36,27 +26,11 @@ export default function PropiedadesPage() {
     fetchProperties();
   }, []);
 
-  const filteredProperties = properties.filter((prop) => {
-    const matchesTitle = prop.title
-      .toLowerCase()
-      .includes(filters.title.toLowerCase());
-    const matchesLocation = filters.location
-      ? prop.location === filters.location
-      : true;
-    const matchesStatus = filters.status
-      ? prop.status === filters.status
-      : true;
-    const matchesDate = filters.date
-      ? format(new Date(prop.created_at), "dd/MM/yyyy") === filters.date
-      : true;
-    return matchesTitle && matchesLocation && matchesStatus && matchesDate;
-  });
-
-  const paginatedProperties = filteredProperties.slice(
+  const paginatedProperties = properties.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
-  const totalPages = Math.ceil(filteredProperties.length / pageSize);
+  const totalPages = Math.ceil(properties.length / pageSize);
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
@@ -65,18 +39,14 @@ export default function PropiedadesPage() {
     if (!confirmDelete) return;
 
     try {
-      await deleteProperty(id); // o deleteCar(id)
+      await deleteProperty(id);
       alert("Eliminado correctamente.");
-      // Opcionalmente: refrescar lista de propiedades o navegar
+      // Actualizar lista
+      setProperties((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
       console.error("Error al eliminar:", error.message);
       alert("Ocurrió un error al eliminar.");
     }
-  };
-
-  const handleFilterChange = (key, value) => {
-    setFilters({ ...filters, [key]: value });
-    setCurrentPage(1);
   };
 
   const Button = ({ children, className = "", ...props }) => (
@@ -86,13 +56,6 @@ export default function PropiedadesPage() {
     >
       {children}
     </button>
-  );
-
-  const Input = ({ className = "", ...props }) => (
-    <input
-      className={`border px-3 py-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#0B1D3B] ${className}`}
-      {...props}
-    />
   );
 
   const Badge = ({ children, className = "" }) => (
@@ -118,57 +81,9 @@ export default function PropiedadesPage() {
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6 items-end">
-        <Input
-          placeholder="Buscar propiedad..."
-          value={filters.title}
-          onChange={(e) => handleFilterChange("title", e.target.value)}
-          className="w-48"
-        />
-        <select
-          className="border rounded-xl px-2 py-2 text-sm"
-          value={filters.location}
-          onChange={(e) => handleFilterChange("location", e.target.value)}
-        >
-          <option value="">Todas las ubicaciones</option>
-          {locations.map((loc) => (
-            <option key={loc} value={loc}>
-              {loc}
-            </option>
-          ))}
-        </select>
-        <select
-          className="border rounded-xl px-2 py-2 text-sm"
-          value={filters.status}
-          onChange={(e) => handleFilterChange("status", e.target.value)}
-        >
-          <option value="">Todos los estados</option>
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
-        </select>
-        <div className="relative">
-          <Input
-            type="text"
-            placeholder="dd/mm/aaaa"
-            value={filters.date}
-            onChange={(e) => handleFilterChange("date", e.target.value)}
-            className="pr-10 w-36"
-          />
-          <CalendarIcon className="absolute right-2 top-2.5 h-4 w-4 text-gray-400" />
-        </div>
-        <Button
-          className="border bg-white hover:bg-gray-50"
-          onClick={() =>
-            setFilters({ title: "", location: "", status: "", date: "" })
-          }
-        >
-          Limpiar filtros
-        </Button>
-      </div>
-
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-gray-500">
-          Mostrando {paginatedProperties.length} de {filteredProperties.length}{" "}
+          Mostrando {paginatedProperties.length} de {properties.length}{" "}
           propiedades
         </p>
         <div className="flex gap-2">
