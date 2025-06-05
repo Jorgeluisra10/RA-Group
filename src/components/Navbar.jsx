@@ -41,7 +41,7 @@ export default function Navbar() {
             <path d="M10 2L2 7v11h6v-5h4v5h6V7l-8-5z" />
           </svg>
           <div className="text-2xl font-bold text-yellow-400">
-            RA<span className="text-[#0F1C46]">Group</span> •
+            IN<span className="text-[#0F1C46]">MOVA</span> •
           </div>
         </div>
 

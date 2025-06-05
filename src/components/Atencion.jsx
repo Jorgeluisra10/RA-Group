@@ -1,6 +1,6 @@
 const Atencion = () => {
   return (
-    <section className="relative py-16 px-6 sm:px-12 lg:px-24 max-w-7xl mx-auto text-center rounded-lg overflow-hidden bg-[#f0f4ff] shadow-lg shadow-[#1a295c33]">
+    <section className="relative mb-15 py-16 px-6 sm:px-12 lg:px-24 max-w-7xl mx-auto text-center rounded-lg overflow-hidden bg-[#f0f4ff] shadow-lg shadow-[#1a295c33]">
       {/* Difuminado arriba */}
       <div className="pointer-events-none absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-[#f0f4ff] to-transparent blur-xl opacity-80 z-20" />
       {/* Difuminado abajo */}

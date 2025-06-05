@@ -74,7 +74,7 @@ export default function Home() {
       </div>
 
       {/* Propiedades */}
-      <section className="py-10 relative px-4 sm:px-6 lg:px-12 bg-white">
+      <section className="mt-8 relative px-4 sm:px-6 lg:px-12 bg-white">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[#1A295C]">
           Propiedades destacadas
         </h1>
@@ -115,11 +115,11 @@ export default function Home() {
         </div>
       </section>
       {/* Autos */}
-      <section className="py-10 relative px-4 sm:px-6 lg:px-12 bg-white">
+      <section className=" relative px-4 sm:px-6 lg:px-12 bg-white">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[#1A295C]">
           Autos destacados
         </h1>
-        <p className="text-gray-600 mb-6 max-w-3xl mx-auto text-center">
+        <p className="text-gray-600 mb-8 max-w-3xl mx-auto text-center">
           Explora nuestra selección de vehículos destacados.
         </p>
 
@@ -162,9 +162,9 @@ export default function Home() {
       </section>
 
       {/* Comentarios */}
-      <div className="bg-[#f9f9f9] text-[#1A295C] pb-12 max-w-7xl mx-auto rounded-xl shadow-lg px-6 sm:px-12 mb-10">
+      {/* <div className="bg-[#f9f9f9] text-[#1A295C] pb-12 max-w-7xl mx-auto rounded-xl shadow-lg px-6 sm:px-12 mb-10">
         <Comments />
-      </div>
+      </div> */}
     </div>
   );
 }

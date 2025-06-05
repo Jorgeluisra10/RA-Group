@@ -26,8 +26,8 @@ const Footer = () => {
               <path d="M10 2L2 7v11h6v-5h4v5h6V7l-8-5z" />
             </svg>
             <div className="text-2xl font-bold">
-              <span className="text-white">RA</span>
-              <span className="text-[#93B4FF]">Group</span> •
+              <span className="text-white">INMOVA</span>
+              <span className=" text-yellow-400"> •</span>
             </div>
           </div>
 
@@ -82,7 +82,7 @@ const Footer = () => {
 
       {/* Créditos y desarrollador */}
       <div className="text-center mt-10 text-xs text-gray-400 space-y-1">
-        <p>© {new Date().getFullYear()} RAGroup. Todos los derechos reservados.</p>
+        <p>© {new Date().getFullYear()} Inmova. Todos los derechos reservados.</p>
         <p className="text-[11px] text-gray-500 italic">
           Sitio desarrollado por Jorge Luis Rodríguez Ávila • Desarrollador Web
         </p>
