@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
-import { getCars, getProperties } from "../lib/api";
-import PropertyCard from "../components/PropertyCard";
-import CarCard from "../components/CarCard";
-import Comments from "../components/Comments";
-import FindHome from "../components/FindHome";
+import { useEffect, useRef, useState } from "react";
 import Atencion from "../components/Atencion";
+import CarCard from "../components/CarCard";
+import FindHome from "../components/FindHome";
+import PropertyCard from "../components/PropertyCard";
+import { getCars, getProperties } from "../lib/api";
 
 
 export default function Home() {

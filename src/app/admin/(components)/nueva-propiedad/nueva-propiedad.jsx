@@ -80,7 +80,7 @@ export default function NuevaPropiedadForm() {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [errors, setErrors] = useState({});
 
-  const requiereDatosAdicionales = tipo === "Casa" || tipo === "Apartamento";
+  const requiereDatosAdicionales = ["Casa", "Apartamento", "Finca", "Terreno", "Lote", "Local", "Oficina"].includes(tipo);
   const esCarro = tipo === "Carro";
 
   const handleImageChange = (e) => {
@@ -277,7 +277,7 @@ export default function NuevaPropiedadForm() {
           label="Tipo de propiedad"
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
-          options={["Casa", "Apartamento", "Carro", "Terreno"]}
+          options={["Casa", "Apartamento", "Carro", "Terreno", "Oficina", "Local", "Finca", "Lote"]}
           error={errors.tipo}
         />
         <Input
