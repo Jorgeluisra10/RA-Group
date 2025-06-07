@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../../../../../lib/supabaseClient";
 import Image from "next/image";
 
 export default function EditarCarroPage() {
+  const router = useRouter();
   const { id } = useParams();
   const [carro, setCarro] = useState(null);
   const [imagenes, setImagenes] = useState([]);
@@ -84,6 +85,7 @@ export default function EditarCarroPage() {
 
       if (error) throw error;
       showMensaje("Cambios guardados exitosamente");
+      router.push("/admin/carros");
     } catch (err) {
       console.error("Error al guardar cambios:", err.message);
       showMensaje("Error al guardar cambios");

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { FaGasPump, FaDoorClosed, FaCogs } from "react-icons/fa";
+import { FaGasPump, FaCogs, FaCity } from "react-icons/fa";
 import Link from "next/link";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -35,16 +35,17 @@ export default function CarCard({ car }) {
 
   return (
     <div
-      className="relative bg-white rounded-xl overflow-hidden shadow-md border transition transform hover:scale-[1.02] hover:shadow-lg duration-300"
+      className="relative bg-white rounded-xl overflow-hidden shadow-md border transition transform hover:scale-[1.02] hover:shadow-lg duration-300 flex flex-col h-full"
       onMouseEnter={() => setAutoplay(true)}
       onMouseLeave={() => setAutoplay(false)}
     >
-      <div className="h-[210px] w-full bg-gray-200 relative">
+      {/* Slider */}
+      <div className="h-[210px] w-full bg-gray-200 relative flex-shrink-0">
         {images.length > 0 ? (
           <Slider
             {...settings}
             key={autoplay ? "autoplay" : "no-autoplay"}
-            className="[&_.slick-dots]:!bottom-2 [&_.slick-dots]:!z-10"
+            className="[&_.slick-dots]:!bottom-2 [&_.slick-dots]:!z-10 h-full"
           >
             {images.map((img, idx) => (
               <div key={idx} className="h-[210px] w-full relative">
@@ -65,21 +66,27 @@ export default function CarCard({ car }) {
         )}
       </div>
 
-      <div className="p-4 border-t">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-900">
-            {car.marca ?? "Sin marca"} {car.modelo ?? ""}
-          </h2>
-          <span className="text-yellow-600 font-bold text-sm">
+      {/* Content */}
+      <div className="p-4 border-t flex flex-col justify-between flex-grow">
+        {/* Price */}
+        <div className="mb-2">
+          <span className="text-yellow-600 font-bold text-lg block">
             ${car.price ? Number(car.price).toLocaleString() : "0"}
           </span>
         </div>
 
+        {/* Title */}
+        <h2 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
+          {car.title ?? "Sin título"}
+        </h2>
+
+        {/* Model year */}
         <p className="text-sm text-gray-500 mb-3">
           Año: {car.modelo ?? "N/A"}
         </p>
 
-        <div className="flex justify-between text-xs text-gray-600 mb-3">
+        {/* Icons row */}
+        <div className="grid grid-cols-3 gap-2 text-xs text-gray-600 mb-4">
           <div className="flex items-center gap-1">
             <FaGasPump className="text-gray-500" />
             {car.combustible ?? "N/A"}
@@ -89,14 +96,15 @@ export default function CarCard({ car }) {
             {car.transmision ?? "N/A"}
           </div>
           <div className="flex items-center gap-1">
-            <FaDoorClosed className="text-gray-500" />
-            {car.puertas ?? "N/A"} puertas
+            <FaCity className="text-gray-500" />
+            {car.ciudad ?? "N/A"}
           </div>
         </div>
 
+        {/* Button */}
         <Link
           href={`/carro/${car.id}`}
-          className="block text-center bg-blue-900 text-white py-2 rounded-md hover:bg-blue-800 transition-colors"
+          className="block text-center bg-blue-900 text-white py-2 rounded-md hover:bg-blue-800 transition-colors mt-auto"
         >
           Ver detalles
         </Link>

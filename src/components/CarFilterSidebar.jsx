@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
+const currentYear = new Date().getFullYear();
+
 const initialFilters = {
-  brand: {}, // Esto lo podrías llenar si tienes marcas dinámicas
+  brand: {}, // Se inicializa dinámicamente en la página principal
   transmission: {
     automática: false,
     manual: false,
@@ -15,9 +17,8 @@ const initialFilters = {
     híbrido: false,
     eléctrico: false,
   },
-  doors: 0,
   price: { min: 0, max: 500000000 },
-  year: { min: 2000, max: new Date().getFullYear() },
+  year: { min: 1950, max: currentYear },
   features: {
     aire_acondicionado: false,
     gps: false,
@@ -28,9 +29,15 @@ const initialFilters = {
   },
 };
 
-export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
-  const [filters, setFilters] = useState(initialFilters);
+export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose, filters }) {
+  // Recibe filtros iniciales desde props para que la marca sea dinámica
+  const [localFilters, setLocalFilters] = useState(filters || initialFilters);
   const [isMobile, setIsMobile] = useState(null);
+
+  // Actualizar localFilters si cambian los filtros externos (para reset o cambios)
+  useEffect(() => {
+    if (filters) setLocalFilters(filters);
+  }, [filters]);
 
   useEffect(() => {
     const checkViewport = () => setIsMobile(window.innerWidth < 768);
@@ -40,7 +47,7 @@ export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
   }, []);
 
   const toggleCheckbox = (section, key) => {
-    setFilters((prev) => ({
+    setLocalFilters((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
@@ -52,7 +59,7 @@ export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
   const handleRangeChange = (section, key, value) => {
     value = Number(value);
 
-    setFilters((prev) => {
+    setLocalFilters((prev) => {
       let newMin = prev[section].min;
       let newMax = prev[section].max;
 
@@ -73,26 +80,160 @@ export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
     });
   };
 
-  const handleNumberSelect = (section, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [section]: value,
-    }));
-  };
-
   const applyFilters = () => {
-    onApplyFilters(filters);
+    onApplyFilters(localFilters);
     if (isMobile) onClose?.();
   };
 
   const clearFilters = () => {
-    setFilters(initialFilters);
-    onApplyFilters(initialFilters);
+    onApplyFilters(filters); // Resetea al filtro original desde props
   };
 
   if (isMobile === null) return null;
 
-  // Móvil: filtros en modal deslizante
+  function renderFilters() {
+    return (
+      <div className="space-y-6 text-sm text-gray-700">
+        {/* Marcas */}
+        {filters.brand && Object.keys(filters.brand).length > 0 && (
+          <div>
+            <h3 className="font-semibold mb-2">Marca</h3>
+            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+              {Object.keys(filters.brand).map((key) => (
+                <label key={key} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={localFilters.brand[key]}
+                    onChange={() => toggleCheckbox("brand", key)}
+                    className="cursor-pointer"
+                  />
+                  <span className="capitalize">{key}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Transmisión */}
+        <div>
+          <h3 className="font-semibold mb-2">Transmisión</h3>
+          <div className="flex flex-wrap gap-2">
+            {Object.keys(localFilters.transmission).map((key) => (
+              <label key={key} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={localFilters.transmission[key]}
+                  onChange={() => toggleCheckbox("transmission", key)}
+                  className="cursor-pointer"
+                />
+                <span className="capitalize">{key}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Combustible */}
+        <div>
+          <h3 className="font-semibold mb-2">Combustible</h3>
+          <div className="flex flex-wrap gap-2">
+            {Object.keys(localFilters.fuel).map((key) => (
+              <label key={key} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={localFilters.fuel[key]}
+                  onChange={() => toggleCheckbox("fuel", key)}
+                  className="cursor-pointer"
+                />
+                <span className="capitalize">{key}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Precio */}
+        <div>
+          <h3 className="font-semibold mb-2">Precio (COP)</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-gray-600">
+              <span>Desde ${localFilters.price.min.toLocaleString()}</span>
+              <span>Hasta ${localFilters.price.max.toLocaleString()}</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={500000000}
+              step={50000000}
+              value={localFilters.price.min}
+              onChange={(e) => handleRangeChange("price", "min", e.target.value)}
+              className="w-full"
+              aria-label="Precio mínimo"
+            />
+            <input
+              type="range"
+              min={0}
+              max={500000000}
+              step={50000000}
+              value={localFilters.price.max}
+              onChange={(e) => handleRangeChange("price", "max", e.target.value)}
+              className="w-full"
+              aria-label="Precio máximo"
+            />
+          </div>
+        </div>
+
+        {/* Año */}
+        <div>
+          <h3 className="font-semibold mb-2">Año</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-gray-600">
+              <span>Desde {localFilters.year.min}</span>
+              <span>Hasta {localFilters.year.max}</span>
+            </div>
+            <input
+              type="range"
+              min={1950}
+              max={currentYear}
+              step={1}
+              value={localFilters.year.min}
+              onChange={(e) => handleRangeChange("year", "min", e.target.value)}
+              className="w-full"
+              aria-label="Año mínimo"
+            />
+            <input
+              type="range"
+              min={1950}
+              max={currentYear}
+              step={1}
+              value={localFilters.year.max}
+              onChange={(e) => handleRangeChange("year", "max", e.target.value)}
+              className="w-full"
+              aria-label="Año máximo"
+            />
+          </div>
+        </div>
+
+        {/* Características */}
+        <div>
+          <h3 className="font-semibold mb-2">Características</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {Object.keys(localFilters.features).map((key) => (
+              <label key={key} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={localFilters.features[key]}
+                  onChange={() => toggleCheckbox("features", key)}
+                  className="cursor-pointer"
+                />
+                <span className="capitalize">{key.replaceAll("_", " ")}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Móvil: modal deslizante
   if (isMobile) {
     return (
       <div
@@ -108,7 +249,7 @@ export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
         >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Filtros</h2>
-            <button onClick={onClose}>
+            <button onClick={onClose} aria-label="Cerrar filtros">
               <X className="w-6 h-6 text-gray-600" />
             </button>
           </div>
@@ -132,9 +273,9 @@ export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
     );
   }
 
-  // Desktop: sidebar fijo
+  // Desktop: sidebar fijo y sticky arriba
   return (
-    <aside className="bg-white w-full md:min-w-[280px] md:max-w-[320px] p-6 rounded-2xl shadow-lg h-fit sticky top-20">
+    <aside className="bg-white w-full md:min-w-[280px] md:max-w-[320px] p-6 rounded-2xl shadow-lg h-fit sticky top-4">
       <h2 className="text-lg font-semibold mb-4">Filtros</h2>
       {renderFilters()}
       <div className="flex gap-2 pt-4">
@@ -153,135 +294,4 @@ export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose }) {
       </div>
     </aside>
   );
-
-  function renderFilters() {
-    return (
-      <div className="space-y-6 text-sm text-gray-700">
-        {/* Transmisión */}
-        <div>
-          <h3 className="font-semibold mb-2">Transmisión</h3>
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(filters.transmission).map((key) => (
-              <label key={key} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={filters.transmission[key]}
-                  onChange={() => toggleCheckbox("transmission", key)}
-                />
-                <span className="capitalize">{key}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Combustible */}
-        <div>
-          <h3 className="font-semibold mb-2">Combustible</h3>
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(filters.fuel).map((key) => (
-              <label key={key} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={filters.fuel[key]}
-                  onChange={() => toggleCheckbox("fuel", key)}
-                />
-                <span className="capitalize">{key}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Puertas */}
-        <div>
-          <h3 className="font-semibold mb-2">Número de puertas</h3>
-          <select
-            value={filters.doors}
-            onChange={(e) => handleNumberSelect("doors", parseInt(e.target.value))}
-            className="w-full border rounded px-2 py-1"
-          >
-            {[0, 2, 3, 4, 5].map((n) => (
-              <option key={n} value={n}>
-                {n === 0 ? "Cualquiera" : n}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Precio */}
-        <div>
-          <h3 className="font-semibold mb-2">Precio (COP)</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs text-gray-600">
-              <span>Desde ${filters.price.min.toLocaleString()}</span>
-              <span>Hasta ${filters.price.max.toLocaleString()}</span>
-            </div>
-            <input
-              type="range"
-              min={0}
-              max={500000000}
-              step={50000000}
-              value={filters.price.min}
-              onChange={(e) => handleRangeChange("price", "min", e.target.value)}
-              className="w-full"
-            />
-            <input
-              type="range"
-              min={0}
-              max={500000000}
-              step={50000000}
-              value={filters.price.max}
-              onChange={(e) => handleRangeChange("price", "max", e.target.value)}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        {/* Año */}
-        <div>
-          <h3 className="font-semibold mb-2">Año</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs text-gray-600">
-              <span>Desde {filters.year.min}</span>
-              <span>Hasta {filters.year.max}</span>
-            </div>
-            <input
-              type="range"
-              min={2000}
-              max={new Date().getFullYear()}
-              step={1}
-              value={filters.year.min}
-              onChange={(e) => handleRangeChange("year", "min", e.target.value)}
-              className="w-full"
-            />
-            <input
-              type="range"
-              min={2000}
-              max={new Date().getFullYear()}
-              step={1}
-              value={filters.year.max}
-              onChange={(e) => handleRangeChange("year", "max", e.target.value)}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        {/* Características */}
-        <div>
-          <h3 className="font-semibold mb-2">Características</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {Object.keys(filters.features).map((key) => (
-              <label key={key} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={filters.features[key]}
-                  onChange={() => toggleCheckbox("features", key)}
-                />
-                <span className="capitalize">{key.replaceAll("_", " ")}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
 }

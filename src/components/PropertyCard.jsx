@@ -1,11 +1,12 @@
 "use client";
+
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { FaBed, FaBath, FaRulerCombined } from "react-icons/fa";
 import Link from "next/link";
+import Image from "next/image";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Image from "next/image";
 
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
@@ -32,7 +33,7 @@ export default function PropertyCard({ property }) {
     infinite: true,
     speed: 500,
     autoplay: hasMultipleImages && autoplay,
-    autoplaySpeed: 2000,
+    autoplaySpeed: 2500,
     slidesToShow: 1,
     slidesToScroll: 1,
     pauseOnHover: false,
@@ -45,16 +46,17 @@ export default function PropertyCard({ property }) {
 
   return (
     <div
-      className="relative bg-white rounded-xl overflow-hidden shadow-md border transition-transform hover:scale-[1.02] hover:shadow-lg duration-300"
+      className="relative bg-white rounded-xl overflow-hidden shadow-md border transition-transform hover:scale-[1.02] hover:shadow-lg duration-300 flex flex-col h-full"
       onMouseEnter={() => setAutoplay(true)}
       onMouseLeave={() => setAutoplay(false)}
     >
-      <div className="h-[210px] w-full bg-gray-200 relative">
+      {/* Imagen o carrusel */}
+      <div className="h-[210px] w-full bg-gray-200 relative flex-shrink-0">
         {hasMultipleImages ? (
           <Slider
             {...settings}
             key={autoplay ? "autoplay" : "no-autoplay"}
-            className="[&_.slick-dots]:!bottom-2 [&_.slick-dots]:!z-10"
+            className="[&_.slick-dots]:!bottom-2 [&_.slick-dots]:!z-10 h-full"
           >
             {images.map((img, idx) => (
               <div key={idx} className="h-[210px] w-full relative">
@@ -85,20 +87,25 @@ export default function PropertyCard({ property }) {
         )}
       </div>
 
-      <div className="p-4 border-t">
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-base font-semibold text-gray-900 truncate">
-            {property.title || "Sin título"}
-          </h2>
-          <span className="text-yellow-600 font-bold text-sm">
-            {formatPrice(property.price)}
-          </span>
-        </div>
-        <p className="text-sm text-gray-500 mb-3 truncate">
+      {/* Contenido */}
+      <div className="p-4 border-t flex flex-col justify-between flex-grow">
+        {/* Precio */}
+        <span className="text-yellow-600 font-bold text-lg mb-1 block">
+          {formatPrice(property.price)}
+        </span>
+
+        {/* Título */}
+        <h2 className="text-base font-semibold text-gray-900 line-clamp-2 mb-1">
+          {property.title || "Sin título"}
+        </h2>
+
+        {/* Ubicación */}
+        <p className="text-sm text-gray-500 line-clamp-1 mb-3">
           {`${property.barrio || ""}, ${property.ciudad || ""}`}
         </p>
 
-        <div className="flex justify-between text-xs text-gray-600 mb-3">
+        {/* Íconos de detalles */}
+        <div className="grid grid-cols-3 text-xs text-gray-600 gap-2 mb-4">
           <div className="flex items-center gap-1">
             <FaRulerCombined className="text-gray-500" />
             {property.area ?? "N/A"} m²
@@ -113,9 +120,10 @@ export default function PropertyCard({ property }) {
           </div>
         </div>
 
+        {/* Botón */}
         <Link
           href={`/propiedad/${property.id}`}
-          className="block text-center bg-blue-900 text-white py-2 rounded-md font-medium hover:bg-blue-800 transition duration-200"
+          className="block text-center bg-blue-900 text-white py-2 rounded-md font-medium hover:bg-blue-800 transition mt-auto"
         >
           Ver Detalles
         </Link>

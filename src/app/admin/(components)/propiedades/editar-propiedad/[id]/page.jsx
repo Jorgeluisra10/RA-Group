@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getProperties } from "../../../../../../lib/api";
 import { supabase } from "../../../../../../lib/supabaseClient";
 import Image from "next/image";
 
 export default function EditarPropiedadPage() {
+  const router = useRouter();
   const { id } = useParams();
   const [propiedad, setPropiedad] = useState(null);
   const [imagenes, setImagenes] = useState([]);
@@ -79,6 +80,7 @@ export default function EditarPropiedadPage() {
       if (error) throw error;
 
       showMensaje("Cambios guardados exitosamente");
+      router.push("/admin/propiedades");
     } catch (err) {
       console.error("Error al guardar cambios:", err.message);
       showMensaje("Error al guardar cambios");

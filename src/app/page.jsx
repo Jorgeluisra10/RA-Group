@@ -7,7 +7,6 @@ import FindHome from "../components/FindHome";
 import PropertyCard from "../components/PropertyCard";
 import { getCars, getProperties } from "../lib/api";
 
-
 export default function Home() {
   const propertyRef = useRef(null);
   const carRef = useRef(null);
@@ -96,10 +95,13 @@ export default function Home() {
           ▶
         </button>
 
-        <div className="overflow-x-auto overflow-y-hidden scrollbar-hide">
+        <div
+          className="overflow-x-scroll overflow-y-hidden scrollbar-hide touch-pan-x -mx-4 px-4"
+          style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
+        >
           <div
             ref={propertyRef}
-            className="flex space-x-4 px-2 md:px-4 w-full overflow-hidden min-h-[28rem]"
+            className="flex space-x-4 w-full min-h-[28rem] touch-pan-x"
             style={{ scrollBehavior: "smooth" }}
           >
             {recentProperties.map((property) => (
@@ -113,8 +115,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
       {/* Autos */}
-      <section className=" relative px-4 sm:px-6 lg:px-12 bg-white">
+      <section className="relative px-4 sm:px-6 lg:px-12 bg-white mt-20">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[#1A295C]">
           Autos destacados
         </h1>
@@ -137,10 +140,13 @@ export default function Home() {
           ▶
         </button>
 
-        <div className="overflow-x-auto overflow-y-hidden scrollbar-hide">
+        <div
+          className="overflow-x-scroll overflow-y-hidden scrollbar-hide touch-pan-x -mx-4 px-4"
+          style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
+        >
           <div
             ref={carRef}
-            className="flex space-x-4 px-2 md:px-4 w-full overflow-hidden min-h-[28rem]"
+            className="flex space-x-4 w-full min-h-[28rem] touch-pan-x"
             style={{ scrollBehavior: "smooth" }}
           >
             {recentCars.map((car) => (
@@ -154,16 +160,13 @@ export default function Home() {
           </div>
         </div>
       </section>
-            <section>
+
+      {/* Atención */}
+      <section className="mt-12">
         <div>
           <Atencion />
         </div>
       </section>
-
-      {/* Comentarios */}
-      {/* <div className="bg-[#f9f9f9] text-[#1A295C] pb-12 max-w-7xl mx-auto rounded-xl shadow-lg px-6 sm:px-12 mb-10">
-        <Comments />
-      </div> */}
     </div>
   );
 }

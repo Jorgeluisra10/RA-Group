@@ -8,7 +8,7 @@ import { SlidersHorizontal } from "lucide-react";
 
 const defaultFilters = {
   type: {},
-  price: { min: 0, max: 100000000 },
+  price: { min: 0, max: 1000000000 },
   beds: 0,
   baths: 0,
   area: { min: 0, max: 10000 },
@@ -32,12 +32,8 @@ export default function PropiedadesPage() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        // Puedes pasar page y pageSize si implementas paginado
         const data = await getProperties();
-
-        // Ordena por fecha reciente
         data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
         setProperties(data);
       } catch (error) {
         console.error("Error al obtener propiedades:", error);
@@ -47,7 +43,6 @@ export default function PropiedadesPage() {
     fetchProperties();
   }, []);
 
-  // Aquí la función para ordenar y filtrar igual que antes
   const sortProperties = (props) => {
     switch (sortOption) {
       case "price_low":

@@ -1,43 +1,70 @@
-'use client';
-import { ArrowLeftCircle } from "lucide-react";
+"use client";
+import { UserCircle2, ArrowLeftCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
-import { getProperties } from "../../../lib/api"; // Asegúrate de tener esta función
+import { getProperties } from "../../../lib/api";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Thumbs } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
 
-// Carrusel de imágenes con efecto de lupa al hacer hover
+// Carrusel de imágenes mejorado con miniaturas
 const ImageGallery = ({ images }) => {
-  const [mainImage, setMainImage] = useState(images[0]);
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
   return (
     <div className="w-full">
-      <div className="relative overflow-hidden group rounded-lg">
-        <Image
-          src={mainImage}
-          alt="Vista principal"
-          width={800}
-          height={400}
-          className="w-full h-[400px] object-cover transition-transform duration-300 group-hover:scale-110"
-          priority
-        />
-      </div>
-      <div className="flex gap-3 mt-4">
+      <Swiper
+        spaceBetween={10}
+        navigation
+        thumbs={{ swiper: thumbsSwiper }}
+        modules={[Navigation, Thumbs]}
+        className="rounded-lg overflow-hidden"
+      >
         {images.map((img, idx) => (
-          <div
-            key={idx}
-            className={`w-24 h-24 rounded cursor-pointer border ${
-              img === mainImage ? "border-blue-500" : "border-transparent"
-            } hover:scale-105 transition-transform duration-300 relative`}
-            onClick={() => setMainImage(img)}
-          >
-            <Image
-              src={img}
-              alt={`img-${idx}`}
-              fill
-              className="object-cover rounded"
-            />
-          </div>
+          <SwiperSlide key={idx}>
+            <div className="relative w-full h-[400px]">
+              <Image
+                src={img}
+                alt={`img-${idx}`}
+                fill
+                className="object-cover w-full h-full"
+                priority={idx === 0}
+              />
+            </div>
+          </SwiperSlide>
         ))}
+      </Swiper>
+
+      <div className="mt-4">
+        <Swiper
+          onSwiper={setThumbsSwiper}
+          spaceBetween={10}
+          breakpoints={{
+            0: { slidesPerView: 3 },
+            640: { slidesPerView: 4 },
+            1024: { slidesPerView: 5 },
+          }}
+          watchSlidesProgress
+          modules={[Navigation, Thumbs]}
+          className="rounded-md"
+        >
+          {images.map((img, idx) => (
+            <SwiperSlide key={`thumb-${idx}`}>
+              <div className="relative w-full h-20 cursor-pointer">
+                <Image
+                  src={img}
+                  alt={`thumb-${idx}`}
+                  fill
+                  className="object-cover rounded border hover:border-blue-500"
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </div>
   );
@@ -47,10 +74,11 @@ const PropertyDetail = ({ params }) => {
   const { id } = use(params);
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProperty = async () => {
-      const data = await getProperties(); // Función que trae todas las propiedades
+      const data = await getProperties();
       const prop = data.find((item) => String(item.id) === id);
       setProperty(prop);
       setLoading(false);
@@ -66,18 +94,15 @@ const PropertyDetail = ({ params }) => {
     return <div className="p-8">Propiedad no encontrada.</div>;
   }
 
+  const whatsappLink = `https://wa.me/573103216174?text=Hola%2C%20estoy%20interesado%20en%20la%20propiedad%20%22${encodeURIComponent(
+    property.title
+  )}%20%C2%BFPodemos%20hablar%3F`;
+
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      {/* Volver */}
-      <Link
-        href="/propiedades"
-        className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-700 font-medium mb-6 transition-all bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-full shadow"
-      >
-        <ArrowLeftCircle className="w-5 h-5" /> Volver a Propiedades
-      </Link>
+    <div className="mt-20 p-8 max-w-7xl mx-auto space-y-8">
 
       {/* Encabezado */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <h1 className="text-3xl font-bold">{property.title}</h1>
         <span className="text-yellow-500 text-2xl font-bold">
           ${property.price.toLocaleString()}
@@ -110,69 +135,71 @@ const PropertyDetail = ({ params }) => {
       {/* Descripción */}
       <div>
         <h2 className="text-xl font-semibold mb-2">Descripción</h2>
-        <p className="text-gray-700">{property.description}</p>
+        <p className="text-gray-700 whitespace-pre-line">
+          {property.description}
+        </p>
       </div>
 
       {/* Agente */}
-      <div className="bg-gray-100 p-4 rounded-md flex items-center gap-4">
-        <div className="w-12 h-12 bg-gray-300 rounded-full" />
-        <div>
-          <p className="font-semibold">{property.agent?.name || "Sin agente"}</p>
-          <p className="text-sm text-gray-500">{property.agent?.email || "-"}</p>
-        </div>
-      </div>
 
-      {/* Características */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Características</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          {property.features
-            ? Object.entries(property.features).map(([key, values]) => (
-                <div key={key}>
-                  <h3 className="font-semibold capitalize text-gray-600">{key}</h3>
-                  <ul className="list-disc ml-5 mt-2 text-sm text-gray-700">
-                    {values.map((item, idx) => (
-                      <li key={idx}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))
-            : <p className="text-gray-500">No hay características disponibles.</p>
-          }
+      <div className="bg-gray-100 p-4 rounded-md flex items-center gap-4">
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
+          <UserCircle2 className="w-10 h-10" />
+        </div>
+        <div>
+          <p className="font-semibold text-lg">Juan Pablo Zambrano</p>
+          <p className="text-sm text-gray-600">
+            Agente inmobiliario en Boyacá, Colombia.
+          </p>
         </div>
       </div>
+    
 
       {/* Certificación energética */}
-      <div className="mt-4">
-        <h2 className="text-xl font-semibold mb-2">Certificación energética</h2>
-        <span className="inline-block bg-green-500 text-white px-3 py-1 rounded-full">
-          {property.energyCertificate || "-"}
-        </span>
-      </div>
+      {property.energyCertificate && (
+        <div className="mt-4">
+          <h2 className="text-xl font-semibold mb-2">
+            Certificación energética
+          </h2>
+          <span className="inline-block bg-green-500 text-white px-3 py-1 rounded-full">
+            {property.energyCertificate}
+          </span>
+        </div>
+      )}
 
       {/* Planos */}
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-2">Planos de la propiedad</h2>
-        <div className="flex flex-wrap gap-4">
-          {property.plans?.map((plan, idx) => (
-            <div key={idx} className="w-60 h-40 relative rounded shadow hover:scale-105 transition-transform overflow-hidden">
-              <Image
-                src={`/images/planos/${plan}`}
-                alt={`Plano ${idx}`}
-                fill
-                className="object-cover"
-                priority={idx === 0}
-              />
-            </div>
-          )) || <p className="text-gray-500">No hay planos disponibles.</p>}
+      {property.plans?.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2">Planos de la propiedad</h2>
+          <div className="flex flex-wrap gap-4">
+            {property.plans.map((plan, idx) => (
+              <div
+                key={idx}
+                className="w-60 h-40 relative rounded shadow hover:scale-105 transition-transform overflow-hidden"
+              >
+                <Image
+                  src={`/images/planos/${plan}`}
+                  alt={`Plano ${idx}`}
+                  fill
+                  className="object-cover"
+                  priority={idx === 0}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Botón interactivo */}
+      {/* Botón WhatsApp */}
       <div className="text-center mt-10">
-        <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full shadow hover:bg-blue-700 transition-colors hover:scale-105 duration-300">
-          Ver Tour Virtual 360°
-        </button>
+        <a
+          href={whatsappLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-6 py-3 bg-yellow-500 text-white font-semibold rounded-full shadow hover:bg-yellow-600 transition-colors hover:scale-105 duration-300"
+        >
+          Consultar por esta propiedad
+        </a>
       </div>
     </div>
   );
