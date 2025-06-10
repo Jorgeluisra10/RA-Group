@@ -123,7 +123,7 @@ export default function PropertyCard({ property }) {
         {/* Botón */}
         <Link
           href={`/propiedad/${property.id}`}
-          className="block text-center bg-blue-900 text-white py-2 rounded-md font-medium hover:bg-blue-800 transition mt-auto"
+          className="block text-center bg-[#0f1c46] text-white py-2 rounded-md font-medium hover:bg-[#fdc700] transition mt-auto"
         >
           Ver Detalles
         </Link>

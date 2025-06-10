@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabaseClient"; // Ajusta la ruta si es necesario
 
 const FindHome = () => {
   const router = useRouter();
@@ -9,22 +10,95 @@ const FindHome = () => {
   const [propertyType, setPropertyType] = useState("");
   const [priceRange, setPriceRange] = useState("");
 
+  const [locationsOptions, setLocationsOptions] = useState([]);
+  const [propertyTypesOptions, setPropertyTypesOptions] = useState([]);
+
+  useEffect(() => {
+    async function fetchOptions() {
+      // Obtener ciudades únicas de propiedades
+      const { data: propiedades, error: errorProp } = await supabase
+        .from("properties")
+        .select("ciudad")
+        .neq("ciudad", null);
+
+      if (errorProp) {
+        console.error("Error fetching ciudades:", errorProp);
+        return;
+      }
+
+      // Extraemos ciudades únicas
+      const ciudadesUnicas = [
+        ...new Set(propiedades?.map((p) => p.ciudad).filter(Boolean)),
+      ].sort();
+
+      setLocationsOptions(ciudadesUnicas);
+
+      // Obtener tipos únicos de propiedades
+      const { data: tiposProp, error: errorTiposProp } = await supabase
+        .from("properties")
+        .select("tipo")
+        .neq("tipo", null);
+
+      if (errorTiposProp) {
+        console.error("Error fetching tipos de propiedades:", errorTiposProp);
+        return;
+      }
+
+      const tiposPropUnicos = [
+        ...new Set(tiposProp?.map((p) => p.tipo).filter(Boolean)),
+      ];
+
+      // Comprobar si hay carros en la tabla cars para agregar tipo "Carro"
+      const { count: countCars, error: errorCountCars } = await supabase
+        .from("cars")
+        .select("id", { count: "exact", head: true });
+
+      if (errorCountCars) {
+        console.error("Error contando carros:", errorCountCars);
+        return;
+      }
+
+      const tiposFinales = [...tiposPropUnicos];
+      if (countCars > 0 && !tiposFinales.includes("Carro")) {
+        tiposFinales.push("Carro");
+      }
+
+      tiposFinales.sort();
+
+      setPropertyTypesOptions(tiposFinales);
+    }
+
+    fetchOptions();
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Lógica básica para determinar la redirección
-    const isCar = propertyType.toLowerCase().includes("carro"); // Puedes ajustar esto si tienes más criterios
+    const isCar = propertyType.toLowerCase() === "carro";
+
+    // Parsear rango de precio a valores numéricos
+    const [precioMin, precioMax] = (() => {
+      if (priceRange === "") return [null, null];
+      if (priceRange === "1000+") return [1000000000, null];
+      const [min, max] = priceRange.split("-").map((p) => Number(p) * 1000000);
+      return [min, max];
+    })();
+
+    const queryParams = new URLSearchParams();
 
     if (isCar) {
-      router.push("/carros");
+      // Parámetros para búsqueda de carros
+      if (precioMin !== null) queryParams.set("precioMin", precioMin);
+      if (precioMax !== null) queryParams.set("precioMax", precioMax);
+      if (propertyType) queryParams.set("tipo", propertyType);
+      router.push(`/vehiculos?${queryParams.toString()}`);
     } else {
-      const queryParams = new URLSearchParams({
-        ciudad: location,
-        tipo: propertyType,
-        precio: priceRange,
-      }).toString();
-
-      router.push(`/propiedades?${queryParams}`);
+      // Parámetros para búsqueda de propiedades
+      if (location) queryParams.set("ciudad", location);
+      if (propertyType) queryParams.set("tipo", propertyType);
+      if (precioMin !== null) queryParams.set("precioMin", precioMin);
+      if (precioMax !== null) queryParams.set("precioMax", precioMax);
+      router.push(`/propiedades?${queryParams.toString()}`);
     }
   };
 
@@ -59,10 +133,11 @@ const FindHome = () => {
             className="p-2 border border-gray-300 rounded-md"
           >
             <option value="">Selecciona una Ciudad</option>
-            <option value="Tunja">Tunja</option>
-            <option value="Bogotá D.C">Bogotá D.C</option>
-            <option value="Bucaramanga">Bucaramanga</option>
-            <option value="Chiquinquirá">Chiquinquirá</option>
+            {locationsOptions.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex flex-col text-left w-full md:w-[30%]">
@@ -77,10 +152,11 @@ const FindHome = () => {
             className="p-2 border border-gray-300 rounded-md"
           >
             <option value="">Selecciona un Tipo</option>
-            <option value="Departamento">Departamento</option>
-            <option value="Casa">Casa</option>
-            <option value="Lote">Lote</option>
-            <option value="Carro">Carro</option> {/* si también quieres buscar carros desde aquí */}
+            {propertyTypesOptions.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex flex-col text-left w-full md:w-[30%]">

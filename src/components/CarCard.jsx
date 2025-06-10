@@ -104,7 +104,7 @@ export default function CarCard({ car }) {
         {/* Button */}
         <Link
           href={`/carro/${car.id}`}
-          className="block text-center bg-blue-900 text-white py-2 rounded-md hover:bg-blue-800 transition-colors mt-auto"
+          className="block text-center bg-[#0f1c46] text-white py-2 rounded-md hover:bg-[#fdc700] transition-colors mt-auto"
         >
           Ver detalles
         </Link>

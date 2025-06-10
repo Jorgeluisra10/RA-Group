@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { motion } from "framer-motion";
 
@@ -22,7 +22,7 @@ export default function SobreNosotros() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            Conectando personas con su hogar ideal y su vehículo soñado
+            Conectando personas con su hogar ideal y el vehículo de sus sueños
           </motion.p>
           <div className="h-1 w-24 bg-[#FFCC00] mx-auto mt-4" />
         </div>
@@ -41,10 +41,16 @@ export default function SobreNosotros() {
             Nuestra Historia
           </motion.h2>
           <p className="text-gray-700 mb-4">
-            <strong>RA Group</strong> nació en Chiquinquirá, Boyacá, Colombia, con la visión de transformar la experiencia de compra y venta de propiedades y autos. Somos una empresa apasionada por conectar a nuestros clientes con opciones de calidad, con transparencia, agilidad y el mejor servicio del país.
+            <strong>Inmova</strong> nació en Chiquinquirá, Boyacá, con la
+            misión de revolucionar la experiencia de comprar y vender
+            propiedades y vehículos en Colombia. Nos apasiona conectar a cada
+            cliente con opciones de calidad, brindando transparencia, rapidez y
+            un servicio excepcional.
           </p>
           <p className="text-gray-700">
-            Desde nuestros inicios, nos hemos comprometido a ofrecer soluciones integrales que satisfagan las necesidades de nuestros clientes, brindando asesoramiento personalizado y un servicio excepcional en cada etapa del proceso.
+            Trabajamos con compromiso para ofrecer soluciones
+            completas, acompañando a nuestros clientes en cada paso con asesoría
+            personalizada y atención dedicada.
           </p>
         </div>
         <motion.div
@@ -56,7 +62,7 @@ export default function SobreNosotros() {
         >
           <div className="relative bg-white p-6 rounded-lg z-10">
             <img
-              src="/sobre-nosotros/chiquinquira-ilustracion.svg"
+              src="images/ilustracion.png"
               alt="Chiquinquirá, Boyacá"
               className="w-full h-auto"
             />
@@ -91,10 +97,14 @@ export default function SobreNosotros() {
                 <div className="w-10 h-10 rounded-full bg-[#1A295C] text-[#FFCC00] flex items-center justify-center text-xl mr-3">
                   ⚡
                 </div>
-                <h3 className="text-xl font-semibold text-[#1A295C]">Nuestra Misión</h3>
+                <h3 className="text-xl font-semibold text-[#1A295C]">
+                  Nuestra Misión
+                </h3>
               </div>
               <p className="text-gray-600">
-                “Brindar la mejor experiencia al cliente en la compra y venta de inmuebles y autos en Colombia.”
+                Ofrecer la mejor experiencia en la compra y venta de inmuebles y
+                vehículos, garantizando confianza, agilidad y atención
+                personalizada.
               </p>
             </motion.div>
 
@@ -110,10 +120,14 @@ export default function SobreNosotros() {
                 <div className="w-10 h-10 rounded-full bg-[#FFCC00] text-[#1A295C] flex items-center justify-center text-xl mr-3">
                   👁️
                 </div>
-                <h3 className="text-xl font-semibold text-[#1A295C]">Nuestra Visión</h3>
+                <h3 className="text-xl font-semibold text-[#1A295C]">
+                  Nuestra Visión
+                </h3>
               </div>
               <p className="text-gray-600">
-                “Ser la empresa líder en soluciones inmobiliarias y automotrices, reconocida por la confianza y la innovación.”
+                Convertirnos en la empresa líder en el sector inmobiliario y
+                automotriz en Colombia, reconocida por innovación, transparencia
+                y excelencia.
               </p>
             </motion.div>
           </div>
@@ -139,17 +153,38 @@ export default function SobreNosotros() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Los principios que guían nuestro trabajo diario y nos permiten ofrecer un servicio excepcional.
+            Principios que guían cada acción y nos permiten ofrecer un servicio
+            excepcional y confiable.
           </motion.p>
           <div className="h-1 w-16 bg-[#FFCC00] mx-auto mb-12" />
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {[
-              { icon: "🛡️", title: "Transparencia", text: "Información clara y honesta en cada transacción." },
-              { icon: "💬", title: "Servicio al cliente", text: "Atención personalizada y excepcional en todo momento." },
-              { icon: "🔒", title: "Compromiso", text: "Dedicación total a cumplir con nuestras promesas." },
-              { icon: "⚡", title: "Agilidad", text: "Procesos eficientes para ahorrar tiempo a nuestros clientes." },
-              { icon: "❤️", title: "Pasión", text: "Amor por lo que hacemos y por ayudar a nuestros clientes." },
+              {
+                icon: "🛡️",
+                title: "Transparencia",
+                text: "Comunicación clara y honesta en todo momento.",
+              },
+              {
+                icon: "💬",
+                title: "Atención al Cliente",
+                text: "Servicio personalizado y cercano.",
+              },
+              {
+                icon: "🔒",
+                title: "Compromiso",
+                text: "Cumplimos nuestras promesas con dedicación.",
+              },
+              {
+                icon: "⚡",
+                title: "Eficiencia",
+                text: "Procesos ágiles que respetan tu tiempo.",
+              },
+              {
+                icon: "❤️",
+                title: "Pasión",
+                text: "Amamos lo que hacemos y a quienes servimos.",
+              },
             ].map((valor, index) => (
               <motion.div
                 key={index}

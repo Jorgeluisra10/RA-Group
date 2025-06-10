@@ -5,6 +5,7 @@ import PropertyFilterSidebar from "../../components/PropertyFilterSidebar";
 import PropertyCard from "../../components/PropertyCard";
 import { getProperties } from "../../lib/api";
 import { SlidersHorizontal } from "lucide-react";
+import BannerCarousel from "./BannerCarousel/BannerCarousel";
 
 const defaultFilters = {
   type: {},
@@ -15,12 +16,15 @@ const defaultFilters = {
   features: {},
 };
 
+const ITEMS_PER_PAGE = 20;
+
 export default function PropiedadesPage() {
   const [properties, setProperties] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState(defaultFilters);
   const [sortOption, setSortOption] = useState("recent");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -98,13 +102,29 @@ export default function PropiedadesPage() {
     })
   );
 
+  const totalPages = Math.ceil(filteredProperties.length / ITEMS_PER_PAGE);
+  const paginatedProperties = filteredProperties.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   const handleApplyFilters = (filters) => {
     setAppliedFilters(filters || defaultFilters);
+    setCurrentPage(1); // Reset page on filter apply
     if (isMobile) setFiltersOpen(false);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
 
   return (
     <div className="relative max-w-screen-xl mx-auto px-4 mt-12 md:px-8 py-12">
+      <BannerCarousel />
       {isMobile && (
         <div className="sticky top-0 z-40 mb-6 bg-white pt-2 pb-4 flex justify-between items-center gap-2">
           <button
@@ -118,7 +138,10 @@ export default function PropiedadesPage() {
             <span className="text-gray-700">Ordenar por:</span>
             <select
               value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
+              onChange={(e) => {
+                setSortOption(e.target.value);
+                setCurrentPage(1);
+              }}
               className="border rounded-md px-2 py-1 text-sm"
             >
               <option value="recent">Más recientes</option>
@@ -140,15 +163,39 @@ export default function PropiedadesPage() {
           />
         </div>
 
-        <section className="md:w-3/4 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProperties.length > 0 ? (
-            filteredProperties.map((prop) => (
-              <PropertyCard key={prop.id} property={prop} />
-            ))
-          ) : (
-            <p className="col-span-full text-center text-gray-500 mt-8">
-              No se encontraron propiedades con esos filtros.
-            </p>
+        <section className="md:w-3/4 flex flex-col gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedProperties.length > 0 ? (
+              paginatedProperties.map((prop) => (
+                <PropertyCard key={prop.id} property={prop} />
+              ))
+            ) : (
+              <p className="col-span-full text-center text-gray-500 mt-8">
+                No se encontraron propiedades con esos filtros.
+              </p>
+            )}
+          </div>
+
+          {filteredProperties.length > ITEMS_PER_PAGE && (
+            <div className="flex justify-center items-center gap-4 mt-8">
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50"
+              >
+                Anterior
+              </button>
+              <span className="text-sm text-gray-700">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50"
+              >
+                Siguiente
+              </button>
+            </div>
           )}
         </section>
       </div>

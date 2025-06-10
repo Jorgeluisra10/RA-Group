@@ -23,7 +23,7 @@ export default function Navbar() {
   const navItems = [
     { label: "Inicio", path: "/" },
     { label: "Propiedades", path: "/propiedades" },
-    { label: "Autos", path: "/carros" },
+    { label: "Vehículos", path: "/vehiculos" },
     { label: "Quiero Vender", path: "/vender" },
     { label: "Sobre nosotros", path: "/sobre-nosotros" },
   ];

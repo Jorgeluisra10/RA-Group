@@ -1,160 +1,76 @@
-const Atencion = () => {
+import { ShieldCheck, RefreshCcw, DollarSign } from "lucide-react";
+import { motion } from "framer-motion";
+
+const features = [
+  {
+    icon: <ShieldCheck className="w-8 h-8 text-black" />,
+    title: "Agentes verificados",
+    description:
+      "Confianza y respaldo en cada negociación. Nuestros agentes son profesionales certificados con amplia experiencia en el mercado.",
+  },
+  {
+    icon: <RefreshCcw className="w-8 h-8 text-black" />,
+    title: "Propiedades y vehículos negociables",
+    description:
+      "Flexibilidad real para compradores y vendedores. Trabajamos para encontrar el mejor acuerdo que satisfaga a todas las partes.",
+  },
+  {
+    icon: <DollarSign className="w-8 h-8 text-black" />,
+    title: "Mejores precios del mercado",
+    description:
+      "Opciones accesibles y competitivas. Analizamos constantemente el mercado para ofrecerte las mejores oportunidades de inversión.",
+  },
+];
+
+export default function Atencion() {
   return (
-    <section className="relative mb-15 py-16 px-6 sm:px-12 lg:px-24 max-w-7xl mx-auto text-center rounded-lg overflow-hidden bg-[#f0f4ff] shadow-lg shadow-[#1a295c33]">
-      {/* Difuminado arriba */}
-      <div className="pointer-events-none absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-[#f0f4ff] to-transparent blur-xl opacity-80 z-20" />
-      {/* Difuminado abajo */}
-      <div className="pointer-events-none absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#f0f4ff] to-transparent blur-xl opacity-80 z-20" />
+    <section className="relative bg-[#0f1c46] py-24 px-4 text-white text-center overflow-hidden">
+      {/* Óvalo superior */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-3 bg-yellow-400 rounded-b-full z-0 pointer-events-none select-none" />
+      <div className="relative max-w-6xl mx-auto z-10">
+        <h2 className="text-4xl font-extrabold mb-4">¿Por qué elegirnos?</h2>
+        <div className="h-1 w-14 bg-yellow-400 mx-auto mb-6 rounded-full" />
+        <p className="max-w-2xl mx-auto mb-12">
+          Somos expertos en bienes raíces y vehículos, ofreciendo soluciones
+          personalizadas para todas tus necesidades.
+        </p>
 
-      {/* Fondo patrón sutil */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg width=40 height=40 viewBox=0 0 40 40 xmlns=http://www.w3.org/2000/svg><circle cx=1 cy=1 r=1 fill=%231a295c33 fill-opacity=0.1/></svg>')]"
-        style={{ backgroundRepeat: "repeat" }}
-      />
-
-      {/* Contenido con backdrop-filter */}
-      <div className="relative z-30 backdrop-blur-sm bg-white/60 rounded-lg p-10 shadow-inner shadow-[#1a295c22]">
-        <h2 className="text-3xl font-extrabold text-[#1A295C] mb-10 drop-shadow-sm">
-          ¿Por qué elegirnos?
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Rapidez */}
-          <div className="flex flex-col items-center space-y-5 transform transition duration-500 hover:scale-105 hover:drop-shadow-xl">
-            <div className="bg-[#FDC700]/20 p-4 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-14 w-14 text-[#1A295C] animate-bounce-slow"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-semibold text-[#1A295C]">Rapidez</h3>
-            <p className="text-gray-700 max-w-xs leading-relaxed">
-              Encuentra y concreta tus transacciones en tiempo récord.
-            </p>
-          </div>
-
-          {/* Seguridad */}
-          <div className="flex flex-col items-center space-y-5 transform transition duration-500 hover:scale-105 hover:drop-shadow-xl">
-            <div className="bg-[#FDC700]/20 p-4 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-14 w-14 text-[#1A295C] animate-pulse-slow"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 11c0-1.657 1.343-3 3-3s3 1.343 3 3-1.343 3-3 3-3-1.343-3-3z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 21c-3.866 0-7-3.134-7-7V7a7 7 0 0114 0v7c0 3.866-3.134 7-7 7z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-semibold text-[#1A295C]">Seguridad</h3>
-            <p className="text-gray-700 max-w-xs leading-relaxed">
-              Transacciones seguras con protección y respaldo en todo momento.
-            </p>
-          </div>
-
-          {/* Atención personalizada */}
-          <div className="flex flex-col items-center space-y-5 transform transition duration-500 hover:scale-105 hover:drop-shadow-xl">
-            <div className="bg-[#FDC700]/20 p-4 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-14 w-14 text-[#1A295C] animate-spin-slow"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M18 10c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 21v-2a4 4 0 00-4-4H6a2 2 0 00-2 2v2a2 2 0 002 2h4z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-semibold text-[#1A295C]">
-              Atención personalizada
-            </h3>
-            <p className="text-gray-700 max-w-xs leading-relaxed">
-              Nuestro equipo está disponible para ayudarte en cada paso.
-            </p>
-          </div>
-
-          {/* Variedad */}
-          <div className="flex flex-col items-center space-y-5 transform transition duration-500 hover:scale-105 hover:drop-shadow-xl">
-            <div className="bg-[#FDC700]/20 p-4 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-14 w-14 text-[#1A295C] animate-pulse-slow"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 6h16M4 12h16M4 18h7"
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-semibold text-[#1A295C]">Variedad</h3>
-            <p className="text-gray-700 max-w-xs leading-relaxed">
-              Amplia selección de propiedades y autos para todos los gustos.
-            </p>
-          </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ scale: 1.05 }}
+              className="bg-white rounded-xl shadow-lg p-6 text-black transition-all duration-300 group hover:shadow-2xl"
+            >
+              <div className="flex items-center justify-center mb-4">
+                <motion.div
+                  whileHover={{ rotate: 10 }}
+                  className="bg-yellow-400 rounded-full p-4 w-16 h-16 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300"
+                >
+                  {feature.icon}
+                </motion.div>
+              </div>
+              <h3 className="font-bold text-lg mb-2 text-center">
+                {feature.title}
+              </h3>
+              <p className="text-sm text-gray-700 text-center">
+                {feature.description}
+              </p>
+              <div className="h-1 w-8 bg-yellow-400 mt-4 mx-auto rounded-full" />
+            </motion.div>
+          ))}
         </div>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          className="mt-12 bg-yellow-400 text-black font-semibold px-8 py-3 rounded-full shadow-md hover:shadow-lg transition duration-300"
+        >
+          Conoce más
+        </motion.button>
       </div>
 
-      <style jsx>{`
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.6; }
-        }
-        @keyframes spin-slow {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        .animate-bounce-slow {
-          animation: bounce-slow 2s ease-in-out infinite;
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 2.5s ease-in-out infinite;
-        }
-        .animate-spin-slow {
-          animation: spin-slow 5s linear infinite;
-        }
-      `}</style>
+      {/* Degradado inferior mejorado */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[150%] h-3 bg-yellow-400 rounded-t-full z-0 pointer-events-none select-none" />
     </section>
   );
-};
-
-export default Atencion;
+}
