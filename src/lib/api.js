@@ -101,3 +101,17 @@ export async function deleteProperty(id) {
     throw new Error(`Error al eliminar la propiedad: ${error.message}`);
   }
 }
+
+// Obtener solicitudes de clientes para publicación
+export async function getSolicitudes() {
+  const { data, error } = await supabase
+    .from("publicaciones_propiedades")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Error al obtener solicitudes: ${error.message}`);
+  }
+
+  return data;
+}

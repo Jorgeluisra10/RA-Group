@@ -96,14 +96,15 @@ export default function Home() {
         </button>
 
         <div
+          ref={propertyRef}
           className="overflow-x-scroll overflow-y-hidden scrollbar-hide touch-pan-x -mx-4 px-4"
-          style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
+          style={{
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
+            scrollBehavior: "smooth",
+          }}
         >
-          <div
-            ref={propertyRef}
-            className="flex space-x-4 w-full min-h-[28rem] touch-pan-x"
-            style={{ scrollBehavior: "smooth" }}
-          >
+          <div className="flex space-x-4 w-full min-h-[28rem] touch-pan-x">
             {recentProperties.map((property) => (
               <div
                 key={property.id}
@@ -141,14 +142,15 @@ export default function Home() {
         </button>
 
         <div
+          ref={carRef}
           className="overflow-x-scroll overflow-y-hidden scrollbar-hide touch-pan-x -mx-4 px-4"
-          style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}
+          style={{
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
+            scrollBehavior: "smooth",
+          }}
         >
-          <div
-            ref={carRef}
-            className="flex space-x-4 w-full min-h-[28rem] touch-pan-x"
-            style={{ scrollBehavior: "smooth" }}
-          >
+          <div className="flex space-x-4 w-full min-h-[28rem] touch-pan-x">
             {recentCars.map((car) => (
               <div
                 key={car.id}
