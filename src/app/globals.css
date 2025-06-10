@@ -53,6 +53,18 @@ body {
   clip-path: polygon(0 0, 100% 20%, 80% 100%, 0% 80%);
 }
 
+/* Tailwind no tiene rotate-y-180 ni preserve-3d por defecto */
+.perspective {
+  perspective: 1000px;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+
 /* Scrollbar personalizado para Firefox */
 /*  {
   scrollbar-width: thin;

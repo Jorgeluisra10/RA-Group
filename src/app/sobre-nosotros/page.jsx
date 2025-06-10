@@ -1,74 +1,67 @@
 "use client";
 
 import { motion } from "framer-motion";
+import HistoriaTimeline from "./(components)/historia"; // Asegúrate de tener este archivo con los datos de la línea de tiempo
 
 export default function SobreNosotros() {
   return (
     <main className="bg-white">
       {/* Encabezado */}
-      <section className="bg-[#1A295C] text-white py-16 relative overflow-hidden mt-15">
-        <div className="max-w-5xl mx-auto px-6 text-center">
-          <motion.h1
-            className="text-4xl md:text-5xl font-bold mb-4"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            Sobre Nosotros
-          </motion.h1>
-          <motion.p
-            className="text-lg md:text-xl text-[#FFCC00]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            Conectando personas con su hogar ideal y el vehículo de sus sueños
-          </motion.p>
-          <div className="h-1 w-24 bg-[#FFCC00] mx-auto mt-4" />
+      <section
+        className="relative w-full h-screen bg-cover bg-center flex flex-col justify-center items-center text-white px-6"
+        style={{
+          backgroundImage: "url('/images/fondo.png')",// // Asegúrate de que esté en /public/images/
+          backgroundColor: "#464e6a",
+        }}
+      >
+        {/* Capa oscura para contraste */}
+        <div className="absolute inset-0 bg-[#464e6a]/90 z-0" />
+
+        {/* Contenido central */}
+        <div className="relative z-10 max-w-5xl text-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-white">
+            Donde tu próximo{" "}
+            <span className="text-yellow-400">hogar o vehículo</span> comienza{" "}
+            <br />
+            con <span className="text-yellow-400">confianza</span>
+          </h1>
+
+          <p className="text-lg md:text-xl text-gray-200 mt-6">
+            Transformamos la experiencia de comprar y vender{" "}
+            <br className="hidden md:block" />
+            propiedades y vehículos en Colombia
+          </p>
+          <button className="mt-8 px-6 py-3 bg-yellow-400 text-slate-900 font-semibold rounded-full shadow-lg hover:bg-yellow-300 transition-all">
+            Conócenos
+          </button>
         </div>
+
+
+        {/* Flecha animada */}
+        <motion.div
+          className="absolute bottom-6 text-white text-2xl"
+          animate={{ y: [0, -8, 0] }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          <svg
+            className="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M19 9l-7 7-7-7" />
+          </svg>
+        </motion.div>
       </section>
 
       {/* Historia */}
-      <section className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center">
-        <div>
-          <motion.h2
-            className="text-2xl md:text-3xl font-bold text-[#1A295C] mb-4"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            Nuestra Historia
-          </motion.h2>
-          <p className="text-gray-700 mb-4">
-            <strong>Inmova</strong> nació en Chiquinquirá, Boyacá, con la
-            misión de revolucionar la experiencia de comprar y vender
-            propiedades y vehículos en Colombia. Nos apasiona conectar a cada
-            cliente con opciones de calidad, brindando transparencia, rapidez y
-            un servicio excepcional.
-          </p>
-          <p className="text-gray-700">
-            Trabajamos con compromiso para ofrecer soluciones
-            completas, acompañando a nuestros clientes en cada paso con asesoría
-            personalizada y atención dedicada.
-          </p>
-        </div>
-        <motion.div
-          className="relative shadow-lg rounded-lg overflow-hidden"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="relative bg-white p-6 rounded-lg z-10">
-            <img
-              src="images/ilustracion.png"
-              alt="Chiquinquirá, Boyacá"
-              className="w-full h-auto"
-            />
-          </div>
-          <div className="absolute -top-2 -right-2 w-full h-full bg-[#FFCC00] rounded-lg z-0" />
-        </motion.div>
+      <section >
+          <HistoriaTimeline />
       </section>
 
       {/* Misión y Visión */}
