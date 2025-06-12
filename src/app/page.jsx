@@ -67,7 +67,7 @@ export default function Home() {
         <div className="absolute top-0 right-0 h-full w-24 z-10 pointer-events-none">
           <div className="h-[200%] w-full bg-[#1A295C] opacity-10 rotate-[15deg] origin-top-right clip-path-custom" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-white/30 to-white z-10 pointer-events-none" />
+        <div className="absolute inset-0 z-10 pointer-events-none" />
         <FindHome />
       </div>
 

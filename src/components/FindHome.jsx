@@ -104,17 +104,19 @@ const FindHome = () => {
 
   return (
     <section className="relative bg-[url('/images/Fondo-FindHome.png')] bg-no-repeat bg-cover bg-center text-white font-poppins py-20 px-4 text-center overflow-hidden">
-      <div className="absolute inset-0 bg-black/50 z-0" />
+      <div className="absolute inset-0 bg-black/5 z-0" />
 
       <header className="mb-10 max-w-3xl mx-auto relative z-10">
-        <h1 className="text-4xl md:text-5xl font-extrabold drop-shadow mb-3">
-          Encuentra lo que buscas, donde lo sueñas
+        <h1
+          className="text-4xl md:text-5xl font-extrabold drop-shadow mb-3 text-white"
+        >
+          Encuentra lo que buscas donde lo sueñas
         </h1>
-        <p className="text-gray-200 text-sm md:text-base leading-relaxed">
+        {/* <p className="text-gray-200 text-sm md:text-base leading-relaxed">
           Explora nuestra selección de autos y propiedades disponibles en las
           principales ciudades de Colombia. Filtra por ciudad y tipo para
           encontrar justo lo que necesitas, de forma rápida y sencilla.
-        </p>
+        </p> */}
       </header>
 
       <form
