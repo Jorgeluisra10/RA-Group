@@ -5,6 +5,7 @@ import CarFilterSidebar from "../../components/CarFilterSidebar";
 import CarCard from "../../components/CarCard";
 import { getCars } from "../../lib/api";
 import { SlidersHorizontal } from "lucide-react";
+import BannerCarousel from "./Banner Carousel/page";
 
 const defaultPrice = { min: 0, max: 500_000_000 };
 const defaultYear = { min: 1950, max: new Date().getFullYear() };
@@ -162,16 +163,9 @@ export default function CarrosPage() {
   };
 
   return (
-    <div className="mb-10">
+    <div className="relative max-w-screen-xl mx-auto px-4 mt-12 md:px-8 py-12">
       {/* Hero section */}
-      <div className="mt-10 sm:mt-16 bg-gradient-to-r from-slate-900 to-slate-700 text-white py-12 sm:py-16 text-center px-4">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-          Encuentra el carro perfecto
-        </h1>
-        <p className="text-base sm:text-lg">
-          Filtra, ordena y explora cientos de opciones
-        </p>
-      </div>
+      <BannerCarousel/>
 
       {/* Controles y filtros */}
       <div className="container mx-auto px-4 mt-10 flex flex-col md:flex-row gap-6">

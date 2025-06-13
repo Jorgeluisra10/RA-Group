@@ -16,11 +16,12 @@ import {
   ArrowLeftCircle,
 } from "lucide-react";
 
-import YoutubeEmbed from "../../../components/YoutubeEmbed";
-import FuelEfficiencyCard from "../../../components/FuelEfficiencyCard";
+import YoutubeEmbed from "../(components)/YoutubeEmbed";
+import FuelEfficiencyCard from "../(components)/FuelEfficiencyCard";
 import { getCars } from "../../../lib/api";
+import InmovaScore from "../(components)/InmovaScore";
 
-const MapView = dynamic(() => import("../../../components/MapView"), {
+const MapView = dynamic(() => import("../(components)/MapView"), {
   ssr: false,
 });
 
@@ -202,6 +203,9 @@ const CarDetailPage = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="mt-8 bg-white rounded-2xl shadow-md p-6">
+        <InmovaScore/>
       </div>
 
       <div className="mt-10">

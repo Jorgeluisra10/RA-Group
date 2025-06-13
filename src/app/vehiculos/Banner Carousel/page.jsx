@@ -5,7 +5,7 @@ import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 
 const banners = [
-  { id: 1, src: "/images/banners/banner1.png", alt: "Banner 1" },
+  { id: 1, src: "/images/banners/banner3.png", alt: "Banner 1" },
 ];
 
 export default function BannerCarousel() {

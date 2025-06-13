@@ -196,6 +196,7 @@ export default function EditarCarroPage() {
           </div>
         </div>
       </div>
+      
     </div>
   );
 }
