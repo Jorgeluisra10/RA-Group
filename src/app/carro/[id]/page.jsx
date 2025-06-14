@@ -204,10 +204,9 @@ const CarDetailPage = () => {
           </div>
         </div>
       </div>
-      <div className="mt-8 bg-white rounded-2xl shadow-md p-6">
-        <InmovaScore/>
-      </div>
-
+      <section className="mt-10">
+        <InmovaScore carroId={id} />
+      </section>
       <div className="mt-10">
         <div className="flex gap-6 border-b border-gray-200">
           {tabs.map((tab) => (

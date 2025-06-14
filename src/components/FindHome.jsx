@@ -103,7 +103,7 @@ const FindHome = () => {
   };
 
   return (
-    <section className="relative bg-[url('/images/Fondo-FindHome.png')] bg-no-repeat bg-cover bg-center text-white font-poppins py-20 px-4 text-center overflow-hidden">
+    <section className="relative bg-[url('/images/Fondo-FindHome.png')] bg-no-repeat bg-cover bg-[center_top_40%] text-white font-poppins py-40 px-4 text-center overflow-hidden">
       <div className="absolute inset-0 bg-black/5 z-0" />
 
       <header className="mb-10 max-w-3xl mx-auto relative z-10">

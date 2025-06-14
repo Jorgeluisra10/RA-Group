@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../../../../../lib/supabaseClient";
+import EvaluacionAuto from "../../../../../../components/ia";
 import Image from "next/image";
 
 export default function EditarCarroPage() {
@@ -171,6 +172,11 @@ export default function EditarCarroPage() {
           </div>
         </form>
 
+        {/* IA */}
+        <div className="flex items-center justify-between">
+          <EvaluacionAuto evaluacion={carro} carroId={carro.id} />
+        </div>
+
         {/* Imágenes solo visualización */}
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold text-[#0a1128]">Imágenes</h2>
@@ -196,7 +202,6 @@ export default function EditarCarroPage() {
           </div>
         </div>
       </div>
-      
     </div>
   );
 }
