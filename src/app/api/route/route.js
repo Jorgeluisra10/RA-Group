@@ -3,17 +3,18 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import { supabase } from "../../../lib/supabaseClientAI";
 
-const openaiApiKey = process.env.OPENAI_API_KEY;
-const openai = new OpenAI({ apiKey: openaiApiKey });
-
 export async function POST(req) {
   try {
+    const openaiApiKey = process.env.OPENAI_API_KEY;
+
     if (!openaiApiKey) {
       return NextResponse.json(
-        { error: "Configuración incorrecta del servidor" },
+        { error: "La variable de entorno OPENAI_API_KEY no está definida" },
         { status: 500 }
       );
     }
+
+    const openai = new OpenAI({ apiKey: openaiApiKey });
 
     const body = await req.json();
     const carroId = body?.carroId;
