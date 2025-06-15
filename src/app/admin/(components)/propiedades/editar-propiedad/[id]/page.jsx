@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getProperties } from "../../../../../../lib/api";
 import { supabase } from "../../../../../../lib/supabaseClient";
-import Image from "next/image";
+import PropertyImageGallery from "../(components)/Imagenes";
 
 export default function EditarPropiedadPage() {
   const router = useRouter();
@@ -25,9 +25,9 @@ export default function EditarPropiedadPage() {
 
         const { data: imgs, error: imgErr } = await supabase
           .from("property_images")
-          .select("id, url")
+          .select("id, url, order")
           .eq("property_id", id)
-          .order("created_at", { ascending: true });
+          .order("order", { ascending: true });
 
         if (imgErr) throw imgErr;
         setImagenes(imgs || []);
@@ -79,6 +79,17 @@ export default function EditarPropiedadPage() {
 
       if (error) throw error;
 
+      // Guardar orden imágenes
+
+      await Promise.all(
+        imagenes.map((img) =>
+          supabase
+            .from("property_images")
+            .update({ order: img.order })
+            .eq("id", img.id)
+        )
+      );
+
       showMensaje("Cambios guardados exitosamente");
       router.push("/admin/propiedades");
     } catch (err) {
@@ -95,9 +106,9 @@ export default function EditarPropiedadPage() {
     );
 
   return (
-    <div className="min-h-screen bg-[#e0e1e6] text-white font-poppins flex items-start justify-center px-4 py-10">
-      <div className="w-full max-w-4xl bg-white rounded-xl shadow-xl p-8 text-black space-y-8">
-        <h1 className="text-3xl font-semibold text-[#0a1128] border-b border-[#FDC500] pb-2">
+    <div className="min-h-screen bg-[#0a1128] text-white font-poppins flex items-start justify-center px-4 py-10">
+      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl p-8 text-black space-y-8">
+        <h1 className="text-3xl font-bold text-[#0a1128] border-b-4 border-[#FDC500] pb-3">
           Editar Propiedad
         </h1>
 
@@ -108,20 +119,39 @@ export default function EditarPropiedadPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="title"
-              className="block font-medium mb-1 text-[#0a1128]"
-            >
-              Título
-            </label>
-            <input
-              id="title"
-              name="title"
-              value={propiedad.title || ""}
-              onChange={handleChange}
-              className="w-full p-3 rounded-lg border-2 border-[#FDC500]"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="title"
+                className="block font-medium mb-1 text-[#0a1128]"
+              >
+                Título
+              </label>
+              <input
+                id="title"
+                name="title"
+                value={propiedad.title || ""}
+                onChange={handleChange}
+                className="w-full p-3 rounded-lg border border-gray-300"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="price"
+                className="block font-medium mb-1 text-[#0a1128]"
+              >
+                Precio
+              </label>
+              <input
+                id="price"
+                name="price"
+                type="number"
+                value={propiedad.price || ""}
+                onChange={handleChange}
+                className="w-full p-3 rounded-lg border border-gray-300"
+              />
+            </div>
           </div>
 
           <div>
@@ -136,50 +166,24 @@ export default function EditarPropiedadPage() {
               name="description"
               value={propiedad.description || ""}
               onChange={handleChange}
-              className="w-full p-3 rounded-lg border-2 border-[#FDC500] h-36 resize-none"
+              className="w-full p-3 rounded-lg border border-gray-300 h-32 resize-none"
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="tipo"
-              className="block font-medium mb-1 text-[#0a1128]"
-            >
-              Tipo de propiedad
-            </label>
-            <select
-              id="tipo"
-              name="tipo"
-              value={propiedad.tipo || ""}
-              onChange={handleChange}
-              className="w-full p-3 rounded-lg border-2 border-[#FDC500] bg-white text-black"
-            >
-              <option value="">Seleccione una opción</option>
-              <option value="Lote">Lote</option>
-              <option value="Finca">Finca</option>
-              <option value="Oficina">Oficina</option>
-              <option value="Local">Local</option>
-              <option value="Apartamento">Apartamento</option>
-              <option value="Casa">Casa</option>
-              <option value="Terreno">Terreno</option>
-            </select>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              ["price", "Precio", "number"],
-              ["area", "Área (m²)", "number"],
-              ["habitaciones", "Habitaciones", "number"],
-              ["banos", "Baños", "number"],
-              ["garaje", "Garaje", "number"],
-              ["ciudad", "Ciudad", "text"],
-              ["barrio", "Barrio", "text"],
-              ["codigoPostal", "Código Postal", "number"],
-              ["direccion", "Dirección", "text"],
-              ["tipo", "Tipo de propiedad", "text"],
-              ["estado", "Estado", "text"],
-              ["agente", "Agente", "text"],
-            ].map(([name, label, type]) => (
+              ["tipo", "Tipo de propiedad"],
+              ["estado", "Estado"],
+              ["agente", "Agente"],
+              ["ciudad", "Ciudad"],
+              ["barrio", "Barrio"],
+              ["codigoPostal", "Código Postal"],
+              ["direccion", "Dirección"],
+              ["habitaciones", "Habitaciones"],
+              ["banos", "Baños"],
+              ["area", "Área (m²)"],
+              ["garaje", "Garaje"],
+            ].map(([name, label]) => (
               <div key={name}>
                 <label
                   htmlFor={name}
@@ -190,15 +194,16 @@ export default function EditarPropiedadPage() {
                 <input
                   id={name}
                   name={name}
-                  type={type}
                   value={propiedad[name] || ""}
                   onChange={handleChange}
-                  className="w-full p-3 rounded-lg border-2 border-[#FDC500]"
+                  className="w-full p-3 rounded-lg border border-gray-300"
                 />
               </div>
             ))}
           </div>
-
+          <section className="space-y-4">
+            <PropertyImageGallery imagenes={imagenes} setImagenes={setImagenes}/>
+          </section>
           <div className="text-right">
             <button
               type="submit"
@@ -208,30 +213,6 @@ export default function EditarPropiedadPage() {
             </button>
           </div>
         </form>
-
-        {/* Imágenes solo visualización */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold text-[#0a1128]">Imágenes</h2>
-          <div className="flex gap-4 overflow-x-auto">
-            {imagenes.length > 0 ? (
-              imagenes.map((img) => (
-                <div
-                  key={img.id}
-                  className="relative w-32 h-32 flex-shrink-0 border rounded-lg overflow-hidden shadow"
-                >
-                  <Image
-                    src={img.url}
-                    alt={`img-${img.id}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500">No hay imágenes cargadas.</p>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

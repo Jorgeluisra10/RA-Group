@@ -3,18 +3,13 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 export default function EvaluacionAuto({ evaluacion, carroId }) {
-  const [mostrar, setMostrar] = useState(true); // Mostrar por defecto si hay evaluación
   const [loading, startTransition] = useTransition();
   const router = useRouter();
 
-  // Estados para inputs editables
-  const [seguridad, setSeguridad] = useState(evaluacion?.seguridad || "");
-  const [eficiencia, setEficiencia] = useState(evaluacion?.eficiencia || "");
-  const [valor, setValor] = useState(evaluacion?.valor || "");
-  const [popularidad, setPopularidad] = useState(evaluacion?.popularidad || "");
-  const [opinion, setOpinion] = useState(evaluacion?.opinion_ia || "");
+  const yaEvaluado = Boolean(evaluacion?.seguridad);
+  const generadoIA = false;
 
-  const handleGenerarEvaluacion = async () => {
+  const handleGenerarIA = async () => {
     startTransition(async () => {
       try {
         await fetch("/api/route", {
@@ -23,90 +18,98 @@ export default function EvaluacionAuto({ evaluacion, carroId }) {
           body: JSON.stringify({ carroId }),
         });
 
-        router.refresh(); // Refresca para cargar evaluación
+        router.refresh();
       } catch (err) {
-        console.error("Error al generar evaluación:", err.message);
+        console.error("Error al generar evaluación IA:", err.message);
       }
     });
   };
 
-  // Si aún no hay evaluación, mostrar botón
-  if (!evaluacion || !evaluacion.seguridad) {
-    return (
-      <div className="my-4">
-        <button
-          onClick={handleGenerarEvaluacion}
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition disabled:opacity-50"
-        >
-          {loading ? "Generando evaluación IA..." : "Generar evaluación IA"}
-        </button>
-      </div>
-    );
-  }
-
-  // Si ya hay evaluación, mostrar campos editables
   return (
-    <div className="my-4">
-      <button
-        onClick={() => setMostrar(!mostrar)}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition"
-      >
-        {mostrar ? "Ocultar evaluación IA" : "Ver evaluación del vehículo"}
-      </button>
-
-      {mostrar && (
-        <div className="mt-4 border rounded-lg p-4 bg-gray-50 space-y-4">
-          <div>
-            <label className="font-semibold block mb-1">🔐 Seguridad</label>
-            <input
-              type="number"
-              value={seguridad}
-              onChange={(e) => setSeguridad(e.target.value)}
-              className="w-full border rounded px-3 py-1"
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold block mb-1">⚡ Eficiencia</label>
-            <input
-              type="number"
-              value={eficiencia}
-              onChange={(e) => setEficiencia(e.target.value)}
-              className="w-full border rounded px-3 py-1"
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold block mb-1">💰 Valor por dinero</label>
-            <input
-              type="number"
-              value={valor}
-              onChange={(e) => setValor(e.target.value)}
-              className="w-full border rounded px-3 py-1"
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold block mb-1">📈 Popularidad</label>
-            <input
-              type="number"
-              value={popularidad}
-              onChange={(e) => setPopularidad(e.target.value)}
-              className="w-full border rounded px-3 py-1"
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold block mb-1">🧠 Opinión del experto</label>
-            <textarea
-              value={opinion}
-              onChange={(e) => setOpinion(e.target.value)}
-              className="w-full border rounded px-3 py-2 h-24 resize-none"
-            />
-          </div>
-        </div>
+    <>
+      {!yaEvaluado && !generadoIA && (
+        <button
+          onClick={handleGenerarIA}
+          type="button"
+          className="bg-[#FDC500] hover:bg-yellow-400 text-[#0a1128] font-bold py-2 px-4 rounded"
+        >
+          Generar Evaluación IA
+        </button>
       )}
-    </div>
+
+      {(yaEvaluado || generadoIA) && (
+        <section className="bg-[#eef4ff] p-6 rounded-xl mt-4 max-w-4xl mx-auto w-full shadow-sm relative">
+          {/* Línea superior decorativa */}
+          <div className="absolute top-0 left-0 h-[3px] w-full bg-yellow-400 rounded-t-xl" />
+
+          <h2 className="text-lg font-semibold text-[#0a1128] mb-4 flex items-center gap-2">
+            <span>💡</span> <span>Análisis de Mercado</span>
+          </h2>
+
+          <div className="space-y-5 text-sm">
+            {/* Precio competitivo */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-gray-700">Precio Competitivo</span>
+                <span className="font-semibold text-gray-900">
+                  {evaluacion.seguridad || 0} %
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 h-2 rounded-full">
+                <div
+                  className="bg-yellow-400 h-2 rounded-full"
+                  style={{ width: `${evaluacion.seguridad || 0}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Demanda estimada */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-gray-700">Demanda Estimada</span>
+                <span className="font-semibold text-gray-900">
+                  {evaluacion.eficiencia || 0} %
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 h-2 rounded-full">
+                <div
+                  className="bg-yellow-400 h-2 rounded-full"
+                  style={{ width: `${evaluacion.eficiencia || 0}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Calidad descripción */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-gray-700">Calidad de Descripción</span>
+                <span className="font-semibold text-gray-900">
+                  {evaluacion.valor || 0} %
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 h-2 rounded-full">
+                <div
+                  className="bg-yellow-400 h-2 rounded-full"
+                  style={{ width: `${evaluacion.valor || 0}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Recomendaciones IA */}
+            <div className="mt-4 bg-white border border-gray-200 rounded-md p-4">
+              <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                Recomendaciones:
+              </label>
+              <textarea
+                className="w-full p-3 rounded-md border border-gray-300 bg-white text-sm resize-none"
+                rows={4}
+                value={evaluacion.opinion_ia || ""}
+                readOnly
+              />
+            </div>
+          </div>
+        </section>
+      )}
+    </>
   );
 }
