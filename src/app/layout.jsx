@@ -2,11 +2,12 @@
 "use client";
 import { usePathname } from "next/navigation";
 import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
-import { PropertyProvider } from "../context/PropertyContext";
-import "./globals.css";
 import GlobalLoader from "../components/GlobalLoader";
+import { UserProvider } from "../context/UserProvider";
+import Navbar from "../components/Navbar/Navbar";
 import WhatsAppButton from "../components/Whatsapp";
+import { Toaster } from 'react-hot-toast';
+import "./globals.css";
 
 // 🔹 SEO metadata global
 // export const metadata = {
@@ -34,8 +35,6 @@ import WhatsAppButton from "../components/Whatsapp";
 //   },
 // };
 
-
-
 export default function RootLayout({ children }) {
   const pathname = usePathname();
   const isAuthPage = pathname === "/login" || pathname.startsWith("/admin");
@@ -43,14 +42,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body className="min-h-screen">
-        <PropertyProvider>
-          {/* Solo mostramos el Navbar y Footer si no estamos en la página de login ni en rutas que comienzan con /admin */}
+        <UserProvider>
+          <Toaster position="top-center" reverseOrder={false} />
+          {/* Navbar y footer solo en páginas públicas */}
           {!isAuthPage && <Navbar />}
           <main className="flex-1">{children}</main>
           {!isAuthPage && <Footer />}
-          {!isAuthPage && <WhatsAppButton/>}
+          {!isAuthPage && <WhatsAppButton />}
           <GlobalLoader />
-        </PropertyProvider>
+        </UserProvider>
       </body>
     </html>
   );

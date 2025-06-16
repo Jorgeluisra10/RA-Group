@@ -1,23 +1,85 @@
+// components/Navbar/Navbar.jsx
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { supabase } from "../../lib/supabaseClient";
+import UserMenu from "../Navbar/Sesion";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [user, setUser] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 768);
     };
-
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchUser = async (sessionUser = null) => {
+      try {
+        const { data: sessionData, error: sessionError } =
+          await supabase.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        const currentUser = sessionUser || sessionData?.session?.user;
+        if (!currentUser) {
+          setUser(null);
+          setUserInfo(null);
+          return;
+        }
+
+        setUser(currentUser);
+
+        const { data, error } = await supabase
+          .from("usuarios")
+          .select("nombre, rol")
+          .eq("id", currentUser.id)
+          .single();
+
+        if (error || !data) {
+          console.warn("⚠️ Usuario inválido o no encontrado.");
+          await supabase.auth.signOut();
+          setUser(null);
+          setUserInfo(null);
+          return;
+        }
+
+        setUserInfo(data);
+        console.log("✅ Usuario autenticado:", data);
+      } catch (err) {
+        console.error("❌ Error en fetchUser:", err.message);
+      }
+    };
+
+    fetchUser();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session) {
+          // Logout
+          setUser(null);
+          setUserInfo(null);
+        } else {
+          // Login o cambio de sesión
+          fetchUser(session.user);
+        }
+      }
+    );
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, []);
 
   const navItems = [
@@ -31,7 +93,6 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 w-full z-50 bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo */}
         <div className="flex items-center space-x-2">
           <svg
             className="w-6 h-6 text-[#0F1C46]"
@@ -45,8 +106,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Desktop Navigation */}
-        {isDesktop && (
+        {isDesktop ? (
           <div className="flex items-center space-x-6">
             {navItems.map(({ label, path }) => (
               <Link
@@ -64,11 +124,9 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+            <UserMenu user={user} userInfo={userInfo} isDesktop={true} />
           </div>
-        )}
-
-        {/* Mobile Toggle */}
-        {!isDesktop && (
+        ) : (
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
@@ -80,18 +138,17 @@ export default function Navbar() {
         )}
       </div>
 
-      {/* Overlay + Side Menu for Mobile */}
       {!isDesktop && (
-        <div>
-          {/* Overlay */}
+        <>
           <div
             className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${
-              menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+              menuOpen
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none"
             }`}
             onClick={() => setMenuOpen(false)}
           ></div>
 
-          {/* Side Panel */}
           <div
             className={`fixed right-0 top-0 z-50 h-full w-3/4 max-w-xs bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
               menuOpen ? "translate-x-0" : "translate-x-full"
@@ -128,9 +185,10 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
+              <UserMenu user={user} userInfo={userInfo} isDesktop={false} />
             </div>
           </div>
-        </div>
+        </>
       )}
     </nav>
   );

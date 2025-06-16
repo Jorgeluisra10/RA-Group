@@ -64,9 +64,17 @@ body {
   backface-visibility: hidden;
 }
 
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-/* Scrollbar personalizado para Firefox */
-/*  {
-  scrollbar-width: thin;
-  scrollbar-color: #0f1c46 #f1f1f1;
-} */
+.animate-fade-in-up {
+  animation: fade-in-up 0.25s ease-out;
+}

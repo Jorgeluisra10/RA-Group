@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import NuevaPropiedadForm from "./(components)/nueva-propiedad/nueva-propiedad";
-import PrivateRoute from "../../components/PrivateRoute";
 
 const KPI = ({ title, value, percent, color }) => (
   <motion.div
@@ -28,7 +27,7 @@ const TabButton = ({ children, active }) => (
 
 export default function AdminPage() {
   return (
-    <PrivateRoute>
+  
       <main className="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
         {/* KPIs */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -73,6 +72,5 @@ export default function AdminPage() {
           <NuevaPropiedadForm />
         </div>
       </main>
-    </PrivateRoute>
   );
 }
