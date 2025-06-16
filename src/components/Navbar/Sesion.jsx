@@ -44,13 +44,13 @@ export default function UserMenu({ user, userInfo, isDesktop }) {
       <div className="flex gap-2">
         <Link
           href="/login"
-          className="px-4 py-2 border border-yellow-400 text-[#0F1C46] font-semibold rounded-md hover:bg-yellow-100 transition"
+          className="px-4 py-1.5 border-2 border-yellow-500 text-[#0F1C46] font-medium rounded-md hover:bg-yellow-50 transition"
         >
           Iniciar Sesión
         </Link>
         <Link
           href="/login"
-          className="px-4 py-2 bg-yellow-400 text-[#0F1C46] font-semibold rounded-md hover:bg-yellow-500 transition"
+          className="px-4 py-1.5 bg-yellow-500 text-white font-medium rounded-md hover:bg-yellow-600 transition"
         >
           Registrarse
         </Link>
@@ -133,30 +133,75 @@ export default function UserMenu({ user, userInfo, isDesktop }) {
   }
 
   // Mobile Menu
+  // Mobile Menu
   return (
-    <div className="flex flex-col gap-2 mt-4 text-[#0F1C46] text-sm animate-fade-in-up">
-      <hr />
-      {isUsuario ? (
-        <>
-          <Link href="/perfil" onClick={() => setShowMenu(false)}>
-            Mi cuenta
-          </Link>
-          <Link href="/me-gusta/propiedades" onClick={() => setShowMenu(false)}>
-            Mis propiedades
-          </Link>
-          <Link href="/me-gusta/vehiculos" onClick={() => setShowMenu(false)}>
-            Mis vehículos
-          </Link>
-        </>
-      ) : (
-        panelLink && <Link href={panelLink}>Volver a mi panel</Link>
-      )}
-      <button
-        onClick={handleLogout}
-        className="text-red-600 hover:text-red-800 transition"
-      >
-        Cerrar sesión
-      </button>
+    <div className="mt-6 space-y-4 text-[#0F1C46] text-[15px] animate-fade-in-up">
+      <div className="flex items-center gap-3 px-2">
+        <div className="w-10 h-10 rounded-full bg-yellow-400 text-[#0F1C46] font-bold flex items-center justify-center uppercase shadow-md">
+          {getInitials()}
+        </div>
+        <div className="text-left">
+          <p className="font-semibold leading-4">
+            {userInfo?.nombre} {userInfo?.apellido}
+          </p>
+          <p className="text-[13px] text-gray-500 leading-4">{user?.email}</p>
+        </div>
+      </div>
+
+      <hr className="border-gray-200" />
+
+      <div className="flex flex-col gap-3 px-4">
+        {isUsuario ? (
+          <>
+            <Link
+              href="/me-gusta/propiedades"
+              onClick={() => setShowMenu(false)}
+              className="flex items-center gap-3 hover:text-[#0F1C46]"
+            >
+              <Star size={18} className="text-yellow-500" />
+              Mis propiedades con Me Gusta
+            </Link>
+            <Link
+              href="/me-gusta/vehiculos"
+              onClick={() => setShowMenu(false)}
+              className="flex items-center gap-3 hover:text-[#0F1C46]"
+            >
+              <Car size={18} className="text-blue-500" />
+              Mis vehículos con Me Gusta
+            </Link>
+            <Link
+              href="/perfil"
+              onClick={() => setShowMenu(false)}
+              className="flex items-center gap-3 hover:text-[#0F1C46]"
+            >
+              <User size={18} className="text-gray-500" />
+              Mi cuenta
+            </Link>
+          </>
+        ) : (
+          panelLink && (
+            <Link
+              href={panelLink}
+              className="flex items-center gap-3 hover:text-[#0F1C46]"
+            >
+              <User size={18} className="text-gray-500" />
+              Volver a mi panel
+            </Link>
+          )
+        )}
+      </div>
+
+      <hr className="border-gray-200" />
+
+      <div className="px-4">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 text-red-600 hover:text-red-800 transition"
+        >
+          <LogOut size={18} className="text-red-500" />
+          Cerrar sesión
+        </button>
+      </div>
     </div>
   );
 }
