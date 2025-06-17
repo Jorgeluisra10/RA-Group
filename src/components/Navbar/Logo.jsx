@@ -45,7 +45,7 @@ export default function Logo() {
         <span className="text-yellow-400 drop-shadow-[0_0_4px_rgba(253,199,0,0.6)]">
           IM
         </span>
-        <span className={`${isDark ? "text-[#3d6be3]" : "text-[#0F1C46]"} ml-[1px]`}>
+        <span className={`${isDark ? "text-[#3d6be3]" : "text-[#0f1c46]"} ml-[1px]`}>
           NOVA
         </span>
 
