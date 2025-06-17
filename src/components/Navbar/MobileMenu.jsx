@@ -2,7 +2,7 @@
 import { X } from "lucide-react";
 import { MobileLinks } from "./NavLinks";
 import UserMenu from "./Sesion";
-import ThemeToggleButton from "../Navbar/Darkmode";
+import ThemeToggleButton from "../Darkmode";
 
 export default function MobileMenu({ open, onClose, user, userInfo }) {
   return (

@@ -41,18 +41,52 @@ export default function UserMenu({ user, userInfo, isDesktop }) {
 
   if (!user) {
     return (
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
+        {/* Iniciar Sesión */}
         <Link
           href="/login"
-          className="px-4 py-1.5 border-2 border-yellow-500 text-[#0F1C46] font-medium rounded-md hover:bg-yellow-50 transition"
+          className="relative group px-5 py-2 rounded-md border-2 text-sm overflow-hidden transition-all duration-300 btn-shine"
+          style={{
+            borderColor: "var(--btn-primary)",
+            color: "var(--btn-secondary)",
+            backgroundColor: "transparent",
+          }}
         >
-          Iniciar Sesión
+          <span className="relative z-10 group-hover:scale-105 transition-transform duration-300">
+            Iniciar Sesión
+          </span>
+
+          {/* Fondo difuminado suave al hover */}
+          <div
+            className="absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-500 blur-md"
+            style={{ backgroundColor: "rgba(253, 199, 0, 0.15)" }}
+          ></div>
+
+          {/* Glow exterior suave */}
+          <div className="absolute inset-0 rounded-md group-hover:shadow-[0_0_12px_3px_rgba(253,199,0,0.4)] transition-all duration-500"></div>
         </Link>
+
+        {/* Registrarse */}
         <Link
-          href="/login"
-          className="px-4 py-1.5 bg-yellow-500 text-white font-medium rounded-md hover:bg-yellow-600 transition"
+          href="/register"
+          className="relative group px-5 py-2 rounded-md text-sm font-semibold overflow-hidden transition-all duration-300 btn-shine"
+          style={{
+            backgroundColor: "var(--btn-primary)",
+            color: "#000000",
+          }}
         >
-          Registrarse
+          <span className="relative z-10 group-hover:scale-105 transition-transform duration-300">
+            Registrarse
+          </span>
+
+          {/* Difuminado en hover */}
+          <div
+            className="absolute inset-0 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl"
+            style={{ backgroundColor: "rgba(253, 199, 0, 0.3)" }}
+          ></div>
+
+          {/* Glow suave */}
+          <div className="absolute inset-0 rounded-md group-hover:shadow-[0_0_16px_5px_rgba(253,199,0,0.4)] transition-all duration-500"></div>
         </Link>
       </div>
     );

@@ -6,12 +6,22 @@
 ========================= */
 :root {
   --background: #F8F9FA;
-  --foreground: #171717;
+  --navbackground: #F8F9FA;
+  --text-default: #171717;      /* Texto común */
+  --text-active: #fdc700;       /* Texto activo / resaltado */
+  --btn-primary: #fdc700;
+  --btn-secondary: #171717;
+  --link-hover: #0f1c46;
 }
 
 html.dark {
   --background: #0f1c46;
-  --foreground: #fdc700;
+  --navbackground: #1c1c24;
+  --text-default: #ffffff;      /* Texto común en dark */
+  --text-active: #fdc700;       /* Texto activo igual */
+  --btn-primary: #fdc700;
+  --btn-secondary: #ffffff;
+  --link-hover: #ffffff;
 }
 
 /* =========================
@@ -19,9 +29,14 @@ html.dark {
 ========================= */
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--text-default);
   font-family: 'Poppins', sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navbar-bg {
+  background: var(--navbackground);
+  color: var(--text-default);
 }
 
 /* =========================
@@ -65,10 +80,6 @@ body {
   animation: fade-in-up 0.25s ease-out;
 }
 
-/* Eliminado fadeInUp duplicado con diferente duración */
-/* Si necesitas más de una duración, puedes usar: */
-/* .animate-fade-in-up-lg { animation: fade-in-up 0.8s ease-out; } */
-
 /* =========================
    🔺 Efectos visuales extra
 ========================= */
@@ -87,3 +98,34 @@ body {
 .backface-hidden {
   backface-visibility: hidden;
 }
+
+/* Efecto de brillo horizontal al hacer hover */
+.btn-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-20deg);
+}
+
+.btn-shine:hover::before {
+  animation: shine 0.8s forwards;
+}
+
+@keyframes shine {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
+}
+

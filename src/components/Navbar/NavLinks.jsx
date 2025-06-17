@@ -18,23 +18,32 @@ export function DesktopLinks() {
 
   return (
     <div className="flex-1 flex justify-center items-center space-x-6">
-      {navItems.map(({ label, path }) => (
-        <Link
-          key={label}
-          href={path}
-          className={`relative cursor-pointer font-medium transition-all duration-200
-            text-gray-700 hover:text-indigo-900
-            after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-yellow-400
-            after:transition-all after:duration-300
-            ${
-              pathname === path
-                ? "text-indigo-900 after:w-full"
-                : "after:w-0 hover:after:w-full"
-            }`}
-        >
-          {label}
-        </Link>
-      ))}
+      {navItems.map(({ label, path }) => {
+        const isActive = pathname === path;
+        return (
+          <Link
+            key={label}
+            href={path}
+            className={`relative cursor-pointer font-medium transition-all duration-200
+              ${
+                isActive
+                  ? "text-[var(--btn-primary)]"
+                  : "text-[var(--foreground)] dark:text-[var(--btn-secondary)]"
+              }
+              hover:text-[var(--btn-primary)]
+              after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:rounded-full
+              after:transition-all after:duration-300 after:bg-[var(--btn-primary)]
+              ${
+                isActive
+                  ? "after:w-full after:shadow-[0_0_6px_var(--btn-primary)]"
+                  : "after:w-0 hover:after:w-full"
+              }
+            `}
+          >
+            {label}
+          </Link>
+        );
+      })}
     </div>
   );
 }
@@ -44,24 +53,33 @@ export function MobileLinks({ onClick }) {
 
   return (
     <>
-      {navItems.map(({ label, path }) => (
-        <Link
-          key={label}
-          href={path}
-          onClick={onClick}
-          className={`relative cursor-pointer text-lg font-medium transition-all duration-200
-            text-gray-700 hover:text-indigo-900
-            after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-[2px] after:bg-yellow-400
-            after:transition-all after:duration-300
-            ${
-              pathname === path
-                ? "text-indigo-900 after:w-full"
-                : "after:w-0 hover:after:w-full"
-            }`}
-        >
-          {label}
-        </Link>
-      ))}
+      {navItems.map(({ label, path }) => {
+        const isActive = pathname === path;
+        return (
+          <Link
+            key={label}
+            href={path}
+            onClick={onClick}
+            className={`relative cursor-pointer text-lg font-medium transition-all duration-200
+              ${
+                isActive
+                  ? "text-[var(--btn-primary)]"
+                  : "text-[var(--foreground)] dark:text-[var(--foreground)]"
+              }
+              hover:text-[var(--btn-primary)]
+              after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:h-[2px] after:rounded-full
+              after:transition-all after:duration-300 after:bg-[var(--btn-primary)]
+              ${
+                isActive
+                  ? "after:w-full after:shadow-[0_0_6px_var(--btn-primary)]"
+                  : "after:w-0 hover:after:w-full"
+              }
+            `}
+          >
+            {label}
+          </Link>
+        );
+      })}
     </>
   );
 }

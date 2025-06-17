@@ -8,7 +8,7 @@ import UserMenu from "./Sesion";
 import Logo from "./Logo";
 import { DesktopLinks } from "./NavLinks";
 import MobileMenu from "./MobileMenu";
-import ThemeToggleButton from "../Navbar/Darkmode";
+import ThemeToggleButton from "../Darkmode";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -73,7 +73,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-white shadow-md transition-all duration-300">
+    <nav className="fixed top-0 left-0 w-full z-50 shadow-md transition-all duration-300 navbar-bg">
       <div className="max-w-7xl mx-auto px-8 lg:px-10 py-4 flex items-center justify-between gap-4">
         {/* Logo */}
         <div className="flex-shrink-0">
@@ -100,7 +100,11 @@ export default function Navbar() {
             type="button"
             className="ml-auto text-[#0F1C46]"
           >
-            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {menuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         )}
       </div>
