@@ -15,10 +15,10 @@
 }
 
 html.dark {
-  --background: #0f1c46;
+  --background: #121218;         /* Cambiado de #0f1c46 */
   --navbackground: #1c1c24;
-  --text-default: #ffffff;      /* Texto común en dark */
-  --text-active: #fdc700;       /* Texto activo igual */
+  --text-default: #ffffff;
+  --text-active: #fdc700;
   --btn-primary: #fdc700;
   --btn-secondary: #ffffff;
   --link-hover: #ffffff;

@@ -29,7 +29,7 @@ const ThemeToggleButton = () => {
       aria-label="Cambiar tema"
       className={`
         p-2 rounded-full transition-colors duration-300 shadow-sm
-        ${isDark ? 'bg-gray-800 text-yellow-400' : 'bg-gray-100 text-indigo-900'}
+        ${isDark ? 'bg-[#1C1C24] text-yellow-400' : 'bg-gray-100 text-[#1C1C24]'}
       `}
     >
       <AnimatePresence mode="wait" initial={false}>
