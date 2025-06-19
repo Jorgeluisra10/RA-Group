@@ -12,14 +12,17 @@
   --btn-primary: #fdc700;
   --btn-secondary: #171717;
   --link-hover: #0f1c46;
+  --text-secondary: #4b5563; /* gris oscuro */
 
   /* 🔹 Colores agregados desde FiltroBuscador.jsx */
-  --blue-main: #0f1c46;           /* Fondo de botón Buscar propiedad */
+  --blue-main: #0f1c46;        /* Fondo de botón Buscar propiedad */
+  --blue-features: #0f1c46;        /* Fondo de botón Buscar propiedad */
   --blue-hover: #1a295c;          /* Hover del botón Buscar propiedad */
   --yellow-light: #ffcc00;        /* Fondo de botón Explorar propiedades */
   --gray-border: #d1d5db;         /* border-gray-300 */
   --gray-hover: #f3f4f6;          /* hover:bg-gray-100 */
   --white: #ffffff;
+  --heart-button: #4b5563;
 }
 
 .icon-color {
@@ -40,12 +43,15 @@ html.dark {
   --link-hover: #ffffff;
 
   /* 🔹 Colores agregados en modo oscuro */
+  --blue-features: #4b5563;        /* Fondo de botón Buscar propiedad */
   --blue-main: #29293f;
   --blue-hover: #3a3a50;
   --yellow-light: #fdc700;
-  --gray-border: #4b5563;         /* border-gray-600 */
+  --gray-border: #4b5563;
+  --text-secondary: #9ca3af; /* gris claro para darkmode */;         /* border-gray-600 */
   --gray-hover: #2A2A38;
   --white: #1C1C24;
+  --heart-button:#ffff;
 }
 
 /* =========================
@@ -102,6 +108,40 @@ body {
 
 .animate-fade-in-up {
   animation: fade-in-up 0.25s ease-out;
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.heart-animate {
+  animation: heart-pop 0.4s ease-in-out;
+}
+
+@keyframes heart-hover {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
+
+.heart-animate {
+  animation: heart-pop 0.4s ease-in-out;
+}
+
+.heart-hover:hover {
+  transform: scale(1.15);
+  transition: transform 0.25s ease;
 }
 
 /* =========================

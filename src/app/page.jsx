@@ -51,15 +51,13 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-white text-[#1A295C] relative mt-10">
-      {/* Fondo decorativo global */}
+    <div className="min-h-screen w-full text-[var(--text-default)] relative mt-10">
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] bg-[#1A295C] opacity-5 rounded-full blur-3xl" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#1A295C] opacity-10 rounded-full blur-2xl" />
         <div className="absolute top-[30%] left-[50%] w-[600px] h-[400px] bg-[#1A295C] opacity-5 -translate-x-1/2 rotate-[30deg] clip-path-diagonal blur-xl" />
       </div>
 
-      {/* Find Home */}
       <div className="relative overflow-hidden">
         <div className="absolute top-0 left-0 h-full w-24 z-10 pointer-events-none">
           <div className="h-[200%] w-full bg-[#1A295C] opacity-10 rotate-[-15deg] origin-top-left clip-path-custom" />
@@ -71,12 +69,11 @@ export default function Home() {
         <FindHome />
       </div>
 
-      {/* Propiedades */}
-      <section className="mt-8 relative px-4 sm:px-6 lg:px-12 bg-white">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[#1A295C]">
+      <section className="mt-15 relative px-4 sm:px-6 lg:px-12">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[var(--text-default)]">
           Propiedades destacadas
         </h1>
-        <p className="text-gray-600 mb-6 max-w-3xl mx-auto text-center">
+        <p className="text-[var(--text-secondary)] mb-6 max-w-3xl mx-auto text-center">
           Encuentra las mejores propiedades disponibles actualmente
         </p>
 
@@ -104,11 +101,11 @@ export default function Home() {
             scrollBehavior: "smooth",
           }}
         >
-          <div className="flex space-x-4 w-full min-h-[28rem] touch-pan-x">
+          <div className="flex space-x-4 w-full h-[30rem] touch-pan-x">
             {recentProperties.map((property) => (
               <div
                 key={property.id}
-                className="flex-shrink-0 w-[80%] sm:w-[45%] md:w-[30%] lg:w-[23%]"
+                className="flex-shrink-0 w-[80%] sm:w-[45%] md:w-[30%] lg:w-[23%] h-full"
               >
                 <PropertyCard property={property} />
               </div>
@@ -117,12 +114,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Autos */}
-      <section className="relative px-4 sm:px-6 lg:px-12 bg-white mt-20">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[#1A295C]">
+      <section className="relative px-4 sm:px-6 lg:px-12 mt-20">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[var(--text-default)]">
           Autos destacados
         </h1>
-        <p className="text-gray-600 mb-8 max-w-3xl mx-auto text-center">
+        <p className="text-[var(--text-secondary)] mb-8 max-w-3xl mx-auto text-center">
           Explora nuestra selección de vehículos destacados.
         </p>
 
@@ -150,11 +146,11 @@ export default function Home() {
             scrollBehavior: "smooth",
           }}
         >
-          <div className="flex space-x-4 w-full min-h-[28rem] touch-pan-x">
+          <div className="flex space-x-4 w-full h-[30rem] touch-pan-x">
             {recentCars.map((car) => (
               <div
                 key={car.id}
-                className="flex-shrink-0 w-[80%] sm:w-[45%] md:w-[30%] lg:w-[23%]"
+                className="flex-shrink-0 w-[80%] sm:w-[45%] md:w-[30%] lg:w-[23%] h-full"
               >
                 <CarCard car={car} />
               </div>
@@ -163,10 +159,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Atención */}
       <section className="mt-12">
         <div>
-          {/* Parte superior */}
           <div className="relative z-10">
             <svg
               viewBox="0 0 1440 120"
@@ -186,10 +180,8 @@ export default function Home() {
             </svg>
           </div>
 
-          {/* Contenido de la sección */}
           <Atencion />
 
-          {/* Parte inferior (reflejo horizontal del superior) */}
           <div className="relative z-10">
             <svg
               viewBox="0 0 1440 120"
