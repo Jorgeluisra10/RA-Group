@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
 import { motion } from "framer-motion";
+import Logo from "./Logo";
 import Link from "next/link";
 
 // Asegúrate de importar la fuente Playfair Display en tu layout o global CSS
@@ -18,19 +19,7 @@ const Footer = () => {
           transition={{ duration: 0.6 }}
           className="flex flex-col items-center md:items-start space-y-4"
         >
-          <div className="flex items-center space-x-2">
-            <svg
-              className="w-7 h-7 text-yellow-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M10 2L2 7v11h6v-5h4v5h6V7l-8-5z" />
-            </svg>
-            <div className="text-2xl font-bold">
-              <span className="text-white">INMOVA</span>
-              <span className="text-yellow-400"> •</span>
-            </div>
-          </div>
+          <Logo/>
           <p
             className="text-sm text-gray-300 italic max-w-xs text-center md:text-left"
             style={{ fontFamily: "'Playfair Display', serif" }}

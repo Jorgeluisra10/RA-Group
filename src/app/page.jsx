@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Atencion from "../components/Atencion";
 import CarCard from "../components/CarCard";
-import FindHome from "../components/FindHome";
+import FindHome from "../components/FindHome/FindHome";
 import PropertyCard from "../components/PropertyCard";
 import { getCars, getProperties } from "../lib/api";
 

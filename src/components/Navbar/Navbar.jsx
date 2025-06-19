@@ -98,7 +98,7 @@ export default function Navbar() {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
             type="button"
-            className="ml-auto text-[#0F1C46]"
+            className="ml-auto icon-color transition-colors"
           >
             {menuOpen ? (
               <X className="w-6 h-6" />

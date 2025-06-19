@@ -1,7 +1,7 @@
 // app/layout.jsx
 "use client";
 import { usePathname } from "next/navigation";
-import Footer from "../components/Footer";
+import Footer from "../components/Footer/Footer";
 import GlobalLoader from "../components/GlobalLoader";
 import { UserProvider } from "../context/UserProvider";
 import Navbar from "../components/Navbar/Navbar";
