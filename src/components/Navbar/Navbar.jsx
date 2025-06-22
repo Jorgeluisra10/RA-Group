@@ -73,51 +73,60 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 shadow-md transition-all duration-300 navbar-bg">
-      <div className="max-w-7xl mx-auto px-8 lg:px-10 py-4 flex items-center justify-between gap-4">
-        {/* Logo */}
-        <div className="flex-shrink-0">
-          <Logo />
-        </div>
-
-        {/* Links - solo en desktop */}
-        {isDesktop && (
-          <div className="flex-1 mx-10 flex justify-center">
-            <DesktopLinks />
-          </div>
-        )}
-
-        {/* Acciones a la derecha */}
-        {isDesktop ? (
-          <div className="flex-shrink-0 flex items-center gap-3">
-            <ThemeToggleButton />
-            <UserMenu user={user} userInfo={userInfo} isDesktop={true} />
-          </div>
-        ) : (
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-            type="button"
-            className="ml-auto icon-color transition-colors"
-          >
-            {menuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
-        )}
+    <>
+      {/* 🚧 Aviso de desarrollo */}
+      <div className="w-full fixed top-0 left-0 z-[60] bg-[var(--btn-secondary)] text-[var(--white)] text-sm text-center py-2 shadow-md animate-fade-in-up">
+        🚧 Este sitio está actualmente en desarrollo. Algunas funciones pueden
+        no estar disponibles todavía.
       </div>
 
-      {/* Menú móvil */}
-      {!isDesktop && (
-        <MobileMenu
-          open={menuOpen}
-          onClose={() => setMenuOpen(false)}
-          user={user}
-          userInfo={userInfo}
-        />
-      )}
-    </nav>
+      {/* 🧭 Navbar principal */}
+      <nav className="fixed top-8 left-0 w-full z-50 shadow-md transition-all duration-300 navbar-bg">
+        <div className="max-w-7xl mx-auto px-8 lg:px-10 py-4 flex items-center justify-between gap-4">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Logo />
+          </div>
+
+          {/* Links - solo en desktop */}
+          {isDesktop && (
+            <div className="flex-1 mx-10 flex justify-center">
+              <DesktopLinks />
+            </div>
+          )}
+
+          {/* Acciones a la derecha */}
+          {isDesktop ? (
+            <div className="flex-shrink-0 flex items-center gap-3">
+              <ThemeToggleButton />
+              <UserMenu user={user} userInfo={userInfo} isDesktop={true} />
+            </div>
+          ) : (
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+              type="button"
+              className="ml-auto icon-color transition-colors"
+            >
+              {menuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          )}
+        </div>
+
+        {/* Menú móvil */}
+        {!isDesktop && (
+          <MobileMenu
+            open={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            user={user}
+            userInfo={userInfo}
+          />
+        )}
+      </nav>
+    </>
   );
 }
