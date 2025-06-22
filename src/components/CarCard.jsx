@@ -133,7 +133,7 @@ export default function CarCard({ car }) {
         </div>
 
         <Link
-          href={`/carro/${car.id}`}
+          href={`/vehiculo/${car.id}`}
           className="mt-2 block text-center font-semibold bg-[var(--blue-main)] text-white py-2 rounded-md hover:bg-[var(--btn-primary)] hover:text-[var(--btn-secondary)] transition-colors duration-300"
         >
           Ver detalles

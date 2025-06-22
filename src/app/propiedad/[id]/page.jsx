@@ -99,7 +99,7 @@ const PropertyDetail = ({ params }) => {
   )}%20%C2%BFPodemos%20hablar%3F`;
 
   return (
-    <div className="mt-20 p-8 max-w-7xl mx-auto space-y-8">
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
 
       {/* Encabezado */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">

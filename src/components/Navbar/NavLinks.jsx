@@ -10,7 +10,7 @@ const navItems = [
   { label: "Vehículos", path: "/vehiculos" },
   { label: "Quiero Vender", path: "/vender" },
   { label: "Sobre nosotros", path: "/sobre-nosotros" },
-  { label: "Blog", path: "/Blog" },
+  { label: "Mapa", path: "/mapa" },
 ];
 
 export function DesktopLinks() {

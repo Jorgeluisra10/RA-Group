@@ -1,6 +1,6 @@
 export default function HeaderVendeConInmova() {
   return (
-    <section className="mt-12 relative overflow-hidden bg-[#0f1c46] text-white font-poppins">
+    <section className="relative overflow-hidden bg-[#0f1c46] text-white font-poppins">
       {/* Fondo con formas curvas usando pseudo-elementos */}
       <div className="absolute inset-0 z-0">
         <div className="absolute -top-20 -left-32 w-[500px] h-[500px] bg-[#ffffff1a] rounded-full mix-blend-overlay blur-2xl" />

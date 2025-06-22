@@ -1,59 +1,59 @@
-// app/layout.jsx
-"use client";
-import { usePathname } from "next/navigation";
-import Footer from "../components/Footer/Footer";
-import GlobalLoader from "../components/GlobalLoader";
-import { UserProvider } from "../context/UserProvider";
-import Navbar from "../components/Navbar/Navbar";
-import WhatsAppButton from "../components/Whatsapp";
-import { Toaster } from "react-hot-toast";
-import { ThemeProvider } from "next-themes";
+// app/layout.jsx (sin "use client")
+
+import AppShell from "./AppShell";
 import "./globals.css";
 
-// 🔹 SEO metadata global
-// export const metadata = {
-//   title: "Inmuebles Premium | Encuentra tu hogar ideal",
-//   description: "Compra, vende o alquila propiedades exclusivas con nosotros. Encuentra casas, departamentos y más en las mejores zonas.",
-//   keywords: ["inmobiliaria", "propiedades", "comprar casa", "vender inmueble", "alquiler", "departamento", "lujo", "real estate"],
-//   authors: [{ name: "Jorge L. Rodríguez", url: "https://tu-sitio.com" }],
-//   viewport: "width=device-width, initial-scale=1",
-//   robots: "index, follow",
-//   openGraph: {
-//     title: "Inmuebles Premium | Encuentra tu hogar ideal",
-//     description: "Explora nuestra selección de propiedades exclusivas.",
-//     url: "https://tu-sitio.com",
-//     siteName: "Inmuebles Premium",
-//     images: [
-//       {
-//         url: "https://tu-sitio.com/og-image.jpg",
-//         width: 1200,
-//         height: 630,
-//         alt: "Inmuebles Premium - Encuentra tu bien ideal",
-//       },
-//     ],
-//     locale: "es_ES",
-//     type: "website",
-//   },
-// };
+export const metadata = {
+  title:
+    "Imnoba | Encuentra propiedades y vehículos en Colombia con agentes locales",
+  description:
+    "Imnoba es una plataforma creada en Chiquinquirá, Boyacá, que conecta a usuarios con agentes inmobiliarios independientes. Encuentra propiedades y vehículos fácil, rápido y con confianza.",
+  metadataBase: new URL("https://imnoba.com"),
+  keywords: [
+    "propiedades en Colombia",
+    "casas en venta",
+    "Chiquinquirá",
+    "Tunja",
+    "carros usados",
+    "finca raíz",
+    "Boyacá",
+    "agentes inmobiliarios independientes",
+  ],
+  robots: "index, follow",
+  openGraph: {
+    title: "Imnoba | Propiedades y vehículos en Colombia",
+    description:
+      "Conectamos personas con agentes inmobiliarios locales en Colombia.",
+    url: "https://imnoba.com",
+    siteName: "Imnoba",
+    images: [
+      {
+        url: "https://imnoba.com/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "Vista previa de Imnoba",
+      },
+    ],
+    locale: "es_CO",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Imnoba Colombia",
+    description:
+      "Encuentra propiedades y vehículos en Colombia con agentes de confianza.",
+    images: ["https://imnoba.com/og-default.png"],
+  },
+};
 
 export default function RootLayout({ children }) {
-  const pathname = usePathname();
-  const isAuthPage = pathname === "/login" || pathname.startsWith("/admin");
-
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es">
+      <head>
+        <link rel="icon" href="images/favicon.ico" sizes="any" />
+      </head>
       <body className="min-h-screen">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={true}>
-          <UserProvider>
-            <Toaster position="top-center" reverseOrder={false} />
-            {/* Navbar y footer solo en páginas públicas */}
-            {!isAuthPage && <Navbar />}
-            <main className="flex-1">{children}</main>
-            {!isAuthPage && <Footer />}
-            {!isAuthPage && <WhatsAppButton />}
-            <GlobalLoader />
-          </UserProvider>
-        </ThemeProvider>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

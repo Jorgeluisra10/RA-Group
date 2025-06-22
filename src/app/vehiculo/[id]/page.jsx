@@ -1,0 +1,108 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import dynamic from "next/dynamic";
+
+import { getCars } from "../../../lib/api";
+import InmovaScore from "../(components)/InmovaScore";
+import YoutubeEmbed from "../(components)/YoutubeEmbed";
+
+import CarHeaderInfo from "../(components)/CarHeaderInfo";
+import CarImageGallery from "../(components)/CarImageGallery";
+import MobileCarDetailTabs from "../(components)/MobileCarDetailTabs";
+import CarSpecsCard from "../(components)/CarSpecsCard";
+import FuelEfficiencyCard from "../(components)/FuelEfficiencyCard";
+
+const MapView = dynamic(() => import("../(components)/MapView"), {
+  ssr: false,
+});
+
+const tabs = ["Video", "Mapa"];
+
+export default function CarDetailPage() {
+  const { id } = useParams();
+  const [carro, setCarro] = useState(null);
+  const [activeTab, setActiveTab] = useState("Video");
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchCarro = async () => {
+      try {
+        const cars = await getCars();
+        const foundCar = cars.find((c) => c.id.toString() === id.toString());
+        setCarro(foundCar);
+      } catch (error) {
+        console.error("Error al obtener el carro:", error);
+      }
+    };
+    fetchCarro();
+  }, [id]);
+
+  if (!carro) return <div className="p-8">Cargando...</div>;
+
+  return (
+    <div className="px-4 sm:px-6 lg:px-12 xl:px-20 max-w-screen-2xl mx-auto py-6">
+      {/* Título y precio */}
+      <CarHeaderInfo title={carro.title} price={carro.price} />
+
+      {/* Contenido principal en 2 columnas */}
+      <div className="md:flex md:gap-6 mt-8">
+        {/* Columna izquierda (galería + tabs móviles) */}
+        <div className="md:flex-1">
+          <CarImageGallery images={carro.images} title={carro.title} />
+          <MobileCarDetailTabs carro={carro} />
+        </div>
+
+        {/* Columna derecha (solo en escritorio) */}
+        <div className="md:w-[500px] mt-6 md:mt-0 space-y-6 hidden md:block animate-fade-in-up">
+          {/* Características */}
+          <CarSpecsCard carro={carro} />
+        </div>
+      </div>
+
+      {/* Sección InmovaScore */}
+      <section className="mt-12 animate-fade-in-up">
+        <InmovaScore carroId={id} />
+      </section>
+
+      {/* Tabs Video / Mapa */}
+      <div className="mt-12">
+        <div className="flex gap-6 border-b border-[var(--gray-border)]">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-2 text-sm font-medium transition-colors duration-300 border-b-2 ${
+                activeTab === tab
+                  ? "border-[var(--btn-primary)] text-[var(--btn-primary)]"
+                  : "border-transparent text-[var(--text-secondary)] hover:text-[var(--btn-primary)]"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-6 animate-fade-in-up">
+          {activeTab === "Video" && <YoutubeEmbed youtubeUrl={carro.youtube} />}
+          {activeTab === "Mapa" && (
+            <div className="rounded-xl overflow-hidden shadow-lg relative h-[420px]">
+              <div className="absolute top-3 left-3 z-10 bg-white/90 dark:bg-black/60 text-sm px-4 py-1 rounded-full shadow text-gray-800 dark:text-white">
+                Muestra la ubicación aproximada del auto respecto a ti
+              </div>
+              <MapView city={carro.ciudad} />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Botón Contactar */}
+      <div className="mt-12 flex justify-center animate-fade-in-up">
+        <button className="bg-[var(--blue-main)] hover:bg-[var(--blue-hover)] text-white px-6 py-3 rounded-lg shadow-md transition-all font-semibold">
+          Contactar vendedor
+        </button>
+      </div>
+    </div>
+  );
+}

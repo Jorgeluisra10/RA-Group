@@ -44,7 +44,7 @@ export default function AgenteInmobiliarioForm() {
   };
 
   return (
-    <div className="grid grid-cols-1 mt-20 lg:grid-cols-2 gap-12 py-12 px-4 md:px-20 bg-white overflow-hidden relative font-sans">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 py-12 px-4 md:px-20 bg-white overflow-hidden relative font-sans">
       {/* Sección Izquierda */}
       <motion.div
         initial={{ opacity: 0, x: -40 }}

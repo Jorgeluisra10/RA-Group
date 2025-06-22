@@ -51,7 +51,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full text-[var(--text-default)] relative mt-10">
+    <div className="min-h-screen w-full text-[var(--text-default)] relative">
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] bg-[#1A295C] opacity-5 rounded-full blur-3xl" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#1A295C] opacity-10 rounded-full blur-2xl" />
