@@ -160,46 +160,8 @@ export default function Home() {
       </section>
 
       <section className="mt-12">
-        <div>
-          <div className="relative z-10">
-            <svg
-              viewBox="0 0 1440 120"
-              className="w-full h-[120px]"
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <linearGradient id="degrade" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="white" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#0e1a46" stopOpacity="1" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M0,0 C400,120 1040,0 1440,100 L1440,0 L0,0 Z"
-                fill="url(#degrade)"
-              />
-            </svg>
-          </div>
-
+        <div className="mb-3 mt-3">
           <Atencion />
-
-          <div className="relative z-10">
-            <svg
-              viewBox="0 0 1440 120"
-              className="w-full h-[120px]"
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <linearGradient id="degrade-bottom" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="0%" stopColor="white" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#0e1a46" stopOpacity="1" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M1440,120 C1040,0 400,120 0,20 L0,120 L1440,120 Z"
-                fill="url(#degrade-bottom)"
-              />
-            </svg>
-          </div>
         </div>
       </section>
     </div>
