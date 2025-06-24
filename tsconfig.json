@@ -28,7 +28,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/vehiculo/(components)/MapView.jsx"  ],
+, "src/components/MapView.jsx"  ],
   "exclude": [
     "node_modules"
   ]

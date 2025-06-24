@@ -1,205 +1,212 @@
-"use client";
-import { UserCircle2, ArrowLeftCircle } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState, use } from "react";
-import { getProperties } from "../../../lib/api";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Thumbs } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/thumbs";
+'use client';
 
-// Carrusel de imágenes mejorado con miniaturas
-const ImageGallery = ({ images }) => {
-  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+import Image from 'next/image';
+import { Mail, Phone, Share2, Heart, BedDouble, Bath, Car, Ruler, MapPin, Train, Bus, TreeDeciduous, ShoppingBag, Stethoscope, GraduationCap } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getProperties } from '../../../lib/api';
+import { useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
-  return (
-    <div className="w-full">
-      <Swiper
-        spaceBetween={10}
-        navigation
-        thumbs={{ swiper: thumbsSwiper }}
-        modules={[Navigation, Thumbs]}
-        className="rounded-lg overflow-hidden"
-      >
-        {images.map((img, idx) => (
-          <SwiperSlide key={idx}>
-            <div className="relative w-full h-[400px]">
-              <Image
-                src={img}
-                alt={`img-${idx}`}
-                fill
-                className="object-cover w-full h-full"
-                priority={idx === 0}
-              />
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+const MapView = dynamic(() => import('../../../components/MapView'), { ssr: false });
 
-      <div className="mt-4">
-        <Swiper
-          onSwiper={setThumbsSwiper}
-          spaceBetween={10}
-          breakpoints={{
-            0: { slidesPerView: 3 },
-            640: { slidesPerView: 4 },
-            1024: { slidesPerView: 5 },
-          }}
-          watchSlidesProgress
-          modules={[Navigation, Thumbs]}
-          className="rounded-md"
-        >
-          {images.map((img, idx) => (
-            <SwiperSlide key={`thumb-${idx}`}>
-              <div className="relative w-full h-20 cursor-pointer">
-                <Image
-                  src={img}
-                  alt={`thumb-${idx}`}
-                  fill
-                  className="object-cover rounded border hover:border-blue-500"
-                />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
-    </div>
-  );
-};
-
-const PropertyDetail = ({ params }) => {
-  const { id } = use(params);
+const PropertyDetail = () => {
+  const { id } = useParams();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [mainImage, setMainImage] = useState(null);
+  const [liked, setLiked] = useState(false);
 
   useEffect(() => {
-    const fetchProperty = async () => {
+    const fetchData = async () => {
       const data = await getProperties();
-      const prop = data.find((item) => String(item.id) === id);
-      setProperty(prop);
+      const result = data.find((p) => String(p.id) === id);
+      setProperty(result);
+      setMainImage(result?.images[0]);
       setLoading(false);
     };
-    fetchProperty();
+    fetchData();
   }, [id]);
 
-  if (loading) {
-    return <div className="p-8">Cargando propiedad...</div>;
-  }
+  const toggleLike = () => {
+    setLiked(!liked);
+  };
 
-  if (!property) {
-    return <div className="p-8">Propiedad no encontrada.</div>;
-  }
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: property?.title,
+          text: property?.description,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Enlace copiado al portapapeles');
+      }
+    } catch (error) {
+      console.error('Error al compartir', error);
+    }
+  };
 
-  const whatsappLink = `https://wa.me/573103216174?text=Hola%2C%20estoy%20interesado%20en%20la%20propiedad%20%22${encodeURIComponent(
-    property.title
-  )}%20%C2%BFPodemos%20hablar%3F`;
+  if (loading) return <div className="p-8">Cargando propiedad...</div>;
+  if (!property) return <div className="p-8">Propiedad no encontrada.</div>;
+
+  const whatsappLink = `https://wa.me/5491123456789?text=Hola,%20estoy%20interesado%20en%20la%20propiedad%20${encodeURIComponent(property.title)}`;
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 animate-fade-in-up">
+      {/* Imagen Principal + botones */}
+      <div className="relative w-full h-[300px] md:h-[450px] rounded-xl overflow-hidden">
+        <Image src={mainImage} alt="Principal" fill className="object-cover transition duration-300" priority />
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button onClick={toggleLike} className="bg-white/80 hover:bg-white p-2 rounded-full shadow heart-hover">
+            <Heart className={`w-5 h-5 ${liked ? 'fill-[var(--btn-primary)] text-[var(--btn-primary)] heart-animate' : 'text-[var(--heart-button)]'}`} />
+          </button>
+          <button onClick={handleShare} className="bg-white/80 hover:bg-white p-2 rounded-full shadow">
+            <Share2 className="w-5 h-5 text-[var(--heart-button)]" />
+          </button>
+        </div>
+      </div>
 
-      {/* Encabezado */}
+      {/* Galería miniaturas */}
+      <div className="flex gap-2 overflow-x-auto px-1 pb-2">
+        {property.images.map((img, i) => (
+          <button
+            key={i}
+            onClick={() => setMainImage(img)}
+            className="min-w-[80px] md:min-w-[100px] h-[60px] md:h-[70px] relative rounded overflow-hidden focus:outline-none hover:scale-105 transition"
+          >
+            <Image src={img} alt={`img-${i}`} fill className="object-cover" />
+          </button>
+        ))}
+      </div>
+
+      {/* Título, dirección, precio */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-        <h1 className="text-3xl font-bold">{property.title}</h1>
-        <span className="text-yellow-500 text-2xl font-bold">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-default)]">
+            {property.title}
+          </h1>
+          <p className="text-[var(--text-secondary)] text-sm flex items-center gap-1">
+            <MapPin className="w-4 h-4" /> {property.direccion || 'Dirección no disponible'}
+          </p>
+        </div>
+        <span className="text-[var(--text-active)] text-2xl font-semibold">
           ${property.price.toLocaleString()}
         </span>
       </div>
 
-      {/* Carrusel de imágenes */}
-      <ImageGallery images={property.images} />
-
-      {/* Iconos de características */}
+      {/* Características */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm">
-        <div>
-          <strong>{property.area} m²</strong>
-          <p>Área</p>
+        <div className="flex flex-col items-center">
+          <BedDouble className="w-5 h-5 mb-1 icon-color" />
+          <strong className="text-[var(--text-default)]">{property.habitaciones} Dormitorios</strong>
         </div>
-        <div>
-          <strong>{property.habitaciones}</strong>
-          <p>Habitaciones</p>
+        <div className="flex flex-col items-center">
+          <Bath className="w-5 h-5 mb-1 icon-color" />
+          <strong className="text-[var(--text-default)]">{property.banos} Baños</strong>
         </div>
-        <div>
-          <strong>{property.banos}</strong>
-          <p>Baños</p>
+        <div className="flex flex-col items-center">
+          <Car className="w-5 h-5 mb-1 icon-color" />
+          <strong className="text-[var(--text-default)]">{property.garaje} Cocheras</strong>
         </div>
-        <div>
-          <strong>{property.garaje}</strong>
-          <p>Parqueaderos</p>
-        </div>
-      </div>
-
-      {/* Descripción */}
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Descripción</h2>
-        <p className="text-gray-700 whitespace-pre-line">
-          {property.description}
-        </p>
-      </div>
-
-      {/* Agente */}
-
-      <div className="bg-gray-100 p-4 rounded-md flex items-center gap-4">
-        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
-          <UserCircle2 className="w-10 h-10" />
-        </div>
-        <div>
-          <p className="font-semibold text-lg">Juan Pablo Zambrano</p>
-          <p className="text-sm text-gray-600">
-            Agente inmobiliario en Boyacá, Colombia.
-          </p>
+        <div className="flex flex-col items-center">
+          <Ruler className="w-5 h-5 mb-1 icon-color" />
+          <strong className="text-[var(--text-default)]">{property.area} m²</strong>
         </div>
       </div>
-    
 
-      {/* Certificación energética */}
-      {property.energyCertificate && (
-        <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-2">
-            Certificación energética
-          </h2>
-          <span className="inline-block bg-green-500 text-white px-3 py-1 rounded-full">
-            {property.energyCertificate}
-          </span>
+      {/* Descripción + Agente + Similares */}
+      <div className="grid md:grid-cols-3 gap-8">
+        <div className="md:col-span-2 space-y-2">
+          <h2 className="text-xl font-semibold text-[var(--text-default)]">Descripción</h2>
+          <div className="bg-[var(--gray-hover)] p-4 rounded-md">
+            <p className="text-[var(--text-secondary)] whitespace-pre-line">
+              {property.description}
+            </p>
+          </div>
+
+          {/* Mapa Interactivo */}
+          <div className="space-y-4 mt-6">
+            <h2 className="text-xl font-semibold text-[var(--text-default)]">Ubicación</h2>
+            <MapView city={property.ciudad || 'Buenos Aires'} />
+          </div>
+
+          {/* Información zona (ejemplo visual temporal) */}
+          <div className="space-y-2 mt-6">
+            <h2 className="text-xl font-semibold text-[var(--text-default)]">Información de la zona</h2>
+            <div className="bg-[var(--background)] border border-[var(--gray-border)] rounded-lg p-4">
+              <div className="flex gap-6 text-sm text-[var(--text-default)]">
+                <div className="flex items-center gap-2"><Train className="w-4 h-4" /> Transporte</div>
+                <div className="flex items-center gap-2"><GraduationCap className="w-4 h-4" /> Educación</div>
+                <div className="flex items-center gap-2"><TreeDeciduous className="w-4 h-4" /> Áreas verdes</div>
+                <div className="flex items-center gap-2"><ShoppingBag className="w-4 h-4" /> Comercios</div>
+                <div className="flex items-center gap-2"><Stethoscope className="w-4 h-4" /> Salud</div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm text-[var(--text-secondary)]">
+                <div>
+                  <strong className="text-[var(--text-default)]">Estación Palermo</strong>
+                  <p>Línea D - 400m (5 min caminando)</p>
+                </div>
+                <div>
+                  <strong className="text-[var(--text-default)]">Parada Línea 39</strong>
+                  <p>Av. Santa Fe - 200m (2 min caminando)</p>
+                </div>
+                <div>
+                  <strong className="text-[var(--text-default)]">Estación Ministro Carranza</strong>
+                  <p>Línea Mitre - 800m (10 min caminando)</p>
+                </div>
+                <div>
+                  <strong className="text-[var(--text-default)]">Metrobus Juan B. Justo</strong>
+                  <p>500m (6 min caminando)</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* Planos */}
-      {property.plans?.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Planos de la propiedad</h2>
-          <div className="flex flex-wrap gap-4">
-            {property.plans.map((plan, idx) => (
-              <div
-                key={idx}
-                className="w-60 h-40 relative rounded shadow hover:scale-105 transition-transform overflow-hidden"
+        {/* Agente y similares */}
+        <div className="flex flex-col gap-6">
+          <div className="bg-[var(--background)] border border-[var(--gray-border)] rounded-lg p-4 flex flex-col items-center gap-4 shadow-sm">
+            <div className="w-16 h-16 rounded-full bg-[var(--blue-main)] text-white flex items-center justify-center font-bold text-lg">
+              MR
+            </div>
+            <div className="text-center">
+              <p className="font-semibold text-[var(--text-default)]">María Rodríguez</p>
+              <p className="text-sm text-[var(--text-secondary)]">Asesora Inmobiliaria Senior</p>
+            </div>
+            <div className="flex flex-col gap-2 w-full">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[var(--btn-primary)] text-[var(--btn-secondary)] font-semibold px-4 py-2 rounded-md text-center btn-shine relative overflow-hidden"
               >
-                <Image
-                  src={`/images/planos/${plan}`}
-                  alt={`Plano ${idx}`}
-                  fill
-                  className="object-cover"
-                  priority={idx === 0}
-                />
+                Contactar por WhatsApp
+              </a>
+              <button className="bg-transparent border border-[var(--gray-border)] text-[var(--text-default)] font-medium px-4 py-2 rounded-md hover:bg-[var(--gray-hover)] transition">
+                Enviar email
+              </button>
+            </div>
+          </div>
+
+          {/* Similares */}
+          <div className="bg-[var(--background)] border border-[var(--gray-border)] rounded-lg p-4 shadow-sm">
+            <h3 className="text-md font-semibold text-[var(--text-default)] mb-2">Propiedades similares</h3>
+            {[1, 2, 3].map((p, i) => (
+              <div key={i} className="flex items-start gap-3 mb-3">
+                <div className="relative w-16 h-16 rounded overflow-hidden">
+                  <Image src={property.images[i]} alt={`similar-${i}`} fill className="object-cover" />
+                </div>
+                <div className="text-sm">
+                  <p className="text-[var(--text-default)] font-medium">{property.title}</p>
+                  <p className="text-[var(--text-secondary)]">{property.habitaciones} dorm. | {property.banos} baños | {property.area} m²</p>
+                  <p className="text-[var(--text-active)] font-semibold text-sm mt-1">${property.price.toLocaleString()}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
-      )}
-
-      {/* Botón WhatsApp */}
-      <div className="text-center mt-10">
-        <a
-          href={whatsappLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block px-6 py-3 bg-yellow-500 text-white font-semibold rounded-full shadow hover:bg-yellow-600 transition-colors hover:scale-105 duration-300"
-        >
-          Consultar por esta propiedad
-        </a>
       </div>
     </div>
   );
