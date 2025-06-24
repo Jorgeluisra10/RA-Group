@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
 
+
+/* tailwind.css */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* =========================
    🎨 Variables de color
 ========================= */

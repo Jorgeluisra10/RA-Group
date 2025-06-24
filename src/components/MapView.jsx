@@ -65,7 +65,7 @@ const MapView = ({ city }) => {
         {userPosition && <Marker position={userPosition} />}
       </GoogleMap>
       <p className="text-sm text-gray-500 text-center">
-        Este mapa muestra una ubicación aproximada del vehículo en relación con tu posición actual.
+        Este mapa muestra una ubicación aproximada en relación con tu posición actual.
       </p>
     </div>
   );
