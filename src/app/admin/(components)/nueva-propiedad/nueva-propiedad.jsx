@@ -3,6 +3,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { supabase } from "../../../../lib/supabaseClient";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import debounce from "lodash.debounce"; // instala con `npm install lodash.debounce`
+import { useEffect } from "react";
+import { useRef } from "react";
 
 const Input = ({
   label,
@@ -50,6 +54,7 @@ const Select = ({ label, value, onChange, options, error = "" }) => (
 
 export default function NuevaPropiedadForm() {
   const router = useRouter();
+  const autocompleteRef = useRef(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -80,7 +85,82 @@ export default function NuevaPropiedadForm() {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [errors, setErrors] = useState({});
 
-  const requiereDatosAdicionales = ["Casa", "Apartamento", "Finca", "Terreno", "Lote", "Local", "Oficina"].includes(tipo);
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries: ["places"],
+  });
+
+  const [mapCenter, setMapCenter] = useState({
+    lat: 4.710989,
+    lng: -74.072092,
+  }); // Bogotá por defecto
+  const [latLng, setLatLng] = useState({ lat: null, lng: null });
+  const [direccionExacta, setDireccionExacta] = useState("");
+
+  // Debounce para evitar demasiadas peticiones
+  const geocodeAddress = debounce(async (address) => {
+    if (!window.google || !address) return;
+
+    const geocoder = new window.google.maps.Geocoder();
+    geocoder.geocode({ address }, (results, status) => {
+      if (status === "OK" && results[0]) {
+        const { location } = results[0].geometry;
+        const formattedAddress = results[0].formatted_address;
+        setLatLng({ lat: location.lat(), lng: location.lng() });
+        setMapCenter({ lat: location.lat(), lng: location.lng() });
+        setDireccionExacta(formattedAddress);
+      }
+    });
+  }, 1000);
+
+  useEffect(() => {
+    if (
+      ["Casa", "Apartamento", "Oficina", "Local"].includes(tipo) &&
+      direccion
+    ) {
+      geocodeAddress(`${direccion}, ${ciudad}`);
+    }
+  }, [direccion, tipo]);
+
+  useEffect(() => {
+    if (
+      isLoaded &&
+      autocompleteRef.current &&
+      ["Casa", "Apartamento", "Oficina", "Local"].includes(tipo)
+    ) {
+      const autocomplete = new window.google.maps.places.Autocomplete(
+        autocompleteRef.current,
+        {
+          types: ["geocode"],
+          componentRestrictions: { country: "co" },
+        }
+      );
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+
+        if (!place.geometry) return;
+
+        const location = place.geometry.location;
+        const formatted = place.formatted_address;
+
+        setDireccion(autocompleteRef.current.value); // Para mantener lo escrito
+        setDireccionExacta(formatted);
+        setLatLng({ lat: location.lat(), lng: location.lng() });
+        setMapCenter({ lat: location.lat(), lng: location.lng() });
+      });
+    }
+  }, [isLoaded, tipo]);
+
+  const requiereDatosAdicionales = [
+    "Casa",
+    "Apartamento",
+    "Finca",
+    "Terreno",
+    "Lote",
+    "Local",
+    "Oficina",
+  ].includes(tipo);
   const esCarro = tipo === "Carro";
 
   const handleImageChange = (e) => {
@@ -186,6 +266,9 @@ export default function NuevaPropiedadForm() {
         barrio,
         codigoPostal,
         direccion,
+        direccion_exacta: direccionExacta,
+        lat: latLng.lat,
+        lng: latLng.lng,
       };
 
       let insertedId = null;
@@ -277,7 +360,16 @@ export default function NuevaPropiedadForm() {
           label="Tipo de propiedad"
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
-          options={["Casa", "Apartamento", "Carro", "Terreno", "Oficina", "Local", "Finca", "Lote"]}
+          options={[
+            "Casa",
+            "Apartamento",
+            "Carro",
+            "Terreno",
+            "Oficina",
+            "Local",
+            "Finca",
+            "Lote",
+          ]}
           error={errors.tipo}
         />
         <Input
@@ -403,14 +495,6 @@ export default function NuevaPropiedadForm() {
         )}
 
         <Input
-          label="Dirección"
-          className="sm:col-span-2 lg:col-span-3"
-          placeholder="Ej: Paseo de los Lagos 25"
-          value={direccion}
-          onChange={(e) => setDireccion(e.target.value)}
-          error={errors.direccion}
-        />
-        <Input
           label="Ciudad"
           placeholder="Ej: Bogotá"
           value={ciudad}
@@ -429,6 +513,70 @@ export default function NuevaPropiedadForm() {
           value={codigoPostal}
           onChange={(e) => setCodigoPostal(e.target.value)}
         />
+        <div className="sm:col-span-2 lg:col-span-3">
+          <label className="block font-medium mb-1">Dirección</label>
+          <input
+            type="text"
+            ref={autocompleteRef}
+            className={`w-full p-2 border rounded transition-all duration-300 focus:outline-none ${
+              errors.direccion ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="Ej: Carrera x #xx-xx"
+            defaultValue={direccion}
+            onChange={(e) => setDireccion(e.target.value)}
+          />
+          {errors.direccion && (
+            <p className="text-sm text-red-600 mt-1">{errors.direccion}</p>
+          )}
+        </div>
+
+        {["Casa", "Apartamento", "Oficina", "Local"].includes(tipo) && (
+          <>
+            {isLoaded && latLng.lat && latLng.lng && (
+              <div className="col-span-full mt-4">
+                <label className="block font-medium mb-2">
+                  Ubicación en el mapa
+                </label>
+                <div className="h-64 w-full rounded border">
+                  <GoogleMap
+                    center={latLng}
+                    zoom={16}
+                    mapContainerStyle={{ height: "100%", width: "100%" }}
+                  >
+                    <Marker
+                      position={latLng}
+                      draggable={true}
+                      onDragEnd={(e) => {
+                        const newLat = e.latLng.lat();
+                        const newLng = e.latLng.lng();
+                        setLatLng({ lat: newLat, lng: newLng });
+                        setMapCenter({ lat: newLat, lng: newLng });
+
+                        // Geocodificación inversa
+                        const geocoder = new window.google.maps.Geocoder();
+                        geocoder.geocode(
+                          { location: { lat: newLat, lng: newLng } },
+                          (results, status) => {
+                            if (status === "OK" && results[0]) {
+                              setDireccionExacta(results[0].formatted_address);
+                            } else {
+                              setDireccionExacta(
+                                "Ubicación manual sin dirección exacta"
+                              );
+                            }
+                          }
+                        );
+                      }}
+                    />
+                  </GoogleMap>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  Dirección exacta detectada: <strong>{direccionExacta}</strong>
+                </p>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <div>

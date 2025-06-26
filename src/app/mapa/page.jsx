@@ -1,144 +1,149 @@
-'use client'
+"use client";
 
-import { useEffect, useState, useRef } from 'react'
-import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api'
-import { motion } from 'framer-motion'
+import { useState, useMemo } from "react";
+import { MapPin, Search, Car, Home } from "lucide-react";
+import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 
-const containerStyle = {
-  width: '100%',
-  height: '80vh',
-}
+const MapView = dynamic(() => import("../../components/MapView"), {
+  ssr: false,
+});
 
-const defaultCenter = {
-  lat: -34.6037, // Buenos Aires
-  lng: -58.3816,
-}
-
-const propiedadesMock = [
+const mockData = [
   {
     id: 1,
-    titulo: 'Casa en Palermo',
-    ciudad: 'Buenos Aires',
+    titulo: "Apartamento moderno",
+    tipo: "propiedad",
+    ciudad: "Buenos Aires",
     lat: -34.5837,
     lng: -58.4269,
+    precio: "$2.500.000",
+    detalles: "2 hab. 1 baño 85 m²",
+    destacado: true,
   },
   {
     id: 2,
-    titulo: 'Depto en Rosario',
-    ciudad: 'Rosario',
-    lat: -32.9442,
-    lng: -60.6505,
+    titulo: "Toyota Corolla 2022",
+    tipo: "auto",
+    ciudad: "Buenos Aires",
+    lat: -34.6037,
+    lng: -58.3916,
+    precio: "$350.000",
+    detalles: "Toyota Corolla 2022",
+    destacado: true,
   },
   {
     id: 3,
-    titulo: 'Casa en Córdoba',
-    ciudad: 'Córdoba',
-    lat: -31.4201,
-    lng: -64.1888,
+    titulo: "Casa con jardín",
+    tipo: "propiedad",
+    ciudad: "Buenos Aires",
+    lat: -34.5937,
+    lng: -58.4016,
+    precio: "$4.200.000",
+    detalles: "3 hab. 2 baños 150 m²",
+    destacado: false,
   },
-]
+];
 
 export default function MapaPage() {
-  const [search, setSearch] = useState('')
-  const [selectedCity, setSelectedCity] = useState(null)
-  const [filteredCities, setFilteredCities] = useState([])
-  const [mapCenter, setMapCenter] = useState(defaultCenter)
-  const inputRef = useRef(null)
+  const [search, setSearch] = useState("");
+  const [tipo, setTipo] = useState("propiedad");
+  const [centerOn, setCenterOn] = useState(null);
 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-  })
-
-  const cities = [...new Set(propiedadesMock.map((p) => p.ciudad))]
-
-  useEffect(() => {
-    if (search.length === 0) {
-      setFilteredCities([])
-      return
-    }
-
-    const filtered = cities.filter((city) =>
-      city.toLowerCase().includes(search.toLowerCase())
-    )
-    setFilteredCities(filtered)
-  }, [search])
-
-  useEffect(() => {
-    if (selectedCity) {
-      const prop = propiedadesMock.find(
-        (p) => p.ciudad.toLowerCase() === selectedCity.toLowerCase()
-      )
-      if (prop) {
-        setMapCenter({ lat: prop.lat, lng: prop.lng })
-      }
-    }
-  }, [selectedCity])
-
-  const propiedadesFiltradas = selectedCity
-    ? propiedadesMock.filter((p) => p.ciudad === selectedCity)
-    : propiedadesMock
+  const filtered = useMemo(() => {
+    const res = mockData.filter(
+      (item) =>
+        item.tipo === tipo &&
+        item.ciudad.toLowerCase().includes(search.toLowerCase())
+    );
+    if (res.length > 0) setCenterOn({ lat: res[0].lat, lng: res[0].lng });
+    return res;
+  }, [search, tipo]);
 
   return (
-    <div className="p-4 max-w-7xl mx-auto space-y-6">
-      <div className="relative w-full max-w-xl mx-auto">
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Buscar ciudad..."
-          className="w-full border border-gray-300 rounded px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+    <div className="flex flex-col md:flex-row h-[85vh] w-full bg-[var(--background)]">
+      {/* Sidebar */}
+      <div className="w-full md:w-96 border-b md:border-r md:border-b-0 border-[var(--gray-border)] p-4 flex flex-col">
+        {/* Buscador */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por ciudad..."
+              className="w-full rounded border border-[var(--gray-border)] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--blue-main)]"
+            />
+            <button className="bg-[var(--blue-main)] hover:bg-[var(--blue-hover)] p-2 rounded text-white">
+              <Search size={20} />
+            </button>
+          </div>
+          <button className="text-sm text-[var(--blue-main)] flex items-center gap-1 hover:underline">
+            <MapPin size={16} /> Usar mi ubicación actual
+          </button>
+        </div>
 
-        {filteredCities.length > 0 && (
-          <motion.ul
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-y-auto shadow"
-          >
-            {filteredCities.map((city, idx) => (
-              <li
-                key={idx}
-                className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
-                onClick={() => {
-                  setSelectedCity(city)
-                  setSearch(city)
-                  setFilteredCities([])
-                }}
+        {/* Filtro tipo */}
+        <div className="mt-4">
+          <div className="flex rounded overflow-hidden border border-[var(--gray-border)]">
+            {["propiedad", "auto"].map((val) => (
+              <button
+                key={val}
+                onClick={() => setTipo(val)}
+                className={`flex-1 p-2 text-sm font-semibold ${
+                  tipo === val
+                    ? "bg-[var(--blue-main)] text-white"
+                    : "bg-[var(--background)] text-[var(--text-default)]"
+                }`}
               >
-                {city}
-              </li>
+                {val === "propiedad" ? "Propiedades" : "Autos"}
+              </button>
             ))}
-          </motion.ul>
-        )}
+          </div>
+        </div>
+
+        {/* Resultados */}
+        <div className="flex-1 overflow-y-auto mt-4 space-y-3 scrollbar-hide">
+          {filtered.length > 0 ? (
+            filtered.map((item) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="border border-[var(--gray-border)] rounded p-3 shadow-sm cursor-pointer hover:bg-[var(--gray-hover)]"
+                onClick={() => setCenterOn({ lat: item.lat, lng: item.lng })}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    {item.tipo === "propiedad" ? (
+                      <Home size={20} />
+                    ) : (
+                      <Car size={20} />
+                    )}
+                    <span className="font-semibold">{item.titulo}</span>
+                  </div>
+                  {item.destacado && (
+                    <span className="bg-[var(--btn-primary)] text-[var(--btn-secondary)] text-xs font-bold px-2 py-0.5 rounded">
+                      Destacado
+                    </span>
+                  )}
+                </div>
+                <div className="text-[var(--blue-main)] font-bold">{item.precio}</div>
+                <div className="text-sm text-[var(--text-secondary)]">{item.detalles}</div>
+              </motion.div>
+            ))
+          ) : (
+            <div className="text-center text-[var(--text-secondary)] text-sm">
+              No hay resultados
+            </div>
+          )}
+        </div>
       </div>
 
-      {isLoaded ? (
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={mapCenter}
-          zoom={12}
-        >
-          {propiedadesFiltradas.map((p) => (
-            <Marker
-              key={p.id}
-              position={{ lat: p.lat, lng: p.lng }}
-              title={p.titulo}
-            />
-          ))}
-        </GoogleMap>
-      ) : (
-        <p className="text-center text-gray-500">Cargando mapa...</p>
-      )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {propiedadesFiltradas.map((p) => (
-          <div key={p.id} className="border p-4 rounded shadow">
-            <h2 className="text-lg font-semibold">{p.titulo}</h2>
-            <p className="text-sm text-gray-600">{p.ciudad}</p>
-          </div>
-        ))}
+      {/* Mapa */}
+      <div className="flex-1 relative">
+        <MapView mode="busqueda" data={filtered} centerOn={centerOn} />
       </div>
     </div>
-  )
+  );
 }
