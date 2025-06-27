@@ -9,28 +9,31 @@ const containerStyle = {
 };
 
 const defaultCenter = {
-  lat: -34.6037,
-  lng: -58.3816,
+  lat: 4.570868, // Centro de Colombia
+  lng: -74.297333,
 };
 
-export default function MapView({
-  mode = "detalle",       // "detalle" o "busqueda"
-  city = "",              // para modo "detalle"
-  userMarker = true,      // mostrar ubicación del usuario
-  data = [],              // para modo "busqueda"
-  onMarkerClick = null,   // función al hacer click en un marker (opcional)
-  centerOn = null,        // para centrar desde afuera (modo busqueda)
-}) {
-  const [mapCenter, setMapCenter] = useState(defaultCenter);
-  const [cityPosition, setCityPosition] = useState(null);
-  const [userPosition, setUserPosition] = useState(null);
+const defaultZoom = 6; // Zoom para ver toda Colombia
 
+export default function MapView({
+  mode = "detalle",
+  city = "",
+  userMarker = true,
+  data = [],
+  onMarkerClick = null,
+  centerOn = null,
+}) {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries: ["places"],
   });
 
-  // Obtener ubicación del usuario (solo si se permite)
+  const [mapCenter, setMapCenter] = useState(defaultCenter);
+  const [zoomLevel, setZoomLevel] = useState(mode === "busqueda" ? defaultZoom : 13);
+  const [cityPosition, setCityPosition] = useState(null);
+  const [userPosition, setUserPosition] = useState(null);
+
+  // Obtener ubicación del usuario (modo detalle)
   useEffect(() => {
     if (!navigator.geolocation || !userMarker) return;
     navigator.geolocation.getCurrentPosition(
@@ -42,6 +45,7 @@ export default function MapView({
         setUserPosition(posObj);
         if (mode === "detalle") {
           setMapCenter(posObj);
+          setZoomLevel(13);
         }
       },
       () => console.warn("Ubicación del usuario denegada")
@@ -52,7 +56,7 @@ export default function MapView({
   useEffect(() => {
     if (mode !== "detalle" || !isLoaded || !city) return;
 
-    const geocodeCity = async () => {
+    const geocodeCity = () => {
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({ address: city }, (results, status) => {
         if (status === "OK" && results[0]) {
@@ -60,6 +64,7 @@ export default function MapView({
           const pos = { lat: loc.lat(), lng: loc.lng() };
           setCityPosition(pos);
           setMapCenter(pos);
+          setZoomLevel(13);
         }
       });
     };
@@ -71,31 +76,47 @@ export default function MapView({
   useEffect(() => {
     if (mode === "busqueda" && centerOn) {
       setMapCenter(centerOn);
+      setZoomLevel(13); // acercar cuando hay resultado
     }
   }, [centerOn, mode]);
 
-  if (!isLoaded) return <div className="h-full flex justify-center items-center">Cargando mapa...</div>;
+  if (!isLoaded)
+    return (
+      <div className="h-full flex justify-center items-center">
+        Cargando mapa...
+      </div>
+    );
 
   return (
-    <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={13}>
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={mapCenter}
+      zoom={zoomLevel}
+    >
+      {/* Marker modo detalle */}
       {mode === "detalle" && cityPosition && <Marker position={cityPosition} />}
-      {mode === "detalle" && userMarker && userPosition && <Marker position={userPosition} />}
-      
+      {mode === "detalle" && userMarker && userPosition && (
+        <Marker position={userPosition} />
+      )}
+
+      {/* Marcadores modo búsqueda */}
       {mode === "busqueda" &&
-        data.map((item) => (
-          <Marker
-            key={item.id}
-            position={{ lat: item.lat, lng: item.lng }}
-            title={item.titulo}
-            icon={{
-              url:
-                item.tipo === "propiedad"
-                  ? "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                  : "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
-            }}
-            onClick={() => onMarkerClick?.(item)}
-          />
-        ))}
+        data
+          .filter((item) => item.lat && item.lng)
+          .map((item) => (
+            <Marker
+              key={item.id}
+              position={{ lat: item.lat, lng: item.lng }}
+              title={item.titulo}
+              icon={{
+                url:
+                  item.tipo === "propiedad"
+                    ? "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                    : "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
+              }}
+              onClick={() => onMarkerClick?.(item)}
+            />
+          ))}
     </GoogleMap>
   );
 }
