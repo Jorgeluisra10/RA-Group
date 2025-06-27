@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useTheme } from "next-themes";
 
 const containerStyle = {
   width: "100%",
@@ -13,7 +14,89 @@ const defaultCenter = {
   lng: -74.297333,
 };
 
-const defaultZoom = 6; // Zoom para ver toda Colombia
+const defaultZoom = 6;
+
+// Estilo "night mode" de Google Maps
+const googleNightStyle = [
+  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry",
+    stylers: [{ color: "#263c3f" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#6b9a76" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#38414e" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#212a37" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#9ca5b3" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#746855" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#1f2835" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#f3d19c" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "geometry",
+    stylers: [{ color: "#2f3948" }],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#17263c" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#515c6d" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#17263c" }],
+  },
+];
 
 export default function MapView({
   mode = "detalle",
@@ -23,6 +106,8 @@ export default function MapView({
   onMarkerClick = null,
   centerOn = null,
 }) {
+  const { resolvedTheme } = useTheme();
+
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries: ["places"],
@@ -33,7 +118,6 @@ export default function MapView({
   const [cityPosition, setCityPosition] = useState(null);
   const [userPosition, setUserPosition] = useState(null);
 
-  // Obtener ubicación del usuario (modo detalle)
   useEffect(() => {
     if (!navigator.geolocation || !userMarker) return;
     navigator.geolocation.getCurrentPosition(
@@ -52,31 +136,25 @@ export default function MapView({
     );
   }, [userMarker, mode]);
 
-  // Geocodificar ciudad (modo detalle)
   useEffect(() => {
     if (mode !== "detalle" || !isLoaded || !city) return;
 
-    const geocodeCity = () => {
-      const geocoder = new window.google.maps.Geocoder();
-      geocoder.geocode({ address: city }, (results, status) => {
-        if (status === "OK" && results[0]) {
-          const loc = results[0].geometry.location;
-          const pos = { lat: loc.lat(), lng: loc.lng() };
-          setCityPosition(pos);
-          setMapCenter(pos);
-          setZoomLevel(13);
-        }
-      });
-    };
-
-    geocodeCity();
+    const geocoder = new window.google.maps.Geocoder();
+    geocoder.geocode({ address: city }, (results, status) => {
+      if (status === "OK" && results[0]) {
+        const loc = results[0].geometry.location;
+        const pos = { lat: loc.lat(), lng: loc.lng() };
+        setCityPosition(pos);
+        setMapCenter(pos);
+        setZoomLevel(13);
+      }
+    });
   }, [isLoaded, city, mode]);
 
-  // Centrar en punto externo (modo búsqueda)
   useEffect(() => {
     if (mode === "busqueda" && centerOn) {
       setMapCenter(centerOn);
-      setZoomLevel(13); // acercar cuando hay resultado
+      setZoomLevel(13);
     }
   }, [centerOn, mode]);
 
@@ -87,19 +165,23 @@ export default function MapView({
       </div>
     );
 
+  const mapOptions = {
+    styles: resolvedTheme === "dark" ? googleNightStyle : [],
+    disableDefaultUI: false,
+  };
+
   return (
     <GoogleMap
+      key={resolvedTheme}
       mapContainerStyle={containerStyle}
       center={mapCenter}
       zoom={zoomLevel}
+      options={mapOptions}
     >
-      {/* Marker modo detalle */}
       {mode === "detalle" && cityPosition && <Marker position={cityPosition} />}
       {mode === "detalle" && userMarker && userPosition && (
         <Marker position={userPosition} />
       )}
-
-      {/* Marcadores modo búsqueda */}
       {mode === "busqueda" &&
         data
           .filter((item) => item.lat && item.lng)

@@ -161,7 +161,7 @@ export default function MapaPage() {
                     <span className="font-semibold">{item.titulo}</span>
                   </div>
                   {item.destacado && (
-                    <span className="bg-[var(--btn-primary)] text-[var(--btn-secondary)] text-xs font-bold px-2 py-0.5 rounded">
+                    <span className="bg-[var(--btn-primary)] text-black text-xs font-bold px-2 py-0.5 rounded">
                       Destacado
                     </span>
                   )}
