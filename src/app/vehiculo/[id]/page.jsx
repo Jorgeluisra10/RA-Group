@@ -13,7 +13,7 @@ import MobileCarDetailTabs from "../(components)/MobileCarDetailTabs";
 import CarSpecsCard from "../(components)/CarSpecsCard";
 import FuelEfficiencyCard from "../(components)/FuelEfficiencyCard";
 
-const MapView = dynamic(() => import("../../../components/MapView"), {
+const MapView = dynamic(() => import("../../../components/MapView/MapView"), {
   ssr: false,
 });
 

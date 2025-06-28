@@ -7,7 +7,7 @@ import { getProperties } from '../../../lib/api';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
-const MapView = dynamic(() => import('../../../components/MapView'), { ssr: false });
+const MapView = dynamic(() => import('../../../components/MapView/MapView'), { ssr: false });
 
 const PropertyDetail = () => {
   const { id } = useParams();
