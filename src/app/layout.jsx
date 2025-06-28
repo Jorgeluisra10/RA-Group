@@ -1,6 +1,7 @@
 // app/layout.jsx (sin "use client")
 
 import AppShell from "./AppShell";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata = {
@@ -54,6 +55,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="min-h-screen">
         <AppShell>{children}</AppShell>
+        <SpeedInsights />
       </body>
     </html>
   );
