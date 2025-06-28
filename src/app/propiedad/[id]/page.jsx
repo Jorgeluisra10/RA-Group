@@ -1,11 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import { Mail, Phone, Share2, Heart, BedDouble, Bath, Car, Ruler, MapPin, Train, Bus, TreeDeciduous, ShoppingBag, Stethoscope, GraduationCap } from 'lucide-react';
+import { Heart, BedDouble, Bath, Car, Ruler, MapPin, Share2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getProperties } from '../../../lib/api';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
+
+import AgentCard from './(components)/AgentCard';
+import ZonaInfo from './(components)/ZonaInfo';
+import SimilarProperties from './(components)/SimilarProperties';
 
 const MapView = dynamic(() => import('../../../components/MapView/MapView'), { ssr: false });
 
@@ -15,7 +19,6 @@ const PropertyDetail = () => {
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState(null);
   const [liked, setLiked] = useState(false);
-  const [selectedTab, setSelectedTab] = useState('transporte');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,18 +52,18 @@ const PropertyDetail = () => {
     }
   };
 
+  const handleContact = (type) => {
+    const message = `Hola, estoy interesado en la propiedad ${property.title}`;
+    if (type === 'whatsapp') {
+      const url = `https://wa.me/5491123456789?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    } else if (type === 'email') {
+      window.location.href = `mailto:contacto@tupropiedad.com?subject=Interés en ${property.title}`;
+    }
+  };
+
   if (loading) return <div className="p-8">Cargando propiedad...</div>;
   if (!property) return <div className="p-8">Propiedad no encontrada.</div>;
-
-  const whatsappLink = `https://wa.me/5491123456789?text=Hola,%20estoy%20interesado%20en%20la%20propiedad%20${encodeURIComponent(property.title)}`;
-
-  const zonaTabs = [
-    { id: 'transporte', icon: <Train className="w-4 h-4" />, label: 'Transporte' },
-    { id: 'educacion', icon: <GraduationCap className="w-4 h-4" />, label: 'Educación' },
-    { id: 'verdes', icon: <TreeDeciduous className="w-4 h-4" />, label: 'Áreas verdes' },
-    { id: 'comercios', icon: <ShoppingBag className="w-4 h-4" />, label: 'Comercios' },
-    { id: 'salud', icon: <Stethoscope className="w-4 h-4" />, label: 'Salud' },
-  ];
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 animate-fade-in-up">
@@ -141,89 +144,14 @@ const PropertyDetail = () => {
             <MapView ciudad={property.ciudad || 'Buenos Aires'} />
           </div>
 
-          {/* Información zona responsive */}
-          <div className="space-y-2 mt-6">
-            <h2 className="text-xl font-semibold text-[var(--text-default)]">Información de la zona</h2>
-            <div className="bg-[var(--background)] border border-[var(--gray-border)] rounded-lg p-4">
-              <div className="flex flex-wrap gap-3 text-sm text-[var(--text-default)] mb-4">
-                {zonaTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setSelectedTab(tab.id)}
-                    className={`flex items-center gap-2 px-3 py-1 rounded-full border text-sm transition ${
-                      selectedTab === tab.id
-                        ? 'bg-[var(--text-active)] text-[var(--btn-secondary)]'
-                        : 'border-[var(--gray-border)] text-[var(--text-default)] hover:bg-[var(--gray-hover)]'
-                    }`}
-                  >
-                    {tab.icon}
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 text-sm text-[var(--text-secondary)]">
-                <div>
-                  <strong className="text-[var(--text-default)]">Estación Palermo</strong>
-                  <p>Línea D - 400m (5 min caminando)</p>
-                </div>
-                <div>
-                  <strong className="text-[var(--text-default)]">Parada Línea 39</strong>
-                  <p>Av. Santa Fe - 200m (2 min caminando)</p>
-                </div>
-                <div>
-                  <strong className="text-[var(--text-default)]">Estación Ministro Carranza</strong>
-                  <p>Línea Mitre - 800m (10 min caminando)</p>
-                </div>
-                <div>
-                  <strong className="text-[var(--text-default)]">Metrobus Juan B. Justo</strong>
-                  <p>500m (6 min caminando)</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Información zona */}
+          <ZonaInfo />
         </div>
 
         {/* Agente y similares */}
         <div className="flex flex-col gap-6">
-          <div className="bg-[var(--background)] border border-[var(--gray-border)] rounded-lg p-4 flex flex-col items-center gap-4 shadow-sm">
-            <div className="w-16 h-16 rounded-full bg-[var(--blue-main)] text-white flex items-center justify-center font-bold text-lg">
-              MR
-            </div>
-            <div className="text-center">
-              <p className="font-semibold text-[var(--text-default)]">María Rodríguez</p>
-              <p className="text-sm text-[var(--text-secondary)]">Asesora Inmobiliaria Senior</p>
-            </div>
-            <div className="flex flex-col gap-2 w-full">
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[var(--btn-primary)] text-[var(--btn-secondary)] font-semibold px-4 py-2 rounded-md text-center btn-shine relative overflow-hidden"
-              >
-                Contactar por WhatsApp
-              </a>
-              <button className="bg-transparent border border-[var(--gray-border)] text-[var(--text-default)] font-medium px-4 py-2 rounded-md hover:bg-[var(--gray-hover)] transition">
-                Enviar email
-              </button>
-            </div>
-          </div>
-
-          {/* Similares */}
-          <div className="bg-[var(--background)] border border-[var(--gray-border)] rounded-lg p-4 shadow-sm">
-            <h3 className="text-md font-semibold text-[var(--text-default)] mb-2">Propiedades similares</h3>
-            {[1, 2, 3].map((p, i) => (
-              <div key={i} className="flex items-start gap-3 mb-3">
-                <div className="relative w-16 h-16 rounded overflow-hidden">
-                  <Image src={property.images[i]} alt={`similar-${i}`} fill className="object-cover" />
-                </div>
-                <div className="text-sm">
-                  <p className="text-[var(--text-default)] font-medium">{property.title}</p>
-                  <p className="text-[var(--text-secondary)]">{property.habitaciones} dorm. | {property.banos} baños | {property.area} m²</p>
-                  <p className="text-[var(--text-active)] font-semibold text-sm mt-1">${property.price.toLocaleString()}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <AgentCard property={property} onContact={handleContact} />
+          <SimilarProperties property={property} />
         </div>
       </div>
     </div>

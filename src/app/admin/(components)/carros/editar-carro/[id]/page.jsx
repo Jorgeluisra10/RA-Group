@@ -14,8 +14,14 @@ export default function EditarCarroPage() {
   const [loading, setLoading] = useState(true);
   const [mensaje, setMensaje] = useState("");
   const [videoPreview, setVideoPreview] = useState("");
+  const [agentes, setAgentes] = useState([]);
 
   useEffect(() => {
+    const fetchAgentes = async () => {
+      const { data, error } = await supabase.from("agentes").select("id, nombre");
+      if (!error) setAgentes(data);
+    };
+
     const fetchData = async () => {
       try {
         const { data: car, error } = await supabase
@@ -44,6 +50,7 @@ export default function EditarCarroPage() {
       }
     };
 
+    fetchAgentes();
     if (id) fetchData();
   }, [id]);
 
@@ -71,8 +78,6 @@ export default function EditarCarroPage() {
         .eq("id", carro.id);
 
       if (error) throw error;
-
-      // Guardar orden imágenes
 
       await Promise.all(
         imagenes.map((img) =>
@@ -219,9 +224,7 @@ export default function EditarCarroPage() {
                 />
               </div>
               <div>
-                <label className="text-sm mb-1 block">
-                  Capacidad del Tanque (L)
-                </label>
+                <label className="text-sm mb-1 block">Capacidad del Tanque (L)</label>
                 <input
                   type="number"
                   name="capacidad_tanque"
@@ -231,9 +234,7 @@ export default function EditarCarroPage() {
                 />
               </div>
               <div>
-                <label className="text-sm mb-1 block">
-                  Consumo Carretera (km/L)
-                </label>
+                <label className="text-sm mb-1 block">Consumo Carretera (km/L)</label>
                 <input
                   type="number"
                   name="carretera_consumo"
@@ -243,9 +244,7 @@ export default function EditarCarroPage() {
                 />
               </div>
               <div>
-                <label className="text-sm mb-1 block">
-                  Consumo Ciudad (km/L)
-                </label>
+                <label className="text-sm mb-1 block">Consumo Ciudad (km/L)</label>
                 <input
                   type="number"
                   name="ciudad_consumo"
@@ -311,16 +310,20 @@ export default function EditarCarroPage() {
             <h2 className="text-xl font-bold mb-2 border-b-2 border-[#FDC500] w-fit">
               Agente
             </h2>
-            <label className="text-sm mb-1 block">
-              Nombre del Agente o Usuario Responsable
-            </label>
-            <input
-              type="text"
+            <label className="text-sm mb-1 block">Seleccione un agente</label>
+            <select
               name="agente"
               value={carro.agente || ""}
               onChange={handleChange}
               className="w-full border rounded-lg p-3"
-            />
+            >
+              <option value="">Seleccionar agente</option>
+              {agentes.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.nombre}
+                </option>
+              ))}
+            </select>
           </section>
 
           {/* VIDEO */}
@@ -341,9 +344,7 @@ export default function EditarCarroPage() {
               <div className="mt-4">
                 <iframe
                   className="w-full aspect-video rounded-lg"
-                  src={`https://www.youtube.com/embed/${getYoutubeId(
-                    videoPreview
-                  )}`}
+                  src={`https://www.youtube.com/embed/${getYoutubeId(videoPreview)}`}
                   title="Video Preview"
                   allowFullScreen
                 />
@@ -360,6 +361,7 @@ export default function EditarCarroPage() {
           <div className="flex items-center justify-between">
             <EvaluacionAuto evaluacion={carro} carroId={carro.id} />
           </div>
+
           {/* BOTÓN GUARDAR */}
           <div className="text-right">
             <button

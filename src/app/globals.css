@@ -17,6 +17,7 @@
 :root {
   --background: #F8F9FA;
   --navbackground: #F8F9FA;
+  --sidebackground: #0f1c46;
   --footerbackground: #0f1c46;
   --text-default: #171717;      /* Texto común */
   --text-active: #fdc700;       /* Texto activo / resaltado */
@@ -47,6 +48,7 @@ html.dark .icon-color {
 html.dark {
   --background: #121218;
   --navbackground: #1c1c24;
+  --sidebackground: #1c1c24;
   --footerbackground: #1c1c24;
   --text-default: #ffffff;
   --text-active: #fdc700;

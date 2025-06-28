@@ -39,7 +39,7 @@ export default function Login() {
 
   const redirectByRole = (rol) => {
     if (rol === "admin") router.replace("/admin");
-    else if (rol === "agente") router.replace("/dashboard-agente");
+    else if (rol === "agente") router.replace("/agente");
     else router.replace("/");
   };
 

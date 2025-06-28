@@ -13,8 +13,27 @@ export default function EditarPropiedadPage() {
   const [imagenes, setImagenes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mensaje, setMensaje] = useState("");
+  const [agentes, setAgentes] = useState([]);
+
+  const tipos = [
+    "Casa",
+    "Apartamento",
+    "Terreno",
+    "Oficina",
+    "Local",
+    "Finca",
+    "Lote",
+  ];
+  const estados = ["Nuevo", "Usado", "En construcción"];
 
   useEffect(() => {
+    const fetchAgentes = async () => {
+      const { data, error } = await supabase
+        .from("agentes")
+        .select("id, nombre");
+      if (!error) setAgentes(data);
+    };
+
     const fetchData = async () => {
       try {
         const data = await getProperties();
@@ -39,6 +58,7 @@ export default function EditarPropiedadPage() {
       }
     };
 
+    fetchAgentes();
     if (id) fetchData();
   }, [id]);
 
@@ -78,8 +98,6 @@ export default function EditarPropiedadPage() {
         .eq("id", propiedad.id);
 
       if (error) throw error;
-
-      // Guardar orden imágenes
 
       await Promise.all(
         imagenes.map((img) =>
@@ -121,14 +139,10 @@ export default function EditarPropiedadPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label
-                htmlFor="title"
-                className="block font-medium mb-1 text-[#0a1128]"
-              >
+              <label className="block font-medium mb-1 text-[#0a1128]">
                 Título
               </label>
               <input
-                id="title"
                 name="title"
                 value={propiedad.title || ""}
                 onChange={handleChange}
@@ -137,14 +151,10 @@ export default function EditarPropiedadPage() {
             </div>
 
             <div>
-              <label
-                htmlFor="price"
-                className="block font-medium mb-1 text-[#0a1128]"
-              >
+              <label className="block font-medium mb-1 text-[#0a1128]">
                 Precio
               </label>
               <input
-                id="price"
                 name="price"
                 type="number"
                 value={propiedad.price || ""}
@@ -155,14 +165,10 @@ export default function EditarPropiedadPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="description"
-              className="block font-medium mb-1 text-[#0a1128]"
-            >
+            <label className="block font-medium mb-1 text-[#0a1128]">
               Descripción
             </label>
             <textarea
-              id="description"
               name="description"
               value={propiedad.description || ""}
               onChange={handleChange}
@@ -171,39 +177,84 @@ export default function EditarPropiedadPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              ["tipo", "Tipo de propiedad"],
-              ["estado", "Estado"],
-              ["agente", "Agente"],
-              ["ciudad", "Ciudad"],
-              ["barrio", "Barrio"],
-              ["codigoPostal", "Código Postal"],
-              ["direccion", "Dirección"],
-              ["habitaciones", "Habitaciones"],
-              ["banos", "Baños"],
-              ["area", "Área (m²)"],
-              ["garaje", "Garaje"],
-            ].map(([name, label]) => (
-              <div key={name}>
-                <label
-                  htmlFor={name}
-                  className="block font-medium mb-1 text-[#0a1128]"
-                >
-                  {label}
-                </label>
-                <input
-                  id={name}
-                  name={name}
-                  value={propiedad[name] || ""}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-lg border border-gray-300"
-                />
-              </div>
-            ))}
+            <div>
+              <label className="block font-medium mb-1 text-[#0a1128]">
+                Tipo de propiedad
+              </label>
+              <select
+                name="tipo"
+                value={propiedad.tipo || ""}
+                onChange={handleChange}
+                className="w-full p-3 rounded-lg border border-gray-300"
+              >
+                <option value="">Seleccionar</option>
+                {tipos.map((tipo) => (
+                  <option key={tipo} value={tipo}>
+                    {tipo}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1 text-[#0a1128]">
+                Estado
+              </label>
+              <select
+                name="estado"
+                value={propiedad.estado || ""}
+                onChange={handleChange}
+                className="w-full p-3 rounded-lg border border-gray-300"
+              >
+                <option value="">Seleccionar</option>
+                {estados.map((estado) => (
+                  <option key={estado} value={estado}>
+                    {estado}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1 text-[#0a1128]">
+                Agente asignado
+              </label>
+              <select
+                name="agente"
+                value={propiedad.agente || ""}
+                onChange={handleChange}
+                className="w-full p-3 rounded-lg border border-gray-300"
+              >
+                <option value="">Seleccionar agente</option>
+                {agentes.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {["ciudad", "barrio", "codigoPostal", "direccion", "habitaciones", "banos", "area", "garaje"].map(
+              (campo) => (
+                <div key={campo}>
+                  <label className="block font-medium mb-1 text-[#0a1128]">
+                    {campo.charAt(0).toUpperCase() + campo.slice(1)}
+                  </label>
+                  <input
+                    name={campo}
+                    value={propiedad[campo] || ""}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-lg border border-gray-300"
+                  />
+                </div>
+              )
+            )}
           </div>
+
           <section className="space-y-4">
-            <PropertyImageGallery imagenes={imagenes} setImagenes={setImagenes}/>
+            <PropertyImageGallery imagenes={imagenes} setImagenes={setImagenes} />
           </section>
+
           <div className="text-right">
             <button
               type="submit"

@@ -12,7 +12,7 @@ import DevNotice from "../components/DevNotice";
 
 export default function AppShell({ children }) {
   const pathname = usePathname();
-  const isAuthPage = pathname === "/login" || pathname.startsWith("/admin");
+  const isAuthPage = pathname === "/login" || pathname.startsWith("/admin") || pathname.startsWith("/agente");
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={true}>

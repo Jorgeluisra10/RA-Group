@@ -63,6 +63,23 @@ export default function NuevaPropiedadForm() {
   const [tipo, setTipo] = useState("");
   const [estado, setEstado] = useState("");
   const [agente, setAgente] = useState("");
+
+  const [agentesDisponibles, setAgentesDisponibles] = useState([]);
+
+  useEffect(() => {
+    const fetchAgentes = async () => {
+      const { data, error } = await supabase
+        .from("agentes")
+        .select("id, nombre");
+      if (error) {
+        console.error("Error cargando agentes:", error);
+      } else {
+        setAgentesDisponibles(data);
+      }
+    };
+    fetchAgentes();
+  }, []);
+
   const [habitaciones, setHabitaciones] = useState("");
   const [banos, setBanos] = useState("");
   const [area, setArea] = useState("");
@@ -386,13 +403,26 @@ export default function NuevaPropiedadForm() {
           options={["Nuevo", "Usado", "En construcción"]}
           error={errors.estado}
         />
-        <Select
-          label="Agente asignado"
-          value={agente}
-          onChange={(e) => setAgente(e.target.value)}
-          options={["Carlos García", "Ana Ruiz", "Laura López"]}
-          error={errors.agente}
-        />
+        <div>
+          <label className="block font-medium mb-1">Agente asignado</label>
+          <select
+            className={`w-full p-2 border rounded transition-all duration-300 focus:outline-none ${
+              errors.agente ? "border-red-500" : "border-gray-300"
+            }`}
+            value={agente}
+            onChange={(e) => setAgente(e.target.value)}
+          >
+            <option value="">Seleccionar</option>
+            {agentesDisponibles.map((ag) => (
+              <option key={ag.id} value={ag.id}>
+                {ag.nombre}
+              </option>
+            ))}
+          </select>
+          {errors.agente && (
+            <p className="text-sm text-red-600 mt-1">{errors.agente}</p>
+          )}
+        </div>
 
         {requiereDatosAdicionales && (
           <>
