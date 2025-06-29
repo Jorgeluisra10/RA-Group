@@ -8,9 +8,9 @@ const navItems = [
   { label: "Inicio", path: "/" },
   { label: "Propiedades", path: "/propiedades" },
   { label: "Vehículos", path: "/vehiculos" },
-  { label: "Quiero Vender", path: "/vender" },
-  { label: "Sobre nosotros", path: "/sobre-nosotros" },
   { label: "Mapa", path: "/mapa" },
+  { label: "Sobre nosotros", path: "/sobre-nosotros" },
+  { label: "Imnoblog", path: "/blog" },
 ];
 
 export function DesktopLinks() {
