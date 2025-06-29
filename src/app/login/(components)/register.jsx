@@ -10,12 +10,15 @@ export default function RegisterForm({ onRegisterSuccess }) {
   const [telefono, setTelefono] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const isColombianPhone = (number) => /^3\d{9}$/.test(number);
+  const normalizePhone = (number) => number.replace(/\D/g, "");
+  const isColombianPhone = (number) => /^3\d{9}$/.test(normalizePhone(number));
 
   const handleRegister = async (e) => {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
+
+    const telefonoLimpio = normalizePhone(telefono);
 
     if (
       !email.includes("@") ||
@@ -36,7 +39,7 @@ export default function RegisterForm({ onRegisterSuccess }) {
           options: {
             data: {
               nombre,
-              telefono,
+              telefono: telefonoLimpio,
             },
           },
         });
@@ -56,7 +59,6 @@ export default function RegisterForm({ onRegisterSuccess }) {
         return;
       }
 
-      // Esperar a que el trigger procese la creación en "usuarios"
       let userConfirmed = false;
       for (let i = 0; i < 5; i++) {
         const { data: usuario } = await supabase
@@ -89,17 +91,23 @@ export default function RegisterForm({ onRegisterSuccess }) {
   };
 
   return (
-    <form onSubmit={handleRegister} className="space-y-6">
+    <form onSubmit={handleRegister} className="space-y-6 px-4 sm:px-6 md:px-8 py-8 max-w-md mx-auto bg-[var(--background)] rounded-xl shadow-lg animate-fade-in-up">
       {/* Nombre */}
       <div>
-        <label htmlFor="nombre" className="block text-gray-700 font-medium mb-1">
+        <label htmlFor="nombre" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-default)' }}>
           Nombre completo
         </label>
         <input
           id="nombre"
           type="text"
           placeholder="Juan Pérez"
-          className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2"
+          style={{
+            background: 'var(--white)',
+            color: 'var(--text-default)',
+            borderColor: 'var(--gray-border)',
+            boxShadow: '0 0 0 0 transparent',
+          }}
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           required
@@ -109,15 +117,19 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
       {/* Teléfono */}
       <div>
-        <label htmlFor="telefono" className="block text-gray-700 font-medium mb-1">
+        <label htmlFor="telefono" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-default)' }}>
           Teléfono (Colombia)
         </label>
         <input
           id="telefono"
           type="tel"
           placeholder="3XXXXXXXXX"
-          pattern="^3\d{9}$"
-          className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2"
+          style={{
+            background: 'var(--white)',
+            color: 'var(--text-default)',
+            borderColor: 'var(--gray-border)',
+          }}
           value={telefono}
           onChange={(e) => setTelefono(e.target.value)}
           required
@@ -127,14 +139,19 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
       {/* Email */}
       <div>
-        <label htmlFor="email" className="block text-gray-700 font-medium mb-1">
+        <label htmlFor="email" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-default)' }}>
           Correo electrónico
         </label>
         <input
           id="email"
           type="email"
           placeholder="usuario@correo.com"
-          className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2"
+          style={{
+            background: 'var(--white)',
+            color: 'var(--text-default)',
+            borderColor: 'var(--gray-border)',
+          }}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -144,14 +161,19 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
       {/* Password */}
       <div>
-        <label htmlFor="password" className="block text-gray-700 font-medium mb-1">
+        <label htmlFor="password" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-default)' }}>
           Contraseña
         </label>
         <input
           id="password"
           type="password"
           placeholder="********"
-          className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2"
+          style={{
+            background: 'var(--white)',
+            color: 'var(--text-default)',
+            borderColor: 'var(--gray-border)',
+          }}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -159,12 +181,17 @@ export default function RegisterForm({ onRegisterSuccess }) {
         />
       </div>
 
+      {/* Botón */}
       <button
         type="submit"
         disabled={loading}
-        className={`w-full bg-yellow-400 text-gray-900 font-semibold py-3 rounded-lg transition-all duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-500 ${
-          loading ? "opacity-60 cursor-not-allowed" : "hover:bg-yellow-500"
-        }`}
+        className={`relative overflow-hidden btn-shine w-full text-sm font-semibold py-3 rounded-lg transition-all duration-300 shadow-md focus:outline-none focus:ring-2`}
+        style={{
+          backgroundColor: 'var(--btn-primary)',
+          color: 'var(--btn-secondary)',
+          opacity: loading ? 0.6 : 1,
+          cursor: loading ? 'not-allowed' : 'pointer',
+        }}
       >
         {loading ? "Procesando..." : "Registrarse"}
       </button>
