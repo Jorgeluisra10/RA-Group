@@ -5,8 +5,7 @@ import AppShell from "./AppShell";
 import "./globals.css";
 
 export const metadata = {
-  title:
-    "Imnoba | Encuentra propiedades y vehículos en Colombia con agentes locales",
+  title: "Imnoba | Encuentra propiedades y vehículos en Colombia",
   description:
     "Imnoba es una plataforma creada en Chiquinquirá, Boyacá, que conecta a usuarios con agentes inmobiliarios independientes. Encuentra propiedades y vehículos fácil, rápido y con confianza.",
   metadataBase: new URL("https://imnoba.com"),
@@ -51,7 +50,20 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <head>
-        <link rel="icon" href="images/favicon.ico" sizes="any" />
+        <link rel="icon" href="/images/favicon.ico" sizes="any" />
+        {/* Logo Schema for Google */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Imnoba",
+              url: "https://imnoba.com",
+              logo: "https://imnoba.com/images/imlogo.png", // Asegúrate de que este logo exista
+            }),
+          }}
+        />
       </head>
       <body className="min-h-screen">
         <AppShell>{children}</AppShell>
