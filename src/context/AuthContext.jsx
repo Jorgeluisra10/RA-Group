@@ -1,0 +1,125 @@
+"use client";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
+
+const AuthContext = createContext({
+  user: null,
+  userInfo: null,
+  loading: true,
+  signOut: async () => {},
+  refreshUser: async () => {},
+});
+
+export function AuthProvider({ children }) {
+  const [supabase] = useState(() => createBrowserSupabaseClient());
+  const [user, setUser] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUserInfo = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from("usuarios")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (data && !error) {
+        setUserInfo(data);
+        return;
+      }
+
+      const { data: agenteData, error: agenteError } = await supabase
+        .from("agentes")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (agenteData && !agenteError) {
+        setUserInfo(agenteData);
+      } else {
+        setUserInfo(null);
+      }
+    } catch (err) {
+      console.error("❌ Error al obtener info del usuario:", err);
+      setUserInfo(null);
+    }
+  };
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      const session = data?.session;
+
+      if (session?.user) {
+        console.log("✅ Sesión activa al iniciar:", session.user.email);
+        setUser(session.user);
+        await fetchUserInfo(session.user.id);
+      } else {
+        console.log("⚠️ No hay sesión activa al iniciar");
+        setUser(null);
+        setUserInfo(null);
+      }
+
+      setLoading(false);
+    };
+
+    getSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log("🔁 onAuthStateChange:", event, session);
+        if (session?.user) {
+          setUser(session.user);
+          await fetchUserInfo(session.user.id);
+        } else {
+          setUser(null);
+          setUserInfo(null);
+        }
+      }
+    );
+
+    return () => {
+      listener?.subscription?.unsubscribe?.();
+    };
+  }, [supabase]);
+
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      setUser(null);
+      setUserInfo(null);
+    } catch (err) {
+      console.error("❌ Error cerrando sesión:", err);
+    }
+  };
+
+  const refreshUser = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data?.session?.user) {
+      setUser(data.session.user);
+      await fetchUserInfo(data.session.user.id);
+    }
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        userInfo,
+        loading,
+        signOut,
+        refreshUser,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
+}

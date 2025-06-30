@@ -2,19 +2,20 @@
 
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
 import ThemeToggleButton from "../Darkmode";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
 import { DesktopLinks } from "./NavLinks";
 import UserMenu from "./Sesion";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [user, setUser] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
 
+  const { user, userInfo } = useAuth(); // ✅ Contexto ya proporciona todo
+
+  // Bloquea scroll al abrir menú móvil
   useEffect(() => {
     if (menuOpen) {
       document.documentElement.classList.add("overflow-hidden");
@@ -25,6 +26,7 @@ export default function Navbar() {
     }
   }, [menuOpen]);
 
+  // Detecta si está en vista escritorio
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 1024);
@@ -32,47 +34,6 @@ export default function Navbar() {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    const fetchUser = async (sessionUser = null) => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const currentUser = sessionUser || sessionData?.session?.user;
-      if (!currentUser) return;
-      setUser(currentUser);
-
-      const { data, error } = await supabase
-        .from("usuarios")
-        .select("nombre, rol")
-        .eq("id", currentUser.id)
-        .single();
-
-      if (error || !data) {
-        await supabase.auth.signOut();
-        setUser(null);
-        setUserInfo(null);
-        return;
-      }
-
-      setUserInfo(data);
-    };
-
-    fetchUser();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (!session) {
-          setUser(null);
-          setUserInfo(null);
-        } else {
-          fetchUser(session.user);
-        }
-      }
-    );
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
   }, []);
 
   return (
@@ -92,7 +53,7 @@ export default function Navbar() {
           {isDesktop ? (
             <div className="flex-shrink-0 flex items-center gap-3">
               <ThemeToggleButton />
-              <UserMenu user={user} userInfo={userInfo} isDesktop={true} />
+              <UserMenu isDesktop={true} />
             </div>
           ) : (
             <button
@@ -110,6 +71,7 @@ export default function Navbar() {
           )}
         </div>
       </nav>
+
       {!isDesktop && (
         <MobileMenu
           open={menuOpen}

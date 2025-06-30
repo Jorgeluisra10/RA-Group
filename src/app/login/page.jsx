@@ -1,7 +1,8 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../lib/supabaseClient";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import RegisterForm from "./(components)/register";
 
@@ -11,28 +12,27 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const checkSessionAndRedirect = async () => {
       const {
         data: { session },
-        error,
       } = await supabase.auth.getSession();
 
-      if (error || !session) return;
+      if (!session) return;
 
-      const userId = session.user.id;
       const { data: userInfo } = await supabase
         .from("usuarios")
         .select("rol")
-        .eq("id", userId)
+        .eq("id", session.user.id)
         .single();
 
       if (userInfo) redirectByRole(userInfo.rol);
     };
 
     checkSessionAndRedirect();
-  }, [router]);
+  }, []);
 
   const redirectByRole = (rol) => {
     if (rol === "admin") router.replace("/admin");
@@ -45,46 +45,33 @@ export default function Login() {
     if (loading) return;
     setLoading(true);
 
-    try {
-      const { data: loginData, error: loginError } =
-        await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      if (loginError) {
-        if (loginError.message.includes("Email not confirmed")) {
-          toast.error("Debes confirmar tu correo electrónico antes de iniciar sesión.", {
-            icon: "📧",
-            duration: 5000,
-          });
-        } else {
-          toast.error("Credenciales incorrectas");
-        }
-        return;
-      }
-
-      const userId = loginData?.user?.id;
-      if (!userId) {
-        toast.error("No se pudo obtener el ID del usuario.");
-        return;
-      }
-
-      const { data: userInfo } = await supabase
-        .from("usuarios")
-        .select("rol")
-        .eq("id", userId)
-        .single();
-
-      if (!userInfo) {
-        toast.error("No se pudo obtener la información del usuario.");
-        return;
-      }
-
-      redirectByRole(userInfo.rol);
-    } catch (error) {
-      console.error(error);
-      toast.error("Error inesperado. Intenta nuevamente.");
-    } finally {
+    if (error) {
+      toast.error("Credenciales incorrectas");
       setLoading(false);
+      return;
     }
+
+    const userId = data.user.id;
+
+    const { data: userInfo, error: infoError } = await supabase
+      .from("usuarios")
+      .select("rol")
+      .eq("id", userId)
+      .single();
+
+    if (infoError || !userInfo) {
+      toast.error("No se encontró el rol del usuario.");
+      setLoading(false);
+      return;
+    }
+
+    redirectByRole(userInfo.rol);
+    setLoading(false);
   };
 
   return (

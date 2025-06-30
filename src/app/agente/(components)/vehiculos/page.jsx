@@ -4,12 +4,20 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { CalendarIcon, PlusCircle, LayoutGrid, List, Send } from "lucide-react";
+import {
+  CalendarIcon,
+  PlusCircle,
+  LayoutGrid,
+  List,
+  Send,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../../../context/AuthContext"; // ✅ Importante
 
 const pageSize = 20;
 
 export default function CarrosAgentePage() {
+  const { user, loading } = useAuth(); // ✅ Usar contexto de usuario
   const [cars, setCars] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState("grid");
@@ -24,21 +32,19 @@ export default function CarrosAgentePage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (loading || !user) return;
+
     const fetchUserCars = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) return;
-
       const { data, error } = await supabase
         .from("cars")
-        .select(`
+        .select(
+          `
           *,
           car_images (
             url
           )
-        `)
+        `
+        )
         .eq("agente", user.id)
         .order("created_at", { ascending: false });
 
@@ -56,10 +62,12 @@ export default function CarrosAgentePage() {
     };
 
     fetchUserCars();
-  }, []);
+  }, [user, loading]); // ✅ Añadir dependencias correctas
 
   const handleSolicitudBaja = async (id) => {
-    const confirm = window.confirm("¿Estás seguro de solicitar la baja de este carro?");
+    const confirm = window.confirm(
+      "¿Estás seguro de solicitar la baja de este carro?"
+    );
     if (!confirm) return;
 
     try {

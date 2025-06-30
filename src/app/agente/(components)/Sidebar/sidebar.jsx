@@ -15,6 +15,8 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import clsx from "clsx";
+import { useAuth } from "../../../../context/AuthContext"; // ✅ Nuevo
+import { useRouter } from "next/navigation"; // ✅ Nuevo
 
 const navItems = [
   {
@@ -51,6 +53,22 @@ const navItems = [
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [loadingLogout, setLoadingLogout] = useState(false); // ✅ Nuevo
+  const { signOut } = useAuth(); // ✅ Nuevo
+  const router = useRouter(); // ✅ Nuevo
+
+  const handleLogout = async () => {
+    if (loadingLogout) return;
+    try {
+      setLoadingLogout(true);
+      await signOut();
+      window.location.href = "/"; // ⚠️ Importante para limpiar cookies y contexto
+    } catch (error) {
+      console.error("Error al cerrar sesión", error);
+    } finally {
+      setLoadingLogout(false);
+    }
+  };
 
   return (
     <>
@@ -111,14 +129,16 @@ export default function Sidebar() {
         </div>
 
         {/* Cerrar sesión */}
-        <Link
-          href="/admin/logout"
-          onClick={() => setIsOpen(false)}
-          className="mt-10 flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 transition-colors text-sm font-medium"
+        <button
+          onClick={handleLogout}
+          disabled={loadingLogout}
+          className="mt-10 flex items-center gap-3 px-3 py-2 rounded-md hover:bg-white/10 transition-colors text-sm font-medium text-left"
         >
           <LogOut className="w-5 h-5 text-[var(--btn-primary)]" />
-          <span>Cerrar sesión</span>
-        </Link>
+          <span>
+            {loadingLogout ? "Cerrando sesión..." : "Cerrar sesión"}
+          </span>
+        </button>
       </aside>
     </>
   );

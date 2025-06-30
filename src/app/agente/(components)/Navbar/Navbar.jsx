@@ -3,14 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Bell, ChevronDown, LogOut, Home } from "lucide-react";
 import ThemeToggleButton from "../../../../components/Darkmode";
-import { supabase } from "../../../../lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../../../context/AuthContext"; // ✅ nuevo
 
 export default function Navbar({ user, userInfo }) {
   const [isDesktop, setIsDesktop] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loadingLogout, setLoadingLogout] = useState(false); // ✅ nuevo
   const router = useRouter();
   const dropdownRef = useRef();
+
+  const { signOut } = useAuth(); // ✅ nuevo
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -19,7 +22,6 @@ export default function Navbar({ user, userInfo }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Cierre al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -50,8 +52,16 @@ export default function Navbar({ user, userInfo }) {
       .toUpperCase();
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) router.push("/");
+    if (loadingLogout) return;
+    try {
+      setLoadingLogout(true);
+      await signOut();
+      window.location.href = "/"; // 🔒 asegura limpieza completa
+    } catch (error) {
+      console.error("Error al cerrar sesión", error);
+    } finally {
+      setLoadingLogout(false);
+    }
   };
 
   return (
@@ -100,8 +110,9 @@ export default function Navbar({ user, userInfo }) {
         </div>
 
         {menuOpen && (
-          <div className="absolute right-0 top-16 w-48 rounded-lg shadow-lg py-2 z-50 animate-fade-in-up"
-               style={{ backgroundColor: 'var(--white)', color: 'var(--text-default)' }}
+          <div
+            className="absolute right-0 top-16 w-48 rounded-lg shadow-lg py-2 z-50 animate-fade-in-up"
+            style={{ backgroundColor: 'var(--white)', color: 'var(--text-default)' }}
           >
             <button
               onClick={() => {
@@ -115,10 +126,13 @@ export default function Navbar({ user, userInfo }) {
             </button>
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900"
+              disabled={loadingLogout}
+              className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900 ${
+                loadingLogout ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Cerrar sesión
+              {loadingLogout ? "Cerrando sesión..." : "Cerrar sesión"}
             </button>
           </div>
         )}

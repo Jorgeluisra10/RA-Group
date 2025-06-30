@@ -6,31 +6,31 @@ import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { PlusCircle, LayoutGrid, List, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../../../../context/AuthContext"; // ✅ AGREGADO
 
 const pageSize = 50;
 
 export default function PropiedadesAgentePage() {
+  const { user, loading } = useAuth(); // ✅ AGREGADO
   const [properties, setProperties] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState("grid");
   const router = useRouter();
 
   useEffect(() => {
+    if (loading || !user) return; // ✅ Esperar a que cargue el usuario
+
     const fetchUserProperties = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) return;
-
       const { data, error } = await supabase
         .from("properties")
-        .select(`
+        .select(
+          `
           *,
           property_images (
             url
           )
-        `)
+        `
+        )
         .eq("agente", user.id)
         .order("created_at", { ascending: false });
 
@@ -47,7 +47,7 @@ export default function PropiedadesAgentePage() {
     };
 
     fetchUserProperties();
-  }, []);
+  }, [user, loading]); // ✅ Incluir user y loading
 
   const paginatedProperties = properties.slice(
     (currentPage - 1) * pageSize,

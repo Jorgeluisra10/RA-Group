@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { Users, Home, Car, CheckCircle, Plus } from "lucide-react";
+import { useAuth } from "../../context/AuthContext"; // ✅ Necesario
 import {
   LineChart,
   Line,
@@ -16,6 +17,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 export default function AdminPage() {
+  const { user, loading } = useAuth(); // ✅ Estaba faltando esta línea
   const [kpi, setKpi] = useState({
     clientes: 0,
     propiedades: 0,
@@ -26,13 +28,10 @@ export default function AdminPage() {
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
+    if (loading || !user) return;
+
     const fetchKPIs = async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) return;
-
         const { data: props, error: errorProps } = await supabase
           .from("properties")
           .select("id, created_at")
@@ -55,11 +54,16 @@ export default function AdminPage() {
           .single();
 
         if (errorProps || errorCars || errorClientes || errorAgente) {
-          console.error("Error al cargar KPIs:", errorClientes, errorProps, errorCars, errorAgente);
+          console.error(
+            "Error al cargar KPIs:",
+            errorClientes,
+            errorProps,
+            errorCars,
+            errorAgente
+          );
           return;
         }
 
-        // KPI totals
         setKpi({
           clientes: clients.length,
           propiedades: props.length,
@@ -67,7 +71,6 @@ export default function AdminPage() {
           ventas: agenteData?.ventas || 0,
         });
 
-        // Últimos 6 meses
         const months = Array.from({ length: 6 }, (_, i) => {
           const date = new Date();
           date.setMonth(date.getMonth() - (5 - i));
@@ -80,7 +83,6 @@ export default function AdminPage() {
           };
         });
 
-        // Agrupar propiedades
         props.forEach((prop) => {
           const d = new Date(prop.created_at);
           const mes = format(d, "MM");
@@ -91,7 +93,6 @@ export default function AdminPage() {
           if (index !== -1) months[index].propiedades++;
         });
 
-        // Agrupar vehículos
         cars.forEach((car) => {
           const d = new Date(car.created_at);
           const mes = format(d, "MM");
@@ -103,14 +104,14 @@ export default function AdminPage() {
         });
 
         setChartData(months);
-        setClientes(clients.slice(0, 4)); // Mostrar solo 4
+        setClientes(clients.slice(0, 4));
       } catch (err) {
         console.error("Error general:", err);
       }
     };
 
     fetchKPIs();
-  }, []);
+  }, [user, loading]);
 
   const kpiData = [
     {
@@ -153,10 +154,14 @@ export default function AdminPage() {
             className={`border-t-4 ${bg} rounded-lg shadow p-5 bg-[var(--white)] transition-colors duration-300`}
           >
             <div className="flex items-center justify-between mb-2">
-              <div className="text-3xl font-bold text-[var(--text-default)]">{value}</div>
+              <div className="text-3xl font-bold text-[var(--text-default)]">
+                {value}
+              </div>
               <Icon className="w-6 h-6 text-[var(--btn-primary)]" />
             </div>
-            <p className="text-sm font-medium text-[var(--text-secondary)]">{title}</p>
+            <p className="text-sm font-medium text-[var(--text-secondary)]">
+              {title}
+            </p>
           </div>
         ))}
       </section>

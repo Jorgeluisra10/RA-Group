@@ -2,19 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
+import { useAuth } from "../../../../context/AuthContext";
 import { motion } from "framer-motion";
 import { MessageSquare, Calendar, FileText } from "lucide-react";
 
 export default function ClientesPage() {
   const [clientes, setClientes] = useState([]);
 
-  useEffect(() => {
-    const fetchClientes = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const { user, loading } = useAuth();
 
-      if (!user) return;
+  useEffect(() => {
+    console.log("useEffect ejecutado", { user, loading });
+
+    const fetchClientes = async () => {
+      if (loading || !user) {
+        console.log("No hay user o sigue cargando:", { loading, user });
+        return;
+      }
+
+      console.log("User ID dentro de fetchClientes:", user.id);
 
       const { data, error } = await supabase
         .from("clientes")
@@ -22,12 +28,15 @@ export default function ClientesPage() {
         .eq("agente", user.id)
         .order("derivado_fecha", { ascending: false });
 
-      if (!error) setClientes(data);
-      else console.error("Error al cargar clientes:", error);
+      if (error) {
+        console.error("Error al cargar clientes:", error);
+      } else {
+        setClientes(data);
+      }
     };
 
     fetchClientes();
-  }, []);
+  }, [user, loading]);
 
   const getIniciales = (nombre) =>
     nombre
@@ -44,9 +53,17 @@ export default function ClientesPage() {
     VIP: "bg-purple-100 text-purple-700",
   };
 
+  if (loading) {
+    return (
+      <div className="p-4 text-center text-[var(--text-secondary)]">
+        Cargando clientes...
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      {/* Barra de filtros */}
+      {/* Filtros */}
       <div className="flex flex-wrap justify-between gap-4 mb-6">
         <input
           type="text"
@@ -97,7 +114,7 @@ export default function ClientesPage() {
         ))}
       </div>
 
-      {/* Lista de tarjetas */}
+      {/* Tarjetas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {clientes.length === 0 && (
           <p className="text-[var(--text-secondary)]">
