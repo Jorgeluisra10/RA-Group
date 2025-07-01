@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
 
 const AuthContext = createContext({
   user: null,
@@ -12,7 +12,7 @@ const AuthContext = createContext({
 });
 
 export function AuthProvider({ children }) {
-  const [supabase] = useState(() => createBrowserSupabaseClient());
+  const [supabase] = useState(() => createPagesBrowserClient());
   const [user, setUser] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,8 +48,9 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    const getSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
+    const fetchSession = async () => {
+      setLoading(true);
+      const { data } = await supabase.auth.getSession();
       const session = data?.session;
 
       if (session?.user) {
@@ -65,11 +66,13 @@ export function AuthProvider({ children }) {
       setLoading(false);
     };
 
-    getSession();
+    fetchSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log("🔁 onAuthStateChange:", event, session);
+        setLoading(true);
+
         if (session?.user) {
           setUser(session.user);
           await fetchUserInfo(session.user.id);
@@ -77,6 +80,8 @@ export function AuthProvider({ children }) {
           setUser(null);
           setUserInfo(null);
         }
+
+        setLoading(false);
       }
     );
 
@@ -98,11 +103,13 @@ export function AuthProvider({ children }) {
   };
 
   const refreshUser = async () => {
+    setLoading(true);
     const { data } = await supabase.auth.getSession();
     if (data?.session?.user) {
       setUser(data.session.user);
       await fetchUserInfo(data.session.user.id);
     }
+    setLoading(false);
   };
 
   return (

@@ -1,17 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import RegisterForm from "./(components)/register";
 import { FcGoogle } from "react-icons/fc";
+import ReCAPTCHA from "react-google-recaptcha";
+
+const SITE_KEY = "6LfzQXQrAAAAAH6qRSK9dSKSakGXNeQJ8cDclyOy";
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [captchaValue, setCaptchaValue] = useState(null);
+  const captchaRef = useRef(null);
   const router = useRouter();
   const supabase = createClientComponentClient();
 
@@ -44,6 +49,12 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (loading) return;
+
+    if (!captchaValue) {
+      toast.error("Por favor completa el CAPTCHA");
+      return;
+    }
+
     setLoading(true);
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -54,6 +65,8 @@ export default function Login() {
     if (error) {
       toast.error("Credenciales incorrectas");
       setLoading(false);
+      captchaRef.current?.reset();
+      setCaptchaValue(null);
       return;
     }
 
@@ -87,31 +100,29 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Columna izquierda con imagen y texto */}
-      <div className="hidden md:flex w-1/2 items-center justify-center relative overflow-hidden">
-        {/* Imagen de fondo sin opacidad directa */}
+    <div className="flex flex-col md:flex-row min-h-screen">
+      {/* Columna con imagen y texto (responsive: banner en mobile, columna en desktop) */}
+      <div className="w-full md:w-1/2 h-56 md:h-auto relative flex items-center justify-center overflow-hidden">
         <img
           src="/images/colombia.png"
           alt="Colombia Imnoba"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* Capa oscura encima de la imagen */}
-        <div className="absolute inset-0 bg-[var(--background-overlay)] backdrop-brightness-[0.5]"></div>
-
-        {/* Contenido centrado */}
-        <div className="relative z-10 text-center max-w-md px-8">
+        <div className="absolute inset-0 bg-[var(--background-overlay)] backdrop-brightness-[0.5]" />
+        <div className="relative z-10 text-center max-w-md px-6 py-6 md:px-8 md:py-0">
           <h1
-            className="text-3xl font-bold mb-4 leading-snug"
-            style={{ color: "var(--text-hero, #1f2937)" }} // fallback a gray-800
+            className="text-xl md:text-3xl font-bold mb-2 md:mb-4 leading-snug"
+            style={{ color: "var(--text-hero, #ffffff)" }}
           >
-            Descubrí tu próximo <br /> hogar o vehículo
+            Descubrí tu próximo <br className="hidden md:block" /> hogar o
+            vehículo
           </h1>
           <p
-            className="text-base font-light"
-            style={{ color: "var(--text-hero-secondary, #374151)" }} // fallback a gray-700
+            className="text-sm md:text-base font-light"
+            style={{ color: "var(--text-hero-secondary, #e5e7eb)" }}
           >
-            Las mejores oportunidades inmobiliarias y automotrices te esperan
+            Las mejores oportunidades <br className="block md:hidden" />
+            inmobiliarias y automotrices te esperan
           </p>
         </div>
       </div>
@@ -131,7 +142,7 @@ export default function Login() {
           >
             Tu lugar para encontrar lo que buscas
           </p>
-
+{/* 
           <button
             onClick={handleGoogleLogin}
             disabled={loading}
@@ -145,7 +156,7 @@ export default function Login() {
             <div className="flex-1 h-px bg-gray-200" />
             <span>•</span>
             <div className="flex-1 h-px bg-gray-200" />
-          </div>
+          </div> */}
 
           {/* Tabs */}
           <div className="flex justify-center gap-6 mb-6 text-sm font-medium border-b border-gray-200">
@@ -220,9 +231,15 @@ export default function Login() {
                 />
               </div>
 
+              <ReCAPTCHA
+                sitekey={SITE_KEY}
+                onChange={(val) => setCaptchaValue(val)}
+                ref={captchaRef}
+              />
+
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !captchaValue}
                 className="w-full text-sm font-semibold py-3 rounded-lg shadow-md transition-all duration-300 focus:outline-none focus:ring-2"
                 style={{
                   backgroundColor: "var(--btn-primary)",
@@ -256,11 +273,6 @@ export default function Login() {
               {isLogin ? "Regístrate aquí" : "Inicia sesión"}
             </button>
           </p>
-
-          <div className="mt-6 text-xs text-center text-gray-500 bg-gray-100 p-3 rounded-lg">
-            Registrate y recibí primero las mejores oportunidades inmobiliarias
-            y automotrices cerca tuyo.
-          </div>
         </div>
       </div>
     </div>
