@@ -70,7 +70,7 @@ export default function UserMenu({ isDesktop }) {
           <div className="absolute inset-0 rounded-md group-hover:shadow-[0_0_12px_3px_rgba(253,199,0,0.4)] transition-all duration-500"></div>
         </Link>
         <Link
-          href="/register"
+          href="/login?view=register"
           className="relative group px-5 py-2 rounded-md text-sm font-semibold overflow-hidden transition-all duration-300 btn-shine"
           style={{
             backgroundColor: "var(--btn-primary)",

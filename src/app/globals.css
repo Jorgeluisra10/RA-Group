@@ -16,6 +16,9 @@
    🎨 Variables de color
 ========================= */
 :root {
+  --background-overlay: rgba(255, 255, 255, 0.7); /* capa blanca semitransparente */
+  --text-hero: #1f2937; /* gray-800 */
+  --text-hero-secondary: #374151; /* gray-700 */
   --background: #F8F9FA;
   --navbackground: #F8F9FA;
   --sidebackground: #0f1c46;
@@ -56,6 +59,10 @@ html.dark {
   --btn-primary: #fdc700;
   --btn-secondary: #ffffff;
   --link-hover: #ffffff;
+  --background-overlay: rgba(0, 0, 0, 0.6); /* capa negra semitransparente en dark mode */
+  --text-hero: #ffffff;
+  --text-hero-secondary: #e5e7eb; /* gray-200 */
+
 
   /* 🔹 Colores agregados en modo oscuro */
   --blue-features: #4b5563;        /* Fondo de botón Buscar propiedad */
