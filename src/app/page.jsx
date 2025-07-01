@@ -58,17 +58,20 @@ export default function Home() {
         <div className="absolute top-[30%] left-[50%] w-[600px] h-[400px] bg-[#1A295C] opacity-5 -translate-x-1/2 rotate-[30deg] clip-path-diagonal blur-xl" />
       </div>
 
-      <div className="relative overflow-hidden">
-        <div className="absolute top-0 left-0 h-full w-24 z-10 pointer-events-none">
-          <div className="h-[200%] w-full bg-[#1A295C] opacity-10 rotate-[-15deg] origin-top-left clip-path-custom" />
+      <div className="relative overflow-x-hidden">
+        {/* Líneas diagonales decorativas SOBRE el FindHome sin causar scroll */}
+        <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+          {/* Izquierda */}
+          <div className="absolute top-[-25%] left-0 w-32 h-[150%] bg-[#1A295C] opacity-10 rotate-[-15deg] origin-top-left clip-path-custom" />
+
+          {/* Derecha */}
+          <div className="absolute top-[-25%] right-0 w-32 h-[150%] bg-[#1A295C] opacity-10 rotate-[15deg] origin-top-right clip-path-custom" />
         </div>
-        <div className="absolute top-0 right-0 h-full w-24 z-10 pointer-events-none">
-          <div className="h-[200%] w-full bg-[#1A295C] opacity-10 rotate-[15deg] origin-top-right clip-path-custom" />
-        </div>
-        <div className="absolute inset-0 z-10 pointer-events-none" />
+
         <FindHome />
       </div>
 
+      {/* PROPIEDADES */}
       <section className="mt-15 relative px-4 sm:px-6 lg:px-12">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[var(--text-default)]">
           Propiedades destacadas
@@ -77,43 +80,46 @@ export default function Home() {
           Encuentra las mejores propiedades disponibles actualmente
         </p>
 
-        <button
-          onClick={() => scrollLeft(propertyRef)}
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-[#1A295C] text-white shadow-md rounded-full p-2 z-10 hover:bg-[#16204c]"
-          aria-label="Scroll propiedades izquierda"
-        >
-          ◀
-        </button>
-        <button
-          onClick={() => scrollRight(propertyRef)}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#1A295C] text-white shadow-md rounded-full p-2 z-10 hover:bg-[#16204c]"
-          aria-label="Scroll propiedades derecha"
-        >
-          ▶
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => scrollLeft(propertyRef)}
+            className="hidden sm:block absolute left-2 top-1/2 transform -translate-y-1/2 bg-[#1A295C] text-white shadow-md rounded-full p-2 z-10 hover:bg-[#16204c]"
+            aria-label="Scroll propiedades izquierda"
+          >
+            ◀
+          </button>
+          <button
+            onClick={() => scrollRight(propertyRef)}
+            className="hidden sm:block absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#1A295C] text-white shadow-md rounded-full p-2 z-10 hover:bg-[#16204c]"
+            aria-label="Scroll propiedades derecha"
+          >
+            ▶
+          </button>
 
-        <div
-          ref={propertyRef}
-          className="overflow-x-scroll overflow-y-hidden scrollbar-hide touch-pan-x -mx-4 px-4"
-          style={{
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-            scrollBehavior: "smooth",
-          }}
-        >
-          <div className="flex space-x-4 w-full h-[30rem] touch-pan-x">
-            {recentProperties.map((property) => (
-              <div
-                key={property.id}
-                className="flex-shrink-0 w-[80%] sm:w-[45%] md:w-[30%] lg:w-[23%] h-full"
-              >
-                <PropertyCard property={property} />
-              </div>
-            ))}
+          <div
+            ref={propertyRef}
+            className="overflow-x-auto scrollbar-hide -mx-4 px-4"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              scrollBehavior: "smooth",
+              overscrollBehaviorX: "contain",
+            }}
+          >
+            <div className="flex space-x-4 w-full h-[30rem]">
+              {recentProperties.map((property) => (
+                <div
+                  key={property.id}
+                  className="flex-shrink-0 w-[80%] sm:w-[45%] md:w-[30%] lg:w-[23%] h-full"
+                >
+                  <PropertyCard property={property} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
+      {/* AUTOS */}
       <section className="relative px-4 sm:px-6 lg:px-12 mt-20">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[var(--text-default)]">
           Autos destacados
@@ -122,43 +128,46 @@ export default function Home() {
           Explora nuestra selección de vehículos destacados.
         </p>
 
-        <button
-          onClick={() => scrollLeft(carRef)}
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-[#1A295C] text-white shadow-md rounded-full p-2 z-10 hover:bg-[#16204c]"
-          aria-label="Scroll autos izquierda"
-        >
-          ◀
-        </button>
-        <button
-          onClick={() => scrollRight(carRef)}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#1A295C] text-white shadow-md rounded-full p-2 z-10 hover:bg-[#16204c]"
-          aria-label="Scroll autos derecha"
-        >
-          ▶
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => scrollLeft(carRef)}
+            className="hidden sm:block absolute left-2 top-1/2 transform -translate-y-1/2 bg-[#1A295C] text-white shadow-md rounded-full p-2 z-10 hover:bg-[#16204c]"
+            aria-label="Scroll autos izquierda"
+          >
+            ◀
+          </button>
+          <button
+            onClick={() => scrollRight(carRef)}
+            className="hidden sm:block absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#1A295C] text-white shadow-md rounded-full p-2 z-10 hover:bg-[#16204c]"
+            aria-label="Scroll autos derecha"
+          >
+            ▶
+          </button>
 
-        <div
-          ref={carRef}
-          className="overflow-x-scroll overflow-y-hidden scrollbar-hide touch-pan-x -mx-4 px-4"
-          style={{
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-            scrollBehavior: "smooth",
-          }}
-        >
-          <div className="flex space-x-4 w-full h-[30rem] touch-pan-x">
-            {recentCars.map((car) => (
-              <div
-                key={car.id}
-                className="flex-shrink-0 w-[80%] sm:w-[45%] md:w-[30%] lg:w-[23%] h-full"
-              >
-                <CarCard car={car} />
-              </div>
-            ))}
+          <div
+            ref={carRef}
+            className="overflow-x-auto scrollbar-hide -mx-4 px-4"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              scrollBehavior: "smooth",
+              overscrollBehaviorX: "contain",
+            }}
+          >
+            <div className="flex space-x-4 w-full h-[30rem]">
+              {recentCars.map((car) => (
+                <div
+                  key={car.id}
+                  className="flex-shrink-0 w-[80%] sm:w-[45%] md:w-[30%] lg:w-[23%] h-full"
+                >
+                  <CarCard car={car} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
+      {/* ATENCIÓN */}
       <section className="mt-12">
         <div className="mb-3 mt-3">
           <Atencion />

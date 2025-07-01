@@ -1,7 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "../../../lib/supabaseClient";
 import toast from "react-hot-toast";
+import ReCAPTCHA from "react-google-recaptcha";
+
+const SITE_KEY = "6LfzQXQrAAAAAH6qRSK9dSKSakGXNeQJ8cDclyOy";
 
 export default function RegisterForm({ onRegisterSuccess }) {
   const [email, setEmail] = useState("");
@@ -9,6 +12,8 @@ export default function RegisterForm({ onRegisterSuccess }) {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [loading, setLoading] = useState(false);
+  const [captchaValue, setCaptchaValue] = useState(null);
+  const captchaRef = useRef(null);
 
   const normalizePhone = (number) => number.replace(/\D/g, "");
   const isColombianPhone = (number) => /^3\d{9}$/.test(normalizePhone(number));
@@ -16,8 +21,13 @@ export default function RegisterForm({ onRegisterSuccess }) {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (loading) return;
-    setLoading(true);
 
+    if (!captchaValue) {
+      toast.error("Por favor completa el CAPTCHA antes de continuar.");
+      return;
+    }
+
+    setLoading(true);
     const telefonoLimpio = normalizePhone(telefono);
 
     if (
@@ -28,6 +38,8 @@ export default function RegisterForm({ onRegisterSuccess }) {
     ) {
       toast.error("Verifica los campos. El teléfono debe ser colombiano (10 dígitos, empieza por 3).");
       setLoading(false);
+      captchaRef.current?.reset();
+      setCaptchaValue(null);
       return;
     }
 
@@ -87,14 +99,23 @@ export default function RegisterForm({ onRegisterSuccess }) {
       toast.error("Error inesperado. Intenta nuevamente.");
     } finally {
       setLoading(false);
+      captchaRef.current?.reset();
+      setCaptchaValue(null);
     }
   };
 
   return (
-    <form onSubmit={handleRegister} className="space-y-6 px-4 sm:px-6 md:px-8 py-8 max-w-md mx-auto bg-[var(--background)] rounded-xl shadow-lg animate-fade-in-up">
+    <form
+      onSubmit={handleRegister}
+      className="space-y-6 px-4 sm:px-6 md:px-8 py-8 max-w-md mx-auto bg-[var(--background)] rounded-xl shadow-lg animate-fade-in-up"
+    >
       {/* Nombre */}
       <div>
-        <label htmlFor="nombre" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-default)' }}>
+        <label
+          htmlFor="nombre"
+          className="block text-sm font-semibold mb-2"
+          style={{ color: "var(--text-default)" }}
+        >
           Nombre completo
         </label>
         <input
@@ -103,10 +124,10 @@ export default function RegisterForm({ onRegisterSuccess }) {
           placeholder="Juan Pérez"
           className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2"
           style={{
-            background: 'var(--white)',
-            color: 'var(--text-default)',
-            borderColor: 'var(--gray-border)',
-            boxShadow: '0 0 0 0 transparent',
+            background: "var(--white)",
+            color: "var(--text-default)",
+            borderColor: "var(--gray-border)",
+            boxShadow: "0 0 0 0 transparent",
           }}
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
@@ -117,7 +138,11 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
       {/* Teléfono */}
       <div>
-        <label htmlFor="telefono" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-default)' }}>
+        <label
+          htmlFor="telefono"
+          className="block text-sm font-semibold mb-2"
+          style={{ color: "var(--text-default)" }}
+        >
           Teléfono (Colombia)
         </label>
         <input
@@ -126,9 +151,9 @@ export default function RegisterForm({ onRegisterSuccess }) {
           placeholder="3XXXXXXXXX"
           className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2"
           style={{
-            background: 'var(--white)',
-            color: 'var(--text-default)',
-            borderColor: 'var(--gray-border)',
+            background: "var(--white)",
+            color: "var(--text-default)",
+            borderColor: "var(--gray-border)",
           }}
           value={telefono}
           onChange={(e) => setTelefono(e.target.value)}
@@ -139,7 +164,11 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
       {/* Email */}
       <div>
-        <label htmlFor="email" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-default)' }}>
+        <label
+          htmlFor="email"
+          className="block text-sm font-semibold mb-2"
+          style={{ color: "var(--text-default)" }}
+        >
           Correo electrónico
         </label>
         <input
@@ -148,9 +177,9 @@ export default function RegisterForm({ onRegisterSuccess }) {
           placeholder="usuario@correo.com"
           className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2"
           style={{
-            background: 'var(--white)',
-            color: 'var(--text-default)',
-            borderColor: 'var(--gray-border)',
+            background: "var(--white)",
+            color: "var(--text-default)",
+            borderColor: "var(--gray-border)",
           }}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -161,7 +190,11 @@ export default function RegisterForm({ onRegisterSuccess }) {
 
       {/* Password */}
       <div>
-        <label htmlFor="password" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-default)' }}>
+        <label
+          htmlFor="password"
+          className="block text-sm font-semibold mb-2"
+          style={{ color: "var(--text-default)" }}
+        >
           Contraseña
         </label>
         <input
@@ -170,9 +203,9 @@ export default function RegisterForm({ onRegisterSuccess }) {
           placeholder="********"
           className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2"
           style={{
-            background: 'var(--white)',
-            color: 'var(--text-default)',
-            borderColor: 'var(--gray-border)',
+            background: "var(--white)",
+            color: "var(--text-default)",
+            borderColor: "var(--gray-border)",
           }}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -181,16 +214,25 @@ export default function RegisterForm({ onRegisterSuccess }) {
         />
       </div>
 
+      {/* CAPTCHA */}
+      <div className="flex justify-center">
+        <ReCAPTCHA
+          sitekey={SITE_KEY}
+          onChange={(val) => setCaptchaValue(val)}
+          ref={captchaRef}
+        />
+      </div>
+
       {/* Botón */}
       <button
         type="submit"
-        disabled={loading}
-        className={`relative overflow-hidden btn-shine w-full text-sm font-semibold py-3 rounded-lg transition-all duration-300 shadow-md focus:outline-none focus:ring-2`}
+        disabled={loading || !captchaValue}
+        className="relative overflow-hidden btn-shine w-full text-sm font-semibold py-3 rounded-lg transition-all duration-300 shadow-md focus:outline-none focus:ring-2"
         style={{
-          backgroundColor: 'var(--btn-primary)',
-          color: 'var(--btn-secondary)',
+          backgroundColor: "var(--btn-primary)",
+          color: "var(--btn-secondary)",
           opacity: loading ? 0.6 : 1,
-          cursor: loading ? 'not-allowed' : 'pointer',
+          cursor: loading ? "not-allowed" : "pointer",
         }}
       >
         {loading ? "Procesando..." : "Registrarse"}
