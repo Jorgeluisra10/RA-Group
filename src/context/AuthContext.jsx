@@ -19,24 +19,24 @@ export function AuthProvider({ children }) {
 
   const fetchUserInfo = async (userId) => {
     try {
-      const { data: usuarioData } = await supabase
+      const { data, error } = await supabase
         .from("usuarios")
         .select("*")
         .eq("id", userId)
         .single();
 
-      if (usuarioData) {
-        setUserInfo(usuarioData);
+      if (data && !error) {
+        setUserInfo(data);
         return;
       }
 
-      const { data: agenteData } = await supabase
+      const { data: agenteData, error: agenteError } = await supabase
         .from("agentes")
         .select("*")
         .eq("id", userId)
         .single();
 
-      if (agenteData) {
+      if (agenteData && !agenteError) {
         setUserInfo(agenteData);
       } else {
         setUserInfo(null);
@@ -111,7 +111,6 @@ export function AuthProvider({ children }) {
 
   const refreshUser = async () => {
     setLoading(true);
-
     const { data: sessionData } = await supabase.auth.getSession();
     let sessionUser = sessionData?.session?.user;
 
@@ -123,9 +122,6 @@ export function AuthProvider({ children }) {
     if (sessionUser) {
       setUser(sessionUser);
       await fetchUserInfo(sessionUser.id);
-    } else {
-      setUser(null);
-      setUserInfo(null); // importante para evitar estados fantasmas
     }
 
     setLoading(false);
