@@ -50,13 +50,20 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const fetchSession = async () => {
       setLoading(true);
-      const { data } = await supabase.auth.getSession();
-      const session = data?.session;
 
-      if (session?.user) {
-        console.log("✅ Sesión activa al iniciar:", session.user.email);
-        setUser(session.user);
-        await fetchUserInfo(session.user.id);
+      const { data: sessionData } = await supabase.auth.getSession();
+      let sessionUser = sessionData?.session?.user;
+
+      // fallback por si getSession aún no devuelve el usuario tras recarga
+      if (!sessionUser) {
+        const { data: userData } = await supabase.auth.getUser();
+        sessionUser = userData?.user;
+      }
+
+      if (sessionUser) {
+        console.log("✅ Sesión activa al iniciar:", sessionUser.email);
+        setUser(sessionUser);
+        await fetchUserInfo(sessionUser.id);
       } else {
         console.log("⚠️ No hay sesión activa al iniciar");
         setUser(null);
@@ -104,11 +111,19 @@ export function AuthProvider({ children }) {
 
   const refreshUser = async () => {
     setLoading(true);
-    const { data } = await supabase.auth.getSession();
-    if (data?.session?.user) {
-      setUser(data.session.user);
-      await fetchUserInfo(data.session.user.id);
+    const { data: sessionData } = await supabase.auth.getSession();
+    let sessionUser = sessionData?.session?.user;
+
+    if (!sessionUser) {
+      const { data: userData } = await supabase.auth.getUser();
+      sessionUser = userData?.user;
     }
+
+    if (sessionUser) {
+      setUser(sessionUser);
+      await fetchUserInfo(sessionUser.id);
+    }
+
     setLoading(false);
   };
 

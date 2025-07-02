@@ -76,7 +76,7 @@ export default function Sidebar() {
         )}
       >
         <div className="text-2xl font-bold text-yellow-400">
-          RA<span className="text-white">Group</span> •
+          IM<span className="text-white">NOBA</span> •
         </div>
 
         <nav className="flex flex-col space-y-6 text-sm">
