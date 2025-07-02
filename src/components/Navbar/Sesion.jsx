@@ -41,8 +41,8 @@ export default function UserMenu({ isDesktop }) {
       ? "/agente"
       : null;
 
-  if (loading) {
-    // NO mostrar nada (o loader) mientras carga el estado de autenticación
+  if (loading || (user && !userInfo)) {
+    // Evita mostrar contenido incompleto mientras carga userInfo
     return null;
   }
 

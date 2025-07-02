@@ -54,9 +54,7 @@ export default function Navbar() {
           {isDesktop ? (
             <div className="flex-shrink-0 flex items-center gap-3">
               <ThemeToggleButton />
-              <AuthGate>
                 <UserMenu isDesktop={true} />
-              </AuthGate>
             </div>
           ) : (
             <button
@@ -76,14 +74,12 @@ export default function Navbar() {
       </nav>
 
       {!isDesktop && (
-        <AuthGate>
           <MobileMenu
             open={menuOpen}
             onClose={() => setMenuOpen(false)}
             user={user}
             userInfo={userInfo}
           />
-        </AuthGate>
       )}
     </>
   );

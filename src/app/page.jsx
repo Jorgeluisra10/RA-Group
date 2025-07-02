@@ -5,6 +5,7 @@ import Atencion from "../components/Atencion";
 import CarCard from "../components/CarCard";
 import FindHome from "../components/FindHome/FindHome";
 import PropertyCard from "../components/PropertyCard";
+import CategoriaSelector from "../components/SelectorCategoria";
 import { getCars, getProperties } from "../lib/api";
 
 export default function Home() {
@@ -70,6 +71,10 @@ export default function Home() {
 
         <FindHome />
       </div>
+
+      <section>
+        <CategoriaSelector/>
+      </section>
 
       {/* PROPIEDADES */}
       <section className="mt-15 relative px-4 sm:px-6 lg:px-12">

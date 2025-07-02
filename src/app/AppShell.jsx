@@ -8,6 +8,7 @@ import WhatsAppButton from "../components/Whatsapp";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "../context/AuthContext";
+import AuthGate from "../components/AuthGate";
 import DevNotice from "../components/DevNotice";
 
 export default function AppShell({ children }) {
@@ -20,6 +21,7 @@ export default function AppShell({ children }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={true}>
       <AuthProvider>
+        {/* <AuthGate> */}
           <Toaster position="top-center" reverseOrder={false} />
           {!isAuthPage && <DevNotice />}
           {!isAuthPage && <Navbar />}
@@ -27,6 +29,7 @@ export default function AppShell({ children }) {
           {!isAuthPage && <Footer />}
           {!isAuthPage && <WhatsAppButton />}
           <GlobalLoader />
+        {/* </AuthGate> */}
       </AuthProvider>
     </ThemeProvider>
   );
