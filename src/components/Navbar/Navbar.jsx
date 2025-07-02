@@ -8,6 +8,7 @@ import MobileMenu from "./MobileMenu";
 import { DesktopLinks } from "./NavLinks";
 import UserMenu from "./Sesion";
 import { useAuth } from "../../context/AuthContext";
+import AuthGate from "../AuthGate";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -53,7 +54,9 @@ export default function Navbar() {
           {isDesktop ? (
             <div className="flex-shrink-0 flex items-center gap-3">
               <ThemeToggleButton />
-              <UserMenu isDesktop={true} />
+              <AuthGate>
+                <UserMenu isDesktop={true} />
+              </AuthGate>
             </div>
           ) : (
             <button
@@ -73,12 +76,14 @@ export default function Navbar() {
       </nav>
 
       {!isDesktop && (
-        <MobileMenu
-          open={menuOpen}
-          onClose={() => setMenuOpen(false)}
-          user={user}
-          userInfo={userInfo}
-        />
+        <AuthGate>
+          <MobileMenu
+            open={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            user={user}
+            userInfo={userInfo}
+          />
+        </AuthGate>
       )}
     </>
   );
