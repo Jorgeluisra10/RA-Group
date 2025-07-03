@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getProperties } from "../../../../../../lib/api";
 import { supabase } from "../../../../../../lib/supabaseClient";
 import PropertyImageGallery from "../(components)/Imagenes";
+import UbicacionMapa from "../../../mapa/UbicacionMapa";
 
 export default function EditarPropiedadPage() {
   const router = useRouter();
@@ -15,22 +16,16 @@ export default function EditarPropiedadPage() {
   const [mensaje, setMensaje] = useState("");
   const [agentes, setAgentes] = useState([]);
 
-  const tipos = [
-    "Casa",
-    "Apartamento",
-    "Terreno",
-    "Oficina",
-    "Local",
-    "Finca",
-    "Lote",
-  ];
+  const [latLng, setLatLng] = useState({ lat: null, lng: null });
+  const [mapCenter, setMapCenter] = useState({ lat: 4.710989, lng: -74.072092 });
+  const [direccionExacta, setDireccionExacta] = useState("");
+
+  const tipos = ["Casa", "Apartamento", "Terreno", "Oficina", "Local", "Finca", "Lote"];
   const estados = ["Nuevo", "Usado", "En construcción"];
 
   useEffect(() => {
     const fetchAgentes = async () => {
-      const { data, error } = await supabase
-        .from("agentes")
-        .select("id, nombre");
+      const { data, error } = await supabase.from("agentes").select("id, nombre");
       if (!error) setAgentes(data);
     };
 
@@ -38,9 +33,12 @@ export default function EditarPropiedadPage() {
       try {
         const data = await getProperties();
         const prop = data.find((item) => String(item.id) === id);
-        if (!prop || prop.tipo === "carro")
-          return setMensaje("Propiedad no encontrada");
+        if (!prop || prop.tipo === "carro") return setMensaje("Propiedad no encontrada");
+
         setPropiedad(prop);
+        setLatLng({ lat: prop.lat || 4.710989, lng: prop.lng || -74.072092 });
+        setMapCenter({ lat: prop.lat || 4.710989, lng: prop.lng || -74.072092 });
+        setDireccionExacta(prop.direccion_exacta || "");
 
         const { data: imgs, error: imgErr } = await supabase
           .from("property_images")
@@ -90,6 +88,9 @@ export default function EditarPropiedadPage() {
           barrio: propiedad.barrio,
           codigoPostal: propiedad.codigoPostal,
           direccion: propiedad.direccion,
+          direccion_exacta: direccionExacta,
+          lat: latLng.lat,
+          lng: latLng.lng,
           habitaciones: propiedad.habitaciones,
           banos: propiedad.banos,
           area: propiedad.area,
@@ -139,9 +140,7 @@ export default function EditarPropiedadPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block font-medium mb-1 text-[#0a1128]">
-                Título
-              </label>
+              <label className="block font-medium mb-1 text-[#0a1128]">Título</label>
               <input
                 name="title"
                 value={propiedad.title || ""}
@@ -151,9 +150,7 @@ export default function EditarPropiedadPage() {
             </div>
 
             <div>
-              <label className="block font-medium mb-1 text-[#0a1128]">
-                Precio
-              </label>
+              <label className="block font-medium mb-1 text-[#0a1128]">Precio</label>
               <input
                 name="price"
                 type="number"
@@ -165,9 +162,7 @@ export default function EditarPropiedadPage() {
           </div>
 
           <div>
-            <label className="block font-medium mb-1 text-[#0a1128]">
-              Descripción
-            </label>
+            <label className="block font-medium mb-1 text-[#0a1128]">Descripción</label>
             <textarea
               name="description"
               value={propiedad.description || ""}
@@ -178,9 +173,7 @@ export default function EditarPropiedadPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div>
-              <label className="block font-medium mb-1 text-[#0a1128]">
-                Tipo de propiedad
-              </label>
+              <label className="block font-medium mb-1 text-[#0a1128]">Tipo de propiedad</label>
               <select
                 name="tipo"
                 value={propiedad.tipo || ""}
@@ -197,9 +190,7 @@ export default function EditarPropiedadPage() {
             </div>
 
             <div>
-              <label className="block font-medium mb-1 text-[#0a1128]">
-                Estado
-              </label>
+              <label className="block font-medium mb-1 text-[#0a1128]">Estado</label>
               <select
                 name="estado"
                 value={propiedad.estado || ""}
@@ -216,9 +207,7 @@ export default function EditarPropiedadPage() {
             </div>
 
             <div>
-              <label className="block font-medium mb-1 text-[#0a1128]">
-                Agente asignado
-              </label>
+              <label className="block font-medium mb-1 text-[#0a1128]">Agente asignado</label>
               <select
                 name="agente"
                 value={propiedad.agente || ""}
@@ -250,6 +239,22 @@ export default function EditarPropiedadPage() {
               )
             )}
           </div>
+
+          {/* Mapa de ubicación */}
+          <UbicacionMapa
+            tipo={propiedad.tipo}
+            latLng={latLng}
+            setLatLng={setLatLng}
+            mapCenter={mapCenter}
+            setMapCenter={setMapCenter}
+            direccion={propiedad.direccion}
+            ciudad={propiedad.ciudad}
+            setDireccion={(val) =>
+              setPropiedad((prev) => ({ ...prev, direccion: val }))
+            }
+            direccionExacta={direccionExacta}
+            setDireccionExacta={setDireccionExacta}
+          />
 
           <section className="space-y-4">
             <PropertyImageGallery imagenes={imagenes} setImagenes={setImagenes} />
