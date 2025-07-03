@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
 import { motion, useInView } from "framer-motion";
-import Logo from "../Navbar/Logo";
+import Logo from "./Logo";
 import Link from "next/link";
 
 const Footer = () => {

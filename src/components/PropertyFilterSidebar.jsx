@@ -62,8 +62,10 @@ export default function PropertyFilterSidebar({
     const numValue = Number(value);
     setFilters((prev) => {
       let newSection = { ...prev[section], [key]: numValue };
-      if (key === "min" && numValue > prev[section].max) newSection.max = numValue;
-      if (key === "max" && numValue < prev[section].min) newSection.min = numValue;
+      if (key === "min" && numValue > prev[section].max)
+        newSection.max = numValue;
+      if (key === "max" && numValue < prev[section].min)
+        newSection.min = numValue;
       return { ...prev, [section]: newSection };
     });
   };
@@ -132,7 +134,9 @@ export default function PropertyFilterSidebar({
     <div className="space-y-6 text-sm text-[var(--text-secondary)]">
       {/* Ciudad */}
       <div>
-        <h3 className="font-semibold mb-2 text-[var(--text-default)]">Ciudad</h3>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">
+          Ciudad
+        </h3>
         <select
           value={filters.ciudad}
           onChange={(e) =>
@@ -316,8 +320,9 @@ export default function PropertyFilterSidebar({
 
   return (
     <aside className="bg-[var(--input-bg-light)] w-full md:min-w-[280px] md:max-w-[320px] p-6 rounded-2xl shadow-lg">
-      <h2 className="text-lg font-semibold mb-4 text-[var(--text-default)]">
+      <h2 className="text-lg font-semibold mb-4 text-[var(--text-default)] text-center">
         Filtros
+        <span className="block w-12 h-0.5 mx-auto mt-1 bg-[var(--yellow-light)]" />
       </h2>
       {content}
     </aside>

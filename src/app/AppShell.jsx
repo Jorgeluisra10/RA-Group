@@ -22,13 +22,18 @@ export default function AppShell({ children }) {
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={true}>
       <AuthProvider>
         {/* <AuthGate> */}
-          <Toaster position="top-center" reverseOrder={false} />
+        <Toaster position="top-center" reverseOrder={false} />
+        <div
+          className="flex flex-col min-h-screen"
+          style={{ backgroundColor: "var(--background)" }}
+        >
           {!isAuthPage && <DevNotice />}
           {!isAuthPage && <Navbar />}
-          <main className="flex-1">{children}</main>
+          <main className="flex-grow">{children}</main>
           {!isAuthPage && <Footer />}
           {!isAuthPage && <WhatsAppButton />}
-          <GlobalLoader />
+        </div>
+        <GlobalLoader />
         {/* </AuthGate> */}
       </AuthProvider>
     </ThemeProvider>

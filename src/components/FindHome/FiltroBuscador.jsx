@@ -1,22 +1,23 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; // Importa useRouter de next/navigation
 import { supabase } from "../../lib/supabaseClient";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
 
-const FiltroBuscador = () => {
+const FiltroBuscador = ({
+  onSearchParamsChange,
+  onTextSearch,
+  initialSearchText = "",
+}) => {
   const router = useRouter();
-  const { resolvedTheme, theme } = useTheme();
+
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [searchMode, setSearchMode] = useState(false);
-  const [searchText, setSearchText] = useState("");
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [searchText, setSearchText] = useState(initialSearchText);
 
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("");
@@ -26,44 +27,33 @@ const FiltroBuscador = () => {
   const [propertyTypesOptions, setPropertyTypesOptions] = useState([]);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     async function fetchOptions() {
-      const { data: propiedades, error: errorProp } = await supabase
+      const { data: propiedades } = await supabase
         .from("properties")
         .select("ciudad")
         .neq("ciudad", null);
-
-      if (errorProp) {
-        console.error("Error fetching ciudades:", errorProp);
-        return;
-      }
 
       const ciudadesUnicas = [
         ...new Set(propiedades?.map((p) => p.ciudad).filter(Boolean)),
       ].sort();
       setLocationsOptions(ciudadesUnicas);
 
-      const { data: tiposProp, error: errorTiposProp } = await supabase
+      const { data: tiposProp } = await supabase
         .from("properties")
         .select("tipo")
         .neq("tipo", null);
-
-      if (errorTiposProp) {
-        console.error("Error fetching tipos de propiedades:", errorTiposProp);
-        return;
-      }
 
       const tiposPropUnicos = [
         ...new Set(tiposProp?.map((p) => p.tipo).filter(Boolean)),
       ];
 
-      const { count: countCars, error: errorCountCars } = await supabase
+      const { count: countCars } = await supabase
         .from("cars")
         .select("id", { count: "exact", head: true });
-
-      if (errorCountCars) {
-        console.error("Error contando carros:", errorCountCars);
-        return;
-      }
 
       const tiposFinales = [...tiposPropUnicos];
       if (countCars > 0 && !tiposFinales.includes("Carro")) {
@@ -77,10 +67,8 @@ const FiltroBuscador = () => {
     fetchOptions();
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const isCar = propertyType.toLowerCase() === "carro";
+  // Esta función construye el objeto filtros basado en los selects
+  const buildFiltersFromSelects = () => {
     const [precioMin, precioMax] = (() => {
       if (priceRange === "") return [null, null];
       if (priceRange === "1000+") return [1000000000, null];
@@ -88,26 +76,47 @@ const FiltroBuscador = () => {
       return [min, max];
     })();
 
-    const queryParams = new URLSearchParams();
+    return {
+      ciudad: location || null,
+      tipo: propertyType || null,
+      precioMin,
+      precioMax,
+    };
+  };
 
-    if (isCar) {
-      if (precioMin !== null) queryParams.set("precioMin", precioMin);
-      if (precioMax !== null) queryParams.set("precioMax", precioMax);
-      if (propertyType) queryParams.set("tipo", propertyType);
-      router.push(`/vehiculos?${queryParams.toString()}`);
-    } else {
-      if (location) queryParams.set("ciudad", location);
-      if (propertyType) queryParams.set("tipo", propertyType);
-      if (precioMin !== null) queryParams.set("precioMin", precioMin);
-      if (precioMax !== null) queryParams.set("precioMax", precioMax);
-      router.push(`/propiedades?${queryParams.toString()}`);
+  // Navegar a /buscar con query params
+  const navigateToBuscar = (filtersObj, textoBusqueda = "") => {
+    const query = new URLSearchParams();
+
+    // Añadir filtros no nulos
+    Object.entries(filtersObj).forEach(([key, val]) => {
+      if (val !== null && val !== "" && val !== undefined) {
+        query.set(key, val);
+      }
+    });
+
+    // Añadir texto de búsqueda
+    if (textoBusqueda.trim()) {
+      query.set("texto", textoBusqueda.trim());
     }
+
+    router.push(`/buscar?${query.toString()}`);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const filtros = buildFiltersFromSelects();
+
+    onSearchParamsChange?.(filtros);
+    navigateToBuscar(filtros, ""); // Navega con filtros, sin texto
   };
 
   const handleTextSearch = () => {
-    if (searchText.trim()) {
-      router.push(`/buscar?query=${encodeURIComponent(searchText.trim())}`);
-    }
+    if (!searchText.trim()) return;
+    onTextSearch?.(searchText.trim());
+
+    // Navega con solo texto y los filtros actuales vacíos (o nulos)
+    navigateToBuscar({}, searchText.trim());
   };
 
   if (!mounted) return null;
@@ -131,22 +140,21 @@ const FiltroBuscador = () => {
         {!searchMode && (
           <motion.form
             onSubmit={handleSubmit}
-            className="bg-[var(--white)] dark:bg-[var(--white)] text-[var(--text-default)] shadow-2xl rounded-xl p-6 md:p-8 max-w-5xl mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-4 mb-10 transition-colors duration-300"
+            className="bg-[var(--white)] dark:bg-[var(--white)] text-[var(--text-default)] shadow-2xl rounded-xl p-6 md:p-8 max-w-5xl mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-4 mb-10"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
           >
+            {/* Select Ciudad */}
             <div className="flex flex-col text-left w-full md:w-[30%]">
               <label htmlFor="location" className="text-xs font-semibold mb-1">
                 Localización
               </label>
               <select
                 id="location"
-                name="location"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="p-2 border border-[var(--gray-border)] bg-[var(--white)] text-[var(--text-default)] rounded-md transition-colors duration-300 dark:bg-[var(--gray-hover)]"
+                className="p-2 border border-[var(--gray-border)] rounded-md dark:bg-[var(--gray-hover)]"
               >
                 <option value="">Selecciona una Ciudad</option>
                 {locationsOptions.map((loc) => (
@@ -157,16 +165,19 @@ const FiltroBuscador = () => {
               </select>
             </div>
 
+            {/* Select Tipo */}
             <div className="flex flex-col text-left w-full md:w-[30%]">
-              <label htmlFor="propertyType" className="text-xs font-semibold mb-1">
+              <label
+                htmlFor="propertyType"
+                className="text-xs font-semibold mb-1"
+              >
                 Tipo de Propiedad
               </label>
               <select
                 id="propertyType"
-                name="propertyType"
                 value={propertyType}
                 onChange={(e) => setPropertyType(e.target.value)}
-                className="p-2 border border-[var(--gray-border)] bg-[var(--white)] text-[var(--text-default)] rounded-md transition-colors duration-300 dark:bg-[var(--gray-hover)]"
+                className="p-2 border border-[var(--gray-border)] rounded-md dark:bg-[var(--gray-hover)]"
               >
                 <option value="">Selecciona un Tipo</option>
                 {propertyTypesOptions.map((type) => (
@@ -177,16 +188,16 @@ const FiltroBuscador = () => {
               </select>
             </div>
 
+            {/* Select Precio */}
             <div className="flex flex-col text-left w-full md:w-[30%]">
               <label htmlFor="priceRange" className="text-xs font-semibold mb-1">
                 Rango de precio
               </label>
               <select
                 id="priceRange"
-                name="priceRange"
                 value={priceRange}
                 onChange={(e) => setPriceRange(e.target.value)}
-                className="p-2 border border-[var(--gray-border)] bg-[var(--white)] text-[var(--text-default)] rounded-md transition-colors duration-300 dark:bg-[var(--gray-hover)]"
+                className="p-2 border border-[var(--gray-border)] rounded-md dark:bg-[var(--gray-hover)]"
               >
                 <option value="">Selecciona un rango</option>
                 <option value="0-100">- $100.000.000</option>
@@ -197,9 +208,10 @@ const FiltroBuscador = () => {
               </select>
             </div>
 
+            {/* Botón buscar */}
             <button
               type="submit"
-              className="w-full md:w-auto bg-[var(--blue-main)] text-white font-semibold px-6 py-2 rounded-md hover:bg-[var(--blue-hover)] transition-all duration-200 shadow"
+              className="w-full md:w-auto bg-[var(--blue-main)] text-white font-semibold px-6 py-2 rounded-md hover:bg-[var(--blue-hover)] transition-all"
             >
               Buscar propiedad
             </button>
@@ -213,7 +225,6 @@ const FiltroBuscador = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
             className="max-w-xl mx-auto mb-10"
           >
             <div className="flex items-center gap-3">
@@ -221,8 +232,9 @@ const FiltroBuscador = () => {
                 type="text"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                className="w-full p-3 border border-[var(--gray-border)] rounded-md bg-[var(--white)] text-[var(--text-default)] dark:bg-[var(--gray-hover)] focus:outline-none"
+                className="w-full p-3 border border-[var(--gray-border)] rounded-md dark:bg-[var(--gray-hover)]"
                 placeholder="Buscar propiedades o vehículos..."
+                onKeyDown={(e) => e.key === "Enter" && handleTextSearch()}
               />
               <button
                 onClick={handleTextSearch}
@@ -235,6 +247,7 @@ const FiltroBuscador = () => {
         )}
       </AnimatePresence>
 
+      {/* Botones extras, puedes adaptar */}
       <div className="relative z-10 flex flex-wrap justify-center gap-4">
         <button className="bg-[var(--yellow-light)] text-[var(--blue-main)] font-semibold px-6 py-2 rounded-md hover:brightness-110 transition">
           Explorar propiedades

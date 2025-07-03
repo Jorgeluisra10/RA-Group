@@ -1,79 +1,176 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import FiltrosVehiculos from "./(components)/FiltrosVehiculos";
-import FiltrosPropiedades from "./(components)/FiltrosPropiedades";
-import ResultadoItem from "./(components)/Resultadoitem";
 import { supabase } from "../../lib/supabaseClient";
+import { useRouter } from "next/navigation";
+
+import ResultadoItem from "./(components)/Resultadoitem";
 
 export default function BuscarPage() {
-  const searchParams = useSearchParams();
-  const tipoParam = searchParams.get("tipo")?.toLowerCase();
+  const router = useRouter();
+
   const [resultados, setResultados] = useState([]);
+  const [textoBusqueda, setTextoBusqueda] = useState("");
+
+  const isCar =
+    textoBusqueda.toLowerCase().includes("carro") ||
+    textoBusqueda.toLowerCase().includes("auto") ||
+    textoBusqueda.toLowerCase().includes("vehículo");
 
   useEffect(() => {
-    const fetchData = async () => {
-      const queryText = searchParams.get("query");
-      const isCar = tipoParam === "carro";
+    async function fetchResultados() {
+      try {
+        if (!textoBusqueda.trim()) {
+          setResultados([]);
+          return;
+        }
 
-      let query = isCar
-        ? supabase.from("cars").select("*")
-        : supabase.from("properties").select("*");
+        let query = isCar
+          ? supabase.from("cars").select("*").limit(50)
+          : supabase.from("properties").select("*").limit(50);
 
-      // Búsqueda por texto (general)
-      if (queryText) {
-        const search = queryText.toLowerCase();
+        const search = textoBusqueda.trim();
+
         query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
-      }
 
-      // Rango de precios
-      const precioMin = searchParams.get("precioMin");
-      const precioMax = searchParams.get("precioMax");
-      if (precioMin) query = query.gte("precio", Number(precioMin));
-      if (precioMax) query = query.lte("precio", Number(precioMax));
+        const { data, error } = await query;
 
-      // Filtros adicionales
-      if (isCar) {
-        const marca = searchParams.get("marca");
-        if (marca) query = query.eq("marca", marca);
-      } else {
-        const ciudad = searchParams.get("ciudad");
-        const tipo = searchParams.get("tipo");
-        if (ciudad) query = query.ilike("ciudad", `%${ciudad}%`);
-        if (tipo && tipo.toLowerCase() !== "carro") query = query.eq("tipo", tipo);
-      }
-
-      const { data, error } = await query;
-      if (error) {
-        console.error("Error en búsqueda:", error);
+        if (error) {
+          console.error("Error cargando resultados:", error);
+          setResultados([]);
+        } else {
+          setResultados(data || []);
+        }
+      } catch (error) {
+        console.error("Error inesperado cargando resultados:", error);
         setResultados([]);
-        return;
       }
+    }
 
-      setResultados(data || []);
-    };
+    fetchResultados();
+  }, [textoBusqueda, isCar]);
 
-    fetchData();
-  }, [searchParams.toString()]);
-
-  const isCar = tipoParam === "carro";
+  const handleBuscar = () => {
+    if (textoBusqueda.trim()) {
+      // La búsqueda se activa con el texto ya guardado en estado
+    }
+  };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div className="md:col-span-1">
-        {isCar ? <FiltrosVehiculos /> : <FiltrosPropiedades />}
-      </div>
+    <div
+      className="max-w-7xl mx-auto px-4 py-8"
+      style={{ color: "var(--text-default)", fontFamily: "'Poppins', sans-serif" }}
+    >
+      <header className="text-center mb-8">
+        <h1
+          className="text-3xl font-bold mb-2"
+          style={{ color: "var(--text-default)" }}
+        >
+          Buscar propiedades y vehículos
+        </h1>
+        <p
+          className="mb-6"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          Encuentra exactamente lo que buscas en nuestra amplia selección
+        </p>
 
-      <div className="md:col-span-3 space-y-4">
+        <div className="flex justify-center gap-4 mb-6 flex-wrap">
+          <button
+            onClick={() => router.push("/propiedades/page")}
+            className="px-6 py-2 rounded-md shadow-sm flex items-center gap-2"
+            style={{
+              backgroundColor: "var(--input-bg-light)",
+              border: "1px solid var(--gray-border)",
+              color: "var(--text-default)",
+              transition: "background-color 0.3s ease",
+            }}
+            onMouseEnter={e =>
+              (e.currentTarget.style.backgroundColor = "var(--gray-hover)")
+            }
+            onMouseLeave={e =>
+              (e.currentTarget.style.backgroundColor = "var(--input-bg-light)")
+            }
+          >
+            <span>🏠</span> Ver todas las propiedades
+          </button>
+          <button
+            onClick={() => router.push("/vehiculos/page")}
+            className="px-6 py-2 rounded-md shadow-sm flex items-center gap-2"
+            style={{
+              backgroundColor: "var(--input-bg-light)",
+              border: "1px solid var(--gray-border)",
+              color: "var(--text-default)",
+              transition: "background-color 0.3s ease",
+            }}
+            onMouseEnter={e =>
+              (e.currentTarget.style.backgroundColor = "var(--gray-hover)")
+            }
+            onMouseLeave={e =>
+              (e.currentTarget.style.backgroundColor = "var(--input-bg-light)")
+            }
+          >
+            <span>🚗</span> Ver todos los vehículos
+          </button>
+        </div>
+
+        <div className="flex justify-center gap-2 max-w-xl mx-auto">
+          <input
+            type="text"
+            placeholder="Buscar propiedades o vehículos..."
+            value={textoBusqueda}
+            onChange={(e) => setTextoBusqueda(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
+            className="w-full px-4 py-2 rounded-md focus:outline-none"
+            style={{
+              border: "1px solid var(--gray-border)",
+              backgroundColor: "var(--input-bg-light)",
+              color: "var(--text-default)",
+              boxShadow: "none",
+            }}
+          />
+          <button
+            onClick={handleBuscar}
+            className="px-4 py-2 rounded-md"
+            style={{
+              backgroundColor: "var(--btn-primary)",
+              color: "var(--btn-secondary)",
+              transition: "background-color 0.3s ease",
+            }}
+            onMouseEnter={e =>
+              (e.currentTarget.style.backgroundColor = "var(--yellow-light)")
+            }
+            onMouseLeave={e =>
+              (e.currentTarget.style.backgroundColor = "var(--btn-primary)")
+            }
+          >
+            Buscar
+          </button>
+        </div>
+      </header>
+
+      <main>
         {resultados.length > 0 ? (
-          resultados.map((item) => (
-            <ResultadoItem key={item.id} item={item} tipo={isCar ? "vehiculo" : "propiedad"} />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {resultados.map((item) => (
+              <ResultadoItem
+                key={item.id}
+                item={item}
+                tipo={isCar ? "vehiculo" : "propiedad"}
+              />
+            ))}
+          </div>
         ) : (
-          <p className="text-gray-500 text-center col-span-3">No se encontraron resultados.</p>
+          textoBusqueda.trim() && (
+            <p
+              className="text-center mt-8"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              No se encontraron resultados.
+            </p>
+          )
         )}
-      </div>
+      </main>
     </div>
   );
 }
