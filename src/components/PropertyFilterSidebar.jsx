@@ -1,6 +1,7 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import clsx from "clsx";
 
 const initialFilters = {
   tipo: {
@@ -8,22 +9,47 @@ const initialFilters = {
     apartamento: false,
     terreno: false,
     oficina: false,
+    finca: false,
     local: false,
   },
   precio: { min: 0, max: 1000000000 },
   habitaciones: 0,
   banos: 0,
   area: { min: 0, max: 500 },
-  garaje: 0, // número mínimo de parqueaderos
+  garaje: 0,
+  ciudad: "",
 };
 
 export default function PropertyFilterSidebar({
   onApplyFilters,
   isOpen,
   onClose,
+  filters: externalFilters,
+  cities = [],
 }) {
   const [filters, setFilters] = useState(initialFilters);
-  const [isMobile, setIsMobile] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (!externalFilters || typeof externalFilters !== "object") return;
+
+    const areLocalFiltersUntouched =
+      JSON.stringify(filters) === JSON.stringify(initialFilters);
+
+    if (areLocalFiltersUntouched) {
+      const mappedBack = {
+        tipo: externalFilters.type ?? {},
+        precio: externalFilters.price ?? { min: 0, max: 1000000000 },
+        habitaciones: externalFilters.beds ?? 0,
+        banos: externalFilters.baths ?? 0,
+        area: externalFilters.area ?? { min: 0, max: 500 },
+        garaje: externalFilters.garage ?? 0,
+        ciudad: externalFilters.city ?? "",
+      };
+      setFilters(mappedBack);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const checkViewport = () => setIsMobile(window.innerWidth < 768);
@@ -32,22 +58,22 @@ export default function PropertyFilterSidebar({
     return () => window.removeEventListener("resize", checkViewport);
   }, []);
 
+  const safeRangeChange = (section, key, value) => {
+    const numValue = Number(value);
+    setFilters((prev) => {
+      let newSection = { ...prev[section], [key]: numValue };
+      if (key === "min" && numValue > prev[section].max) newSection.max = numValue;
+      if (key === "max" && numValue < prev[section].min) newSection.min = numValue;
+      return { ...prev, [section]: newSection };
+    });
+  };
+
   const toggleCheckbox = (section, key) => {
     setFilters((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
-        [key]: !prev[section][key],
-      },
-    }));
-  };
-
-  const handleRangeChange = (section, key, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: Number(value),
+        [key]: !prev[section]?.[key],
       },
     }));
   };
@@ -55,34 +81,88 @@ export default function PropertyFilterSidebar({
   const handleNumberSelect = (section, value) => {
     setFilters((prev) => ({
       ...prev,
-      [section]: value,
+      [section]: Number(value),
     }));
   };
 
   const applyFilters = () => {
-    onApplyFilters(filters);
+    const mappedFilters = {
+      type: filters.tipo,
+      price: filters.precio,
+      beds: filters.habitaciones,
+      baths: filters.banos,
+      area: filters.area,
+      garage: filters.garaje,
+      city: filters.ciudad,
+    };
+    onApplyFilters(mappedFilters);
     if (isMobile) onClose?.();
   };
 
   const clearFilters = () => {
     setFilters(initialFilters);
-    onApplyFilters(initialFilters);
+    onApplyFilters({
+      type: initialFilters.tipo,
+      price: initialFilters.precio,
+      beds: initialFilters.habitaciones,
+      baths: initialFilters.banos,
+      area: initialFilters.area,
+      garage: initialFilters.garaje,
+      city: "",
+    });
   };
 
   if (isMobile === null) return null;
 
+  const SelectField = ({ value, onChange, options }) => (
+    <select
+      value={value}
+      onChange={onChange}
+      className="w-full rounded-xl px-3 py-2 border border-[var(--gray-border)] bg-[var(--input-bg-light)] text-[var(--text-default)] focus:outline-none"
+    >
+      {options.map((n) => (
+        <option key={n} value={n}>
+          {n === 0 ? "Cualquiera" : n}
+        </option>
+      ))}
+    </select>
+  );
+
   const content = (
-    <div className="space-y-6 text-sm text-gray-700">
+    <div className="space-y-6 text-sm text-[var(--text-secondary)]">
+      {/* Ciudad */}
+      <div>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">Ciudad</h3>
+        <select
+          value={filters.ciudad}
+          onChange={(e) =>
+            setFilters((prev) => ({ ...prev, ciudad: e.target.value }))
+          }
+          className="w-full rounded-xl px-3 py-2 border border-[var(--gray-border)] bg-[var(--input-bg-light)] text-[var(--text-default)] focus:outline-none"
+        >
+          <option value="">Cualquiera</option>
+          {cities.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Tipo */}
       <div>
-        <h3 className="font-semibold mb-2">Tipo</h3>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">Tipo</h3>
         <div className="flex flex-wrap gap-2">
-          {Object.keys(filters.tipo).map((key) => (
-            <label key={key} className="flex items-center gap-2">
+          {Object.keys(filters.tipo ?? initialFilters.tipo).map((key) => (
+            <label
+              key={key}
+              className="flex items-center gap-2 px-3 py-1 bg-[var(--gray-hover)] text-[var(--text-default)] rounded-lg cursor-pointer transition hover:bg-[var(--blue-hover)] hover:text-white"
+            >
               <input
                 type="checkbox"
-                checked={filters.tipo[key]}
+                checked={filters.tipo?.[key] ?? false}
                 onChange={() => toggleCheckbox("tipo", key)}
+                className="accent-[var(--blue-main)]"
               />
               <span className="capitalize">{key}</span>
             </label>
@@ -92,19 +172,21 @@ export default function PropertyFilterSidebar({
 
       {/* Precio */}
       <div>
-        <h3 className="font-semibold mb-2">Precio (COP)</h3>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">
+          Precio (COP)
+        </h3>
         <div className="space-y-2">
-          <div className="flex justify-between text-xs text-gray-600">
-            <span>Desde ${filters.precio.min.toLocaleString()}</span>
-            <span>Hasta ${filters.precio.max.toLocaleString()}</span>
+          <div className="flex justify-between text-xs">
+            <span>Desde ${filters.precio?.min?.toLocaleString() ?? 0}</span>
+            <span>Hasta ${filters.precio?.max?.toLocaleString() ?? 0}</span>
           </div>
           <input
             type="range"
             min={0}
             max={1000000000}
             step={50000000}
-            value={filters.precio.min}
-            onChange={(e) => handleRangeChange("precio", "min", e.target.value)}
+            value={filters.precio?.min ?? 0}
+            onChange={(e) => safeRangeChange("precio", "min", e.target.value)}
             className="w-full"
           />
           <input
@@ -112,8 +194,8 @@ export default function PropertyFilterSidebar({
             min={0}
             max={1000000000}
             step={50000000}
-            value={filters.precio.max}
-            onChange={(e) => handleRangeChange("precio", "max", e.target.value)}
+            value={filters.precio?.max ?? 1000000000}
+            onChange={(e) => safeRangeChange("precio", "max", e.target.value)}
             className="w-full"
           />
         </div>
@@ -121,55 +203,45 @@ export default function PropertyFilterSidebar({
 
       {/* Habitaciones */}
       <div>
-        <h3 className="font-semibold mb-2">Habitaciones mínimas</h3>
-        <select
-          value={filters.habitaciones}
-          onChange={(e) =>
-            handleNumberSelect("habitaciones", parseInt(e.target.value))
-          }
-          className="w-full border rounded px-2 py-1"
-        >
-          {[0, 1, 2, 3, 4, 5].map((n) => (
-            <option key={n} value={n}>
-              {n === 0 ? "Cualquiera" : n}
-            </option>
-          ))}
-        </select>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">
+          Habitaciones mínimas
+        </h3>
+        <SelectField
+          value={filters.habitaciones ?? 0}
+          onChange={(e) => handleNumberSelect("habitaciones", e.target.value)}
+          options={[0, 1, 2, 3, 4, 5]}
+        />
       </div>
 
       {/* Baños */}
       <div>
-        <h3 className="font-semibold mb-2">Baños mínimos</h3>
-        <select
-          value={filters.banos}
-          onChange={(e) =>
-            handleNumberSelect("banos", parseInt(e.target.value))
-          }
-          className="w-full border rounded px-2 py-1"
-        >
-          {[0, 1, 2, 3, 4, 5].map((n) => (
-            <option key={n} value={n}>
-              {n === 0 ? "Cualquiera" : n}
-            </option>
-          ))}
-        </select>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">
+          Baños mínimos
+        </h3>
+        <SelectField
+          value={filters.banos ?? 0}
+          onChange={(e) => handleNumberSelect("banos", e.target.value)}
+          options={[0, 1, 2, 3, 4, 5]}
+        />
       </div>
 
       {/* Área */}
       <div>
-        <h3 className="font-semibold mb-2">Área (m²)</h3>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">
+          Área (m²)
+        </h3>
         <div className="space-y-2">
-          <div className="flex justify-between text-xs text-gray-600">
-            <span>Desde {filters.area.min} m²</span>
-            <span>Hasta {filters.area.max} m²</span>
+          <div className="flex justify-between text-xs">
+            <span>Desde {filters.area?.min ?? 0} m²</span>
+            <span>Hasta {filters.area?.max ?? 0} m²</span>
           </div>
           <input
             type="range"
             min={0}
             max={500}
             step={25}
-            value={filters.area.min}
-            onChange={(e) => handleRangeChange("area", "min", e.target.value)}
+            value={filters.area?.min ?? 0}
+            onChange={(e) => safeRangeChange("area", "min", e.target.value)}
             className="w-full"
           />
           <input
@@ -177,8 +249,8 @@ export default function PropertyFilterSidebar({
             min={0}
             max={500}
             step={25}
-            value={filters.area.max}
-            onChange={(e) => handleRangeChange("area", "max", e.target.value)}
+            value={filters.area?.max ?? 500}
+            onChange={(e) => safeRangeChange("area", "max", e.target.value)}
             className="w-full"
           />
         </div>
@@ -186,32 +258,26 @@ export default function PropertyFilterSidebar({
 
       {/* Garaje */}
       <div>
-        <h3 className="font-semibold mb-2">Parqueaderos mínimos</h3>
-        <select
-          value={filters.garaje}
-          onChange={(e) =>
-            handleNumberSelect("garaje", parseInt(e.target.value))
-          }
-          className="w-full border rounded px-2 py-1"
-        >
-          {[0, 1, 2, 3].map((n) => (
-            <option key={n} value={n}>
-              {n === 0 ? "Cualquiera" : n}
-            </option>
-          ))}
-        </select>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">
+          Parqueaderos mínimos
+        </h3>
+        <SelectField
+          value={filters.garaje ?? 0}
+          onChange={(e) => handleNumberSelect("garaje", e.target.value)}
+          options={[0, 1, 2, 3]}
+        />
       </div>
 
       {/* Botones */}
-      <div className="flex gap-2 pt-2">
+      <div className="flex gap-2 pt-4">
         <button
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+          className="flex-1 bg-[var(--btn-primary)] text-[var(--btn-secondary)] py-2 px-4 rounded-xl font-semibold"
           onClick={applyFilters}
         >
           Aplicar Filtros
         </button>
         <button
-          className="flex-1 border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded"
+          className="flex-1 border border-[var(--gray-border)] hover:bg-[var(--gray-hover)] text-[var(--text-default)] py-2 px-4 rounded-xl font-semibold"
           onClick={clearFilters}
         >
           Limpiar
@@ -220,23 +286,26 @@ export default function PropertyFilterSidebar({
     </div>
   );
 
-  // Mobile
   if (isMobile) {
     return (
       <div
-        className={`fixed inset-0 z-40 transition duration-300 ${
-          isOpen ? "visible bg-black/40 backdrop-blur-sm" : "invisible"
+        className={`fixed inset-0 z-50 transition duration-300 ${
+          isOpen
+            ? "visible opacity-100 bg-black/40 backdrop-blur-sm"
+            : "invisible opacity-0"
         }`}
       >
         <aside
-          className={`absolute left-0 top-0 h-full w-80 mt-15 bg-white shadow-lg transform transition-transform duration-300 ${
+          className={`absolute top-0 left-0 h-full w-4/5 max-w-xs bg-[var(--input-bg-light)] shadow-xl p-5 transform transition-transform duration-300 ${
             isOpen ? "translate-x-0" : "-translate-x-full"
-          } p-5 overflow-y-auto`}
+          } rounded-r-2xl overflow-y-auto`}
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Filtros</h2>
+            <h2 className="text-lg font-semibold text-[var(--text-default)]">
+              Filtros
+            </h2>
             <button onClick={onClose}>
-              <X className="w-6 h-6 text-gray-600" />
+              <X className="w-6 h-6 text-[var(--text-secondary)]" />
             </button>
           </div>
           {content}
@@ -245,10 +314,11 @@ export default function PropertyFilterSidebar({
     );
   }
 
-  // Desktop
   return (
-    <aside className="bg-white w-full md:min-w-[280px] md:max-w-[320px] p-6 rounded-2xl shadow-lg">
-      <h2 className="text-lg font-semibold mb-4">Filtros</h2>
+    <aside className="bg-[var(--input-bg-light)] w-full md:min-w-[280px] md:max-w-[320px] p-6 rounded-2xl shadow-lg">
+      <h2 className="text-lg font-semibold mb-4 text-[var(--text-default)]">
+        Filtros
+      </h2>
       {content}
     </aside>
   );

@@ -9,17 +9,18 @@ import BannerCarousel from "./BannerCarousel/BannerCarousel";
 
 const defaultFilters = {
   type: {},
+  city: "",
   price: { min: 0, max: 1000000000 },
   beds: 0,
   baths: 0,
   area: { min: 0, max: 10000 },
-  features: {},
 };
 
 const ITEMS_PER_PAGE = 20;
 
 export default function PropiedadesPage() {
   const [properties, setProperties] = useState([]);
+  const [cities, setCities] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState(defaultFilters);
@@ -37,8 +38,15 @@ export default function PropiedadesPage() {
     const fetchProperties = async () => {
       try {
         const data = await getProperties();
+
+        // Extraer ciudades únicas
+        const uniqueCities = [
+          ...new Set(data.map((prop) => prop.ciudad).filter(Boolean)),
+        ].sort();
+
         data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         setProperties(data);
+        setCities(uniqueCities);
       } catch (error) {
         console.error("Error al obtener propiedades:", error);
       }
@@ -69,40 +77,45 @@ export default function PropiedadesPage() {
     properties.filter((prop) => {
       if (!appliedFilters) return true;
 
+      const typeSelected = Object.values(appliedFilters.type ?? {});
+      const noTypeSelected =
+        typeSelected.length === 0 || typeSelected.every((v) => !v);
       const matchesType =
-        Object.values(appliedFilters.type).every((v) => !v) ||
-        appliedFilters.type[prop.tipo?.toLowerCase()];
+        noTypeSelected || appliedFilters.type?.[prop.tipo?.toLowerCase()];
+
+      const matchesCity =
+        appliedFilters.city === "" || prop.ciudad === appliedFilters.city;
 
       const matchesPrice =
-        prop.price >= appliedFilters.price.min &&
-        prop.price <= appliedFilters.price.max;
+        prop.price >= (appliedFilters.price?.min ?? 0) &&
+        prop.price <= (appliedFilters.price?.max ?? 1000000000);
 
       const matchesBeds =
-        appliedFilters.beds === 0 || prop.habitaciones >= appliedFilters.beds;
+        (appliedFilters.beds ?? 0) === 0 ||
+        prop.habitaciones >= appliedFilters.beds;
 
       const matchesBaths =
-        appliedFilters.baths === 0 || prop.banos >= appliedFilters.baths;
+        (appliedFilters.baths ?? 0) === 0 || prop.banos >= appliedFilters.baths;
 
       const matchesArea =
-        prop.area >= appliedFilters.area.min &&
-        prop.area <= appliedFilters.area.max;
-
-      const matchesFeatures = Object.entries(appliedFilters.features).every(
-        ([key, val]) => (val ? prop.features?.includes(key) : true)
-      );
+        prop.area >= (appliedFilters.area?.min ?? 0) &&
+        prop.area <= (appliedFilters.area?.max ?? 10000);
 
       return (
         matchesType &&
+        matchesCity &&
         matchesPrice &&
         matchesBeds &&
         matchesBaths &&
-        matchesArea &&
-        matchesFeatures
+        matchesArea
       );
     })
   );
 
-  const totalPages = Math.ceil(filteredProperties.length / ITEMS_PER_PAGE);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProperties.length / ITEMS_PER_PAGE)
+  );
   const paginatedProperties = filteredProperties.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -110,7 +123,7 @@ export default function PropiedadesPage() {
 
   const handleApplyFilters = (filters) => {
     setAppliedFilters(filters || defaultFilters);
-    setCurrentPage(1); // Reset page on filter apply
+    setCurrentPage(1);
     if (isMobile) setFiltersOpen(false);
   };
 
@@ -126,23 +139,23 @@ export default function PropiedadesPage() {
     <div className="relative max-w-screen-xl mx-auto px-4 md:px-8 py-12">
       <BannerCarousel />
       {isMobile && (
-        <div className="sticky top-0 z-40 mb-6 bg-white pt-2 pb-4 flex justify-between items-center gap-2">
+        <div className="sticky top-0 z-40 mb-6 bg-[var(--background)] pt-2 pb-4 flex justify-between items-center gap-2 flex-row-reverse">
           <button
             onClick={() => setFiltersOpen(true)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-md text-sm"
+            className="flex items-center gap-2 bg-[var(--btn-primary)] text-[var(--btn-secondary)] px-4 py-2 rounded-xl text-sm font-semibold shadow-md hover:bg-[var(--blue-hover)] transition"
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filtros
           </button>
           <div className="flex items-center text-sm gap-2">
-            <span className="text-gray-700">Ordenar por:</span>
+            <span className="text-[var(--text-default)]">Ordenar por:</span>
             <select
               value={sortOption}
               onChange={(e) => {
                 setSortOption(e.target.value);
                 setCurrentPage(1);
               }}
-              className="border rounded-md px-2 py-1 text-sm"
+              className="border border-[var(--gray-border)] rounded-md px-2 py-1 text-sm bg-[var(--input-bg-light)] text-[var(--text-default)] focus:outline-none"
             >
               <option value="recent">Más recientes</option>
               <option value="price_low">Precio: menor a mayor</option>
@@ -160,6 +173,8 @@ export default function PropiedadesPage() {
             onApplyFilters={handleApplyFilters}
             isOpen={filtersOpen}
             onClose={() => setFiltersOpen(false)}
+            filters={appliedFilters}
+            cities={cities} // pasa las ciudades dinámicas
           />
         </div>
 

@@ -6,292 +6,266 @@ import { X } from "lucide-react";
 const currentYear = new Date().getFullYear();
 
 const initialFilters = {
-  brand: {}, // Se inicializa dinámicamente en la página principal
-  transmission: {
-    automática: false,
-    manual: false,
-  },
-  fuel: {
-    gasolina: false,
-    diesel: false,
-    híbrido: false,
-    eléctrico: false,
-  },
+  brand: { selected: "" },
+  transmission: { automática: false, manual: false },
+  fuel: { gasolina: false, diesel: false, híbrido: false, eléctrico: false },
   price: { min: 0, max: 500000000 },
   year: { min: 1950, max: currentYear },
-  features: {
-    aire_acondicionado: false,
-    gps: false,
-    bluetooth: false,
-    camara_reversa: false,
-    sensor_parqueo: false,
-    asientos_cuero: false,
-  },
+  puertas: { min: 0, max: 5 },
 };
 
-export default function CarFilterSidebar({ onApplyFilters, isOpen, onClose, filters }) {
-  // Recibe filtros iniciales desde props para que la marca sea dinámica
-  const [localFilters, setLocalFilters] = useState(filters || initialFilters);
+export default function CarFilterSidebar({
+  onApplyFilters,
+  isOpen,
+  onClose,
+  filters,
+  availableCars,
+}) {
+  const [local, setLocal] = useState(filters || initialFilters);
   const [isMobile, setIsMobile] = useState(null);
 
-  // Actualizar localFilters si cambian los filtros externos (para reset o cambios)
   useEffect(() => {
-    if (filters) setLocalFilters(filters);
+    if (filters) setLocal(filters);
   }, [filters]);
 
   useEffect(() => {
-    const checkViewport = () => setIsMobile(window.innerWidth < 768);
-    checkViewport();
-    window.addEventListener("resize", checkViewport);
-    return () => window.removeEventListener("resize", checkViewport);
+    const cb = () => setIsMobile(window.innerWidth < 768);
+    cb();
+    window.addEventListener("resize", cb);
+    return () => window.removeEventListener("resize", cb);
   }, []);
 
-  const toggleCheckbox = (section, key) => {
-    setLocalFilters((prev) => ({
+  const distinctBrands = () => {
+    return Array.isArray(availableCars)
+      ? [...new Set(availableCars.map((c) => c.marca).filter(Boolean))].sort()
+      : [];
+  };
+
+  const handleChange = (section, key, val) =>
+    setLocal((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
-        [key]: !prev[section][key],
+        [key]: val,
+      },
+    }));
+
+  const handleRange = (section, key, val) => {
+    const num = Number(val);
+    setLocal((prev) => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        min: key === "min" ? Math.min(num, prev[section].max) : prev[section].min,
+        max: key === "max" ? Math.max(num, prev[section].min) : prev[section].max,
       },
     }));
   };
 
-  const handleRangeChange = (section, key, value) => {
-    value = Number(value);
-
-    setLocalFilters((prev) => {
-      let newMin = prev[section].min;
-      let newMax = prev[section].max;
-
-      if (key === "min") {
-        newMin = Math.min(value, prev[section].max);
-      } else {
-        newMax = Math.max(value, prev[section].min);
-      }
-
-      return {
-        ...prev,
-        [section]: {
-          ...prev[section],
-          min: newMin,
-          max: newMax,
-        },
-      };
-    });
-  };
-
-  const applyFilters = () => {
-    onApplyFilters(localFilters);
+  const apply = () => {
+    onApplyFilters(local);
     if (isMobile) onClose?.();
   };
 
-  const clearFilters = () => {
-    onApplyFilters(filters); // Resetea al filtro original desde props
+  const clear = () => {
+    const cleared = {
+      ...initialFilters,
+      brand: { selected: "" },
+    };
+    setLocal(cleared);
+    onApplyFilters(cleared);
   };
 
   if (isMobile === null) return null;
 
-  function renderFilters() {
-    return (
-      <div className="space-y-6 text-sm text-gray-700">
-        {/* Marcas */}
-        {filters.brand && Object.keys(filters.brand).length > 0 && (
-          <div>
-            <h3 className="font-semibold mb-2">Marca</h3>
-            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-              {Object.keys(filters.brand).map((key) => (
-                <label key={key} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={localFilters.brand[key]}
-                    onChange={() => toggleCheckbox("brand", key)}
-                    className="cursor-pointer"
-                  />
-                  <span className="capitalize">{key}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
+  const header = (
+    <h2 className="text-lg font-semibold mb-4 text-[var(--text-default)] text-center">
+      Filtros
+      <span className="block w-12 h-0.5 mx-auto mt-1 bg-[var(--yellow-light)]" />
+    </h2>
+  );
 
-        {/* Transmisión */}
-        <div>
-          <h3 className="font-semibold mb-2">Transmisión</h3>
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(localFilters.transmission).map((key) => (
-              <label key={key} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={localFilters.transmission[key]}
-                  onChange={() => toggleCheckbox("transmission", key)}
-                  className="cursor-pointer"
-                />
-                <span className="capitalize">{key}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+  const content = (
+    <div className="space-y-6 text-sm text-[var(--text-secondary)]">
+      {/* Marca */}
+      <div>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">Marca</h3>
+        <select
+          value={local.brand.selected || ""}
+          onChange={(e) => handleChange("brand", "selected", e.target.value)}
+          className="w-full rounded-xl px-3 py-2 border border-[var(--gray-border)] bg-[var(--input-bg-light)] text-[var(--text-default)] focus:outline-none"
+        >
+          <option value="">Cualquiera</option>
+          {distinctBrands().map((marca) => (
+            <option key={marca} value={marca}>
+              {marca}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Combustible */}
-        <div>
-          <h3 className="font-semibold mb-2">Combustible</h3>
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(localFilters.fuel).map((key) => (
-              <label key={key} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={localFilters.fuel[key]}
-                  onChange={() => toggleCheckbox("fuel", key)}
-                  className="cursor-pointer"
-                />
-                <span className="capitalize">{key}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Precio */}
-        <div>
-          <h3 className="font-semibold mb-2">Precio (COP)</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs text-gray-600">
-              <span>Desde ${localFilters.price.min.toLocaleString()}</span>
-              <span>Hasta ${localFilters.price.max.toLocaleString()}</span>
-            </div>
-            <input
-              type="range"
-              min={0}
-              max={500000000}
-              step={50000000}
-              value={localFilters.price.min}
-              onChange={(e) => handleRangeChange("price", "min", e.target.value)}
-              className="w-full"
-              aria-label="Precio mínimo"
-            />
-            <input
-              type="range"
-              min={0}
-              max={500000000}
-              step={50000000}
-              value={localFilters.price.max}
-              onChange={(e) => handleRangeChange("price", "max", e.target.value)}
-              className="w-full"
-              aria-label="Precio máximo"
-            />
-          </div>
-        </div>
-
-        {/* Año */}
-        <div>
-          <h3 className="font-semibold mb-2">Año</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs text-gray-600">
-              <span>Desde {localFilters.year.min}</span>
-              <span>Hasta {localFilters.year.max}</span>
-            </div>
-            <input
-              type="range"
-              min={1950}
-              max={currentYear}
-              step={1}
-              value={localFilters.year.min}
-              onChange={(e) => handleRangeChange("year", "min", e.target.value)}
-              className="w-full"
-              aria-label="Año mínimo"
-            />
-            <input
-              type="range"
-              min={1950}
-              max={currentYear}
-              step={1}
-              value={localFilters.year.max}
-              onChange={(e) => handleRangeChange("year", "max", e.target.value)}
-              className="w-full"
-              aria-label="Año máximo"
-            />
-          </div>
-        </div>
-
-        {/* Características */}
-        <div>
-          <h3 className="font-semibold mb-2">Características</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {Object.keys(localFilters.features).map((key) => (
-              <label key={key} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={localFilters.features[key]}
-                  onChange={() => toggleCheckbox("features", key)}
-                  className="cursor-pointer"
-                />
-                <span className="capitalize">{key.replaceAll("_", " ")}</span>
-              </label>
-            ))}
-          </div>
+      {/* Transmisión */}
+      <div>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">Transmisión</h3>
+        <div className="flex flex-wrap gap-2">
+          {["automática", "manual"].map((tipo) => (
+            <label
+              key={tipo}
+              className="flex items-center gap-2 px-3 py-1 bg-[var(--gray-hover)] rounded-lg cursor-pointer hover:bg-[var(--blue-hover)] hover:text-white transition"
+            >
+              <input
+                type="checkbox"
+                className="accent-[var(--blue-main)]"
+                checked={local.transmission[tipo]}
+                onChange={() =>
+                  handleChange("transmission", tipo, !local.transmission[tipo])
+                }
+              />
+              <span className="capitalize">{tipo}</span>
+            </label>
+          ))}
         </div>
       </div>
-    );
-  }
 
-  // Móvil: modal deslizante
+      {/* Combustible */}
+      <div>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">Combustible</h3>
+        <div className="flex flex-wrap gap-2">
+          {["gasolina", "diesel", "híbrido", "eléctrico"].map((tipo) => (
+            <label
+              key={tipo}
+              className="flex items-center gap-2 px-3 py-1 bg-[var(--gray-hover)] rounded-lg cursor-pointer hover:bg-[var(--blue-hover)] hover:text-white transition"
+            >
+              <input
+                type="checkbox"
+                className="accent-[var(--blue-main)]"
+                checked={local.fuel[tipo]}
+                onChange={() => handleChange("fuel", tipo, !local.fuel[tipo])}
+              />
+              <span className="capitalize">{tipo}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Precio */}
+      <div>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">Precio (COP)</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <span>Desde ${local.price.min.toLocaleString()}</span>
+            <span>Hasta ${local.price.max.toLocaleString()}</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="500000000"
+            step="50000000"
+            value={local.price.min}
+            onChange={(e) => handleRange("price", "min", e.target.value)}
+            className="w-full"
+          />
+          <input
+            type="range"
+            min="0"
+            max="500000000"
+            step="50000000"
+            value={local.price.max}
+            onChange={(e) => handleRange("price", "max", e.target.value)}
+            className="w-full"
+          />
+        </div>
+      </div>
+
+      {/* Año */}
+      <div>
+        <h3 className="font-semibold mb-2 text-[var(--text-default)]">Año</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <span>Desde {local.year.min}</span>
+            <span>Hasta {local.year.max}</span>
+          </div>
+          <input
+            type="range"
+            min="1950"
+            max={currentYear}
+            step="1"
+            value={local.year.min}
+            onChange={(e) => handleRange("year", "min", e.target.value)}
+            className="w-full"
+          />
+          <input
+            type="range"
+            min="1950"
+            max={currentYear}
+            step="1"
+            value={local.year.max}
+            onChange={(e) => handleRange("year", "max", e.target.value)}
+            className="w-full"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const footerButtons = (
+    <div className="flex gap-2 pt-4">
+      <button
+        className="flex-1 bg-[var(--btn-primary)] text-[var(--btn-secondary)] py-2 px-4 rounded-xl"
+        onClick={apply}
+      >
+        Aplicar filtros
+      </button>
+      <button
+        className="flex-1 border border-[var(--gray-border)] hover:bg-[var(--gray-hover)] text-[var(--text-default)] py-2 px-4 rounded-xl"
+        onClick={clear}
+      >
+        Limpiar
+      </button>
+    </div>
+  );
+
   if (isMobile) {
     return (
       <div
-        className={`fixed inset-0 z-40 transition duration-300 ${
-          isOpen ? "visible bg-black/40 backdrop-blur-sm" : "invisible"
+        className={`fixed inset-0 z-50 transition-all duration-300 ${
+          isOpen ? "visible opacity-100" : "invisible opacity-0"
         }`}
       >
+        {/* Fondo oscuro */}
+        <div
+          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          onClick={onClose}
+        ></div>
+
+        {/* Sidebar izquierdo */}
         <aside
-          className={`absolute left-0 top-0 w-full bg-white shadow-lg transform transition-transform duration-300 ${
-            isOpen ? "translate-y-0" : "-translate-y-full"
-          } p-5 overflow-y-auto max-h-[80vh] rounded-b-2xl`}
-          style={{ maxHeight: "80vh" }}
+          className={`absolute top-0 left-0 h-full w-4/5 max-w-xs bg-[var(--input-bg-light)] shadow-xl p-5 transform transition-transform duration-300 ${
+            isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         >
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Filtros</h2>
-            <button onClick={onClose} aria-label="Cerrar filtros">
-              <X className="w-6 h-6 text-gray-600" />
-            </button>
-          </div>
-          {renderFilters()}
-          <div className="flex gap-2 pt-4">
-            <button
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-              onClick={applyFilters}
-            >
-              Aplicar Filtros
-            </button>
-            <button
-              className="flex-1 border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded"
-              onClick={clearFilters}
-            >
-              Limpiar
-            </button>
-          </div>
+          {/* Botón cerrar */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-[var(--text-secondary)]"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          {header}
+          {content}
+          {footerButtons}
         </aside>
       </div>
     );
   }
 
-  // Desktop: sidebar fijo y sticky arriba
+  // Escritorio
   return (
-    <aside className="bg-white w-full md:min-w-[280px] md:max-w-[320px] p-6 rounded-2xl shadow-lg h-fit sticky top-4">
-      <h2 className="text-lg font-semibold mb-4">Filtros</h2>
-      {renderFilters()}
-      <div className="flex gap-2 pt-4">
-        <button
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
-          onClick={applyFilters}
-        >
-          Aplicar Filtros
-        </button>
-        <button
-          className="flex-1 border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded"
-          onClick={clearFilters}
-        >
-          Limpiar
-        </button>
-      </div>
+    <aside className="bg-[var(--input-bg-light)] p-6 rounded-2xl shadow-lg w-full md:max-w-[320px] sticky top-4">
+      {header}
+      {content}
+      {footerButtons}
     </aside>
   );
 }

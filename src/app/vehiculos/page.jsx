@@ -19,14 +19,6 @@ export default function CarrosPage() {
   const [sortOption, setSortOption] = useState("recent");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const generateBrandFilter = (cars) => {
-    const brands = {};
-    cars.forEach((car) => {
-      if (car.marca) brands[car.marca.toLowerCase()] = false;
-    });
-    return brands;
-  };
-
   const generateTransmissionFilter = (cars) => {
     const transmissions = {};
     cars.forEach((car) => {
@@ -60,7 +52,7 @@ export default function CarrosPage() {
         );
         setCars(carsData);
         setAppliedFilters({
-          brand: generateBrandFilter(carsData),
+          brand: { selected: "" },
           price: defaultPrice,
           year: defaultYear,
           transmission: generateTransmissionFilter(carsData),
@@ -105,31 +97,43 @@ export default function CarrosPage() {
 
   const filteredCars = appliedFilters
     ? cars.filter((car) => {
+        // Marca
         if (
-          isFilterActive(appliedFilters.brand) &&
-          !appliedFilters.brand[car.marca.toLowerCase()]
+          appliedFilters.brand.selected &&
+          appliedFilters.brand.selected.toLowerCase() !==
+            car.marca?.toLowerCase()
         )
           return false;
+
+        // Precio
         if (
           Number(car.price) < appliedFilters.price.min ||
           Number(car.price) > appliedFilters.price.max
         )
           return false;
+
+        // Año
         if (
           Number(car.modelo) < appliedFilters.year.min ||
           Number(car.modelo) > appliedFilters.year.max
         )
           return false;
+
+        // Transmisión
         if (
           isFilterActive(appliedFilters.transmission) &&
-          !appliedFilters.transmission[car.transmision.toLowerCase()]
+          !appliedFilters.transmission[car.transmision?.toLowerCase()]
         )
           return false;
+
+        // Combustible
         if (
           isFilterActive(appliedFilters.fuel) &&
-          !appliedFilters.fuel[car.combustible.toLowerCase()]
+          !appliedFilters.fuel[car.combustible?.toLowerCase()]
         )
           return false;
+
+        // Características
         if (appliedFilters.features) {
           for (const [key, value] of Object.entries(appliedFilters.features)) {
             if (value && !car.features?.includes(key)) {
@@ -137,6 +141,7 @@ export default function CarrosPage() {
             }
           }
         }
+
         return true;
       })
     : cars;
@@ -165,7 +170,7 @@ export default function CarrosPage() {
   return (
     <div className="relative max-w-screen-xl mx-auto px-4 md:px-8 py-12">
       {/* Hero section */}
-      <BannerCarousel/>
+      <BannerCarousel />
 
       {/* Controles y filtros */}
       <div className="container mx-auto px-4 mt-10 flex flex-col md:flex-row gap-6">
@@ -174,6 +179,7 @@ export default function CarrosPage() {
           <aside className="w-full md:w-1/4 md:sticky md:top-24 h-fit">
             <CarFilterSidebar
               filters={appliedFilters}
+              availableCars={cars}
               onApplyFilters={handleApplyFilters}
             />
           </aside>
@@ -186,14 +192,16 @@ export default function CarrosPage() {
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => setFiltersOpen(true)}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md text-sm"
+                className="flex items-center gap-2 bg-[var(--btn-primary)] hover:bg-[var(--btn-primary-hover)] text-[var(--btn-secondary)] px-5 py-2.5 rounded-xl text-sm shadow-md transition"
               >
-                <SlidersHorizontal className="w-4 h-4" />
+                <SlidersHorizontal className="w-5 h-5" />
                 Filtros
               </button>
+
               {appliedFilters && (
                 <CarFilterSidebar
                   filters={appliedFilters}
+                  availableCars={cars}
                   onApplyFilters={handleApplyFilters}
                   isOpen={filtersOpen}
                   onClose={() => setFiltersOpen(false)}
