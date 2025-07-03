@@ -11,6 +11,8 @@ import { googleNightStyle } from "./(components)/GoogleDarkMode";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
+const LIBRARIES = ["places"];
+
 const containerStyle = { width: "100%", height: "100%" };
 const defaultCenter = { lat: 4.570868, lng: -74.297333 };
 const defaultZoom = 6;
@@ -30,7 +32,7 @@ export default function MapView({
   const { resolvedTheme } = useTheme();
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries: ["places"],
+    libraries: LIBRARIES,
   });
 
   const [mapCenter, setMapCenter] = useState(defaultCenter);

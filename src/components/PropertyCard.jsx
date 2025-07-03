@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
-import { FaBed, FaBath, FaRulerCombined, FaRegHeart, FaHeart } from "react-icons/fa";
+import { FaBed, FaBath, FaRulerCombined } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
+import FavoriteButton from "../components/FavoriteButton";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -12,14 +13,6 @@ const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 export default function PropertyCard({ property }) {
   const [autoplay, setAutoplay] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [heartAnimation, setHeartAnimation] = useState(false);
-
-  const toggleFavorite = () => {
-    setIsFavorite((prev) => !prev);
-    setHeartAnimation(true);
-    setTimeout(() => setHeartAnimation(false), 400);
-  };
 
   if (!property) {
     return (
@@ -64,21 +57,7 @@ export default function PropertyCard({ property }) {
       onMouseLeave={() => setAutoplay(false)}
     >
       {/* ❤️ Botón Favorito */}
-      <button
-        onClick={toggleFavorite}
-        aria-label="Favorito"
-        className="absolute top-2 right-2 z-10 w-9 h-9 flex items-center justify-center bg-[var(--navbackground)] rounded-full shadow transition-colors heart-hover"
-      >
-        {isFavorite ? (
-          <FaHeart
-            className={`text-[var(--btn-primary)] transition-all duration-200 ${heartAnimation ? "heart-animate" : ""}`}
-          />
-        ) : (
-          <FaRegHeart
-            className={`text-[var(--heart-button)] transition-all duration-200 hover:text-[var(--btn-primary)] ${heartAnimation ? "heart-animate" : ""}`}
-          />
-        )}
-      </button>
+      <FavoriteButton itemId={property.id} itemType="property" />
 
       {/* 📷 Imágenes */}
       <div className="h-[210px] w-full bg-gray-200 relative flex-shrink-0">

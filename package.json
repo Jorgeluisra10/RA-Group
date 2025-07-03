@@ -46,7 +46,8 @@
     "react-slick": "^0.30.3",
     "recharts": "^3.0.2",
     "slick-carousel": "^1.8.1",
-    "swiper": "^11.2.8"
+    "swiper": "^11.2.8",
+    "use-debounce": "^10.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

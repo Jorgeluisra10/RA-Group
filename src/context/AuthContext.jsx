@@ -1,12 +1,19 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
 
 const AuthContext = createContext({
   user: null,
   userInfo: null,
-  loading: true,
+  loadingSession: true,
+  userInfoLoading: false,
   signOut: async () => {},
   refreshUser: async () => {},
 });
@@ -15,87 +22,97 @@ export function AuthProvider({ children }) {
   const [supabase] = useState(() => createPagesBrowserClient());
   const [user, setUser] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingSession, setLoadingSession] = useState(true);
+  const [userInfoLoading, setUserInfoLoading] = useState(false);
 
-  const fetchUserInfo = async (userId) => {
-    try {
-      const { data, error } = await supabase
-        .from("usuarios")
-        .select("*")
-        .eq("id", userId)
-        .single();
+  const fetchUserInfo = useCallback(
+    async (userId) => {
+      setUserInfoLoading(true);
+      try {
+        const { data: userData, error: userError } = await supabase
+          .from("usuarios")
+          .select("*")
+          .eq("id", userId)
+          .single();
 
-      if (data && !error) {
-        setUserInfo(data);
-        return;
-      }
+        if (userData && !userError) {
+          setUserInfo(userData);
+          return;
+        }
 
-      const { data: agenteData, error: agenteError } = await supabase
-        .from("agentes")
-        .select("*")
-        .eq("id", userId)
-        .single();
+        const { data: agenteData, error: agenteError } = await supabase
+          .from("agentes")
+          .select("*")
+          .eq("id", userId)
+          .single();
 
-      if (agenteData && !agenteError) {
-        setUserInfo(agenteData);
-      } else {
+        if (agenteData && !agenteError) {
+          setUserInfo(agenteData);
+        } else {
+          setUserInfo(null);
+        }
+      } catch (error) {
+        console.error("❌ Error al obtener info del usuario:", error);
         setUserInfo(null);
+      } finally {
+        setUserInfoLoading(false);
       }
-    } catch (err) {
-      console.error("❌ Error al obtener info del usuario:", err);
-      setUserInfo(null);
-    }
-  };
+    },
+    [supabase]
+  );
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      setLoading(true);
-
+  const loadSession = useCallback(async () => {
+    setLoadingSession(true);
+    try {
       const { data: sessionData } = await supabase.auth.getSession();
       let sessionUser = sessionData?.session?.user;
 
-      // fallback por si getSession aún no devuelve el usuario tras recarga
       if (!sessionUser) {
         const { data: userData } = await supabase.auth.getUser();
         sessionUser = userData?.user;
       }
 
       if (sessionUser) {
-        console.log("✅ Sesión activa al iniciar:", sessionUser.email);
+        console.log("✅ Sesión activa:", sessionUser.email);
         setUser(sessionUser);
-        await fetchUserInfo(sessionUser.id);
+        fetchUserInfo(sessionUser.id); // no se espera, permite render no bloqueante
       } else {
-        console.log("⚠️ No hay sesión activa al iniciar");
         setUser(null);
         setUserInfo(null);
       }
+    } catch (error) {
+      console.error("❌ Error al cargar sesión:", error);
+      setUser(null);
+      setUserInfo(null);
+    } finally {
+      setLoadingSession(false);
+    }
+  }, [supabase, fetchUserInfo]);
 
-      setLoading(false);
-    };
-
-    fetchSession();
+  useEffect(() => {
+    loadSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("🔁 onAuthStateChange:", event, session);
-        setLoading(true);
+      async (_event, session) => {
+        console.log("🔁 Cambio de sesión:", _event);
+        setLoadingSession(true);
 
         if (session?.user) {
           setUser(session.user);
-          await fetchUserInfo(session.user.id);
+          fetchUserInfo(session.user.id); // sin bloqueo
         } else {
           setUser(null);
           setUserInfo(null);
         }
 
-        setLoading(false);
+        setLoadingSession(false);
       }
     );
 
     return () => {
       listener?.subscription?.unsubscribe?.();
     };
-  }, [supabase]);
+  }, [loadSession, supabase, fetchUserInfo]);
 
   const signOut = async () => {
     try {
@@ -104,27 +121,13 @@ export function AuthProvider({ children }) {
 
       setUser(null);
       setUserInfo(null);
-    } catch (err) {
-      console.error("❌ Error cerrando sesión:", err);
+    } catch (error) {
+      console.error("❌ Error cerrando sesión:", error);
     }
   };
 
   const refreshUser = async () => {
-    setLoading(true);
-    const { data: sessionData } = await supabase.auth.getSession();
-    let sessionUser = sessionData?.session?.user;
-
-    if (!sessionUser) {
-      const { data: userData } = await supabase.auth.getUser();
-      sessionUser = userData?.user;
-    }
-
-    if (sessionUser) {
-      setUser(sessionUser);
-      await fetchUserInfo(sessionUser.id);
-    }
-
-    setLoading(false);
+    await loadSession();
   };
 
   return (
@@ -132,7 +135,8 @@ export function AuthProvider({ children }) {
       value={{
         user,
         userInfo,
-        loading,
+        loadingSession,
+        userInfoLoading,
         signOut,
         refreshUser,
       }}

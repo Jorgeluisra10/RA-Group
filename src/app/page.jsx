@@ -6,6 +6,7 @@ import CarCard from "../components/CarCard";
 import FindHome from "../components/FindHome/FindHome";
 import PropertyCard from "../components/PropertyCard";
 import CategoriaSelector from "../components/SelectorCategoria";
+import { motion } from "framer-motion";
 import { getCars, getProperties } from "../lib/api";
 
 export default function Home() {
@@ -73,17 +74,30 @@ export default function Home() {
       </div>
 
       <section>
-        <CategoriaSelector/>
+        <CategoriaSelector />
       </section>
 
       {/* PROPIEDADES */}
       <section className="mt-15 relative px-4 sm:px-6 lg:px-12">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[var(--text-default)]">
+        <motion.h2
+          initial={{ opacity: 0, y: -25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="text-4xl text-center sm:text-5xl font-extrabold mb-8 text-[var(--blue-main)] dark:text-[var(--text-hero)] leading-tight relative select-none"
+        >
           Propiedades destacadas
-        </h1>
-        <p className="text-[var(--text-secondary)] mb-6 max-w-3xl mx-auto text-center">
+          {/* Línea amarilla centrada debajo */}
+          <span className="block w-24 h-1 bg-yellow-400 rounded mt-3 mx-auto" />
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.7, ease: "easeOut" }}
+          className="max-w-xl mx-auto mb-16 text-center text-[var(--text-secondary)] dark:text-[var(--text-hero-secondary)] text-lg leading-relaxed"
+        >
           Encuentra las mejores propiedades disponibles actualmente
-        </p>
+        </motion.p>
 
         <div className="relative">
           <button
@@ -126,12 +140,25 @@ export default function Home() {
 
       {/* AUTOS */}
       <section className="relative px-4 sm:px-6 lg:px-12 mt-20">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-center text-[var(--text-default)]">
+        <motion.h2
+          initial={{ opacity: 0, y: -25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="text-4xl text-center sm:text-5xl font-extrabold mb-8 text-[var(--blue-main)] dark:text-[var(--text-hero)] leading-tight relative select-none"
+        >
           Autos destacados
-        </h1>
-        <p className="text-[var(--text-secondary)] mb-8 max-w-3xl mx-auto text-center">
+          {/* Línea amarilla centrada debajo */}
+          <span className="block w-24 h-1 bg-yellow-400 rounded mt-3 mx-auto" />
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.7, ease: "easeOut" }}
+          className="max-w-xl mx-auto mb-16 text-center text-[var(--text-secondary)] dark:text-[var(--text-hero-secondary)] text-lg leading-relaxed"
+        >
           Explora nuestra selección de vehículos destacados.
-        </p>
+        </motion.p>
 
         <div className="relative">
           <button

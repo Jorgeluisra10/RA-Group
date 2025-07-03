@@ -4,14 +4,8 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  FaGasPump,
-  FaCogs,
-  FaCity,
-  FaRegHeart,
-  FaHeart,
-  FaCalendarAlt,
-} from "react-icons/fa";
+import { FaGasPump, FaCogs, FaCity, FaCalendarAlt } from "react-icons/fa";
+import FavoriteButton from "../components/FavoriteButton";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -19,14 +13,6 @@ const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 export default function CarCard({ car }) {
   const [autoplay, setAutoplay] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [heartAnimation, setHeartAnimation] = useState(false);
-
-  const toggleFavorite = () => {
-    setIsFavorite((prev) => !prev);
-    setHeartAnimation(true);
-    setTimeout(() => setHeartAnimation(false), 400);
-  };
 
   if (!car)
     return <div className="text-red-500">Datos del carro no disponibles</div>;
@@ -54,21 +40,7 @@ export default function CarCard({ car }) {
       onMouseLeave={() => setAutoplay(false)}
     >
       {/* ❤️ Botón Favorito */}
-      <button
-        onClick={toggleFavorite}
-        aria-label="Favorito"
-        className="absolute top-2 right-2 z-10 w-9 h-9 flex items-center justify-center bg-[var(--navbackground)] rounded-full shadow transition-colors heart-hover"
-      >
-        {isFavorite ? (
-          <FaHeart
-            className={`text-[var(--btn-primary)] transition-all duration-200 ${heartAnimation ? "heart-animate" : ""}`}
-          />
-        ) : (
-          <FaRegHeart
-            className={`text-[var(--heart-button)] transition-all duration-200 hover:text-[var(--btn-primary)] ${heartAnimation ? "heart-animate" : ""}`}
-          />
-        )}
-      </button>
+      <FavoriteButton itemId={car.id} itemType="car" />
 
       {/* 📷 Imágenes */}
       <div className="h-[210px] bg-gray-200">
