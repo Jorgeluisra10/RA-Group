@@ -1,9 +1,9 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
 
-
-
-/* tailwind.css */
+/* =========================
+   🧹 Scrollbar oculta en móviles
+========================= */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -16,36 +16,42 @@
    🎨 Variables de color
 ========================= */
 :root {
-  --background-overlay: rgba(255, 255, 255, 0.7); /* capa blanca semitransparente */
-  --text-hero: #1f2937; /* gray-800 */
-  --text-hero-secondary: #374151; /* gray-700 */
-  --background: #F8F9FA;
+  --background-overlay: rgba(255, 255, 255, 0.7);
+  --text-hero: #1f2937;
+  --text-hero-secondary: #374151;
+  --background: #ECEFF1;
   --navbackground: #F8F9FA;
   --sidebackground: #0f1c46;
   --footerbackground: #0f1c46;
-  --text-default: #171717;      /* Texto común */
-  --text-active: #fdc700;       /* Texto activo / resaltado */
+  --text-default: #171717;
+  --text-active: #fdc700;
   --btn-primary: #fdc700;
   --btn-secondary: #171717;
   --link-hover: #0f1c46;
-  --text-secondary: #4b5563; /* gris oscuro */
+  --text-secondary: #4b5563;
 
   /* 🔹 Colores agregados desde FiltroBuscador.jsx */
-  --blue-main: #0f1c46;        /* Fondo de botón Buscar propiedad */
-  --blue-features: #0f1c46;        /* Fondo de botón Buscar propiedad */
-  --blue-hover: #1a295c;          /* Hover del botón Buscar propiedad */
-  --yellow-light: #ffcc00;        /* Fondo de botón Explorar propiedades */
-  --gray-border: #d1d5db;         /* border-gray-300 */
-  --gray-hover: #f3f4f6;          /* hover:bg-gray-100 */
+  --blue-main: #0f1c46;
+  --blue-features: #0f1c46;
+  --blue-hover: #1a295c;
+  --yellow-light: #ffcc00;
+  --gray-border: #d1d5db;
+  --gray-hover: #f3f4f6;
   --white: #ffffff;
   --heart-button: #4b5563;
-
 
   --input-bg-light: #ffffff;
   --input-bg-dark: #1c1c24;
   --input-border: #d1d5db;
-  --range-thumb: #60a5fa; /* azul claro */
-  --range-track: #4b5563; /* gris oscuro */
+  --range-thumb: #60a5fa;
+  --range-track: #4b5563;
+
+  /* 🌟 Variables específicas para Sidebar */
+  --sidebar-bg: #0B1D3B;
+  --sidebar-text: #ffffff;
+  --sidebar-hover: rgba(255, 255, 255, 0.1);
+  --text-muted: #94a3b8;
+  --accent-yellow: #facc15;
 }
 
 .icon-color {
@@ -56,6 +62,9 @@ html.dark .icon-color {
   color: var(--btn-primary);
 }
 
+/* =========================
+   🌙 Variables modo oscuro
+========================= */
 html.dark {
   --background: #121218;
   --navbackground: #1c1c24;
@@ -66,33 +75,35 @@ html.dark {
   --btn-primary: #fdc700;
   --btn-secondary: #ffffff;
   --link-hover: #ffffff;
-  --background-overlay: rgba(0, 0, 0, 0.6); /* capa negra semitransparente en dark mode */
+  --background-overlay: rgba(0, 0, 0, 0.6);
   --text-hero: #ffffff;
-  --text-hero-secondary: #e5e7eb; /* gray-200 */
+  --text-hero-secondary: #e5e7eb;
 
-
-  /* 🔹 Colores agregados en modo oscuro */
-  --blue-features: #4b5563;        /* Fondo de botón Buscar propiedad */
+  --blue-features: #4b5563;
   --blue-main: #29293f;
   --blue-hover: #3a3a50;
   --yellow-light: #fdc700;
   --gray-border: #4b5563;
-  --text-secondary: #9ca3af; /* gris claro para darkmode */;         /* border-gray-600 */
+  --text-secondary: #9ca3af;
   --gray-hover: #2A2A38;
   --white: #1C1C24;
-  --heart-button:#ffff;
-
+  --heart-button: #ffff;
 
   --input-bg-light: #1c1c24;
   --input-border: #4b5563;
   --range-thumb: #60a5fa;
   --range-track: #9ca3af;
 
-
+  /* 🌙 Sidebar en dark mode */
+  --sidebar-bg: #1c1c24;
+  --sidebar-text: #ffffff;
+  --sidebar-hover: rgba(255, 255, 255, 0.1);
+  --text-muted: #9ca3af;
+  --accent-yellow: #fdc700;
 }
 
 /* =========================
-   🌐 Base styles
+   🌐 Estilos base
 ========================= */
 body {
   background: var(--background);
@@ -230,6 +241,7 @@ body {
   }
 }
 
+/* 🎚 Estilos para sliders */
 input[type="range"] {
   -webkit-appearance: none;
   width: 100%;

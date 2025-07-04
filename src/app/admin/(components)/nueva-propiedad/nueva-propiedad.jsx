@@ -6,11 +6,11 @@ import { useNuevaPropiedadForm } from "./useNuevaPropiedadForm";
 
 const Input = ({ label, placeholder, value, onChange, error = "", className = "" }) => (
   <div className={className}>
-    <label className="block font-medium mb-1">{label}</label>
+    <label className="block font-medium text-[var(--text-default)] mb-1">{label}</label>
     <input
       type="text"
-      className={`w-full p-2 border rounded transition-all duration-300 focus:outline-none ${
-        error ? "border-red-500" : "border-gray-300"
+      className={`w-full p-2 rounded bg-[var(--input-bg-light)] text-[var(--text-default)] border transition-all duration-300 focus:outline-none ${
+        error ? "border-red-500" : "border-[var(--input-border)]"
       }`}
       placeholder={placeholder}
       value={value}
@@ -22,10 +22,10 @@ const Input = ({ label, placeholder, value, onChange, error = "", className = ""
 
 const Select = ({ label, value, onChange, options, error = "" }) => (
   <div>
-    <label className="block font-medium mb-1">{label}</label>
+    <label className="block font-medium text-[var(--text-default)] mb-1">{label}</label>
     <select
-      className={`w-full p-2 border rounded transition-all duration-300 focus:outline-none ${
-        error ? "border-red-500" : "border-gray-300"
+      className={`w-full p-2 rounded bg-[var(--input-bg-light)] text-[var(--text-default)] border transition-all duration-300 focus:outline-none ${
+        error ? "border-red-500" : "border-[var(--input-border)]"
       }`}
       value={value}
       onChange={onChange}
@@ -112,20 +112,20 @@ export default function NuevaPropiedadForm() {
   });
 
   return (
-    <form className="bg-white p-6 rounded shadow space-y-4" onSubmit={handleSubmit}>
+    <form className="bg-[var(--white)] p-6 rounded shadow space-y-4" onSubmit={handleSubmit}>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Input label="Título de la propiedad" placeholder="Ej: Villa Exclusiva" value={title} onChange={(e) => setTitle(e.target.value)} error={errors.title} />
         <Select label="Tipo de propiedad" value={tipo} onChange={(e) => setTipo(e.target.value)} options={["Casa", "Apartamento", "Carro", "Terreno", "Oficina", "Local", "Finca", "Lote"]} error={errors.tipo} />
         <Input label="Precio ($)" placeholder="Ej: 2850000" value={price} onChange={(e) => setPrice(e.target.value)} error={errors.price} />
         <Select label="Estado" value={estado} onChange={(e) => setEstado(e.target.value)} options={["Nuevo", "Usado", "En construcción"]} error={errors.estado} />
         <div>
-          <label className="block font-medium mb-1">Agente asignado</label>
-          <select className={`w-full p-2 border rounded transition-all duration-300 focus:outline-none ${errors.agente ? "border-red-500" : "border-gray-300"}`} value={agente} onChange={(e) => setAgente(e.target.value)}>
+          <label className="block font-medium text-[var(--text-default)] mb-1">Agente asignado</label>
+          <select className={`w-full p-2 rounded bg-[var(--input-bg-light)] text-[var(--text-default)] border transition-all duration-300 focus:outline-none ${
+            errors.agente ? "border-red-500" : "border-[var(--input-border)]"
+          }`} value={agente} onChange={(e) => setAgente(e.target.value)}>
             <option value="">Seleccionar</option>
             {agentesDisponibles.map((ag) => (
-              <option key={ag.id} value={ag.id}>
-                {ag.nombre}
-              </option>
+              <option key={ag.id} value={ag.id}>{ag.nombre}</option>
             ))}
           </select>
           {errors.agente && <p className="text-sm text-red-600 mt-1">{errors.agente}</p>}
@@ -157,13 +157,14 @@ export default function NuevaPropiedadForm() {
         <Input label="Ciudad" placeholder="Ej: Bogotá" value={ciudad} onChange={(e) => setCiudad(e.target.value)} error={errors.ciudad} />
         <Input label="Barrio (opcional)" placeholder="Ej: Chapinero" value={barrio} onChange={(e) => setBarrio(e.target.value)} />
         <Input label="Código Postal" placeholder="Ej: 110111" value={codigoPostal} onChange={(e) => setCodigoPostal(e.target.value)} />
+
         <div className="sm:col-span-2 lg:col-span-3">
-          <label className="block font-medium mb-1">Dirección</label>
+          <label className="block font-medium text-[var(--text-default)] mb-1">Dirección</label>
           <input
             type="text"
             ref={autocompleteRef}
-            className={`w-full p-2 border rounded transition-all duration-300 focus:outline-none ${
-              errors.direccion ? "border-red-500" : "border-gray-300"
+            className={`w-full p-2 rounded bg-[var(--input-bg-light)] text-[var(--text-default)] border transition-all duration-300 focus:outline-none ${
+              errors.direccion ? "border-red-500" : "border-[var(--input-border)]"
             }`}
             placeholder="Ej: Carrera x #xx-xx"
             defaultValue={direccion}
@@ -174,8 +175,8 @@ export default function NuevaPropiedadForm() {
 
         {["Casa", "Apartamento", "Oficina", "Local"].includes(tipo) && isLoaded && latLng.lat && latLng.lng && (
           <div className="col-span-full mt-4">
-            <label className="block font-medium mb-2">Ubicación en el mapa</label>
-            <div className="h-64 w-full rounded border">
+            <label className="block font-medium text-[var(--text-default)] mb-2">Ubicación en el mapa</label>
+            <div className="h-64 w-full rounded border border-[var(--input-border)]">
               <GoogleMap center={latLng} zoom={16} mapContainerStyle={{ height: "100%", width: "100%" }}>
                 <Marker
                   position={latLng}
@@ -198,7 +199,7 @@ export default function NuevaPropiedadForm() {
                 />
               </GoogleMap>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-[var(--text-secondary)] mt-2">
               Dirección exacta detectada: <strong>{direccionExacta}</strong>
             </p>
           </div>
@@ -206,10 +207,10 @@ export default function NuevaPropiedadForm() {
       </div>
 
       <div>
-        <label className="block font-medium mb-1">Descripción</label>
+        <label className="block font-medium text-[var(--text-default)] mb-1">Descripción</label>
         <textarea
-          className={`w-full p-2 border rounded focus:outline-none ${
-            errors.description ? "border-red-500" : "border-gray-300"
+          className={`w-full p-2 rounded bg-[var(--input-bg-light)] text-[var(--text-default)] border focus:outline-none ${
+            errors.description ? "border-red-500" : "border-[var(--input-border)]"
           }`}
           rows={4}
           placeholder="Describe la propiedad en detalle..."
@@ -220,13 +221,13 @@ export default function NuevaPropiedadForm() {
       </div>
 
       <div>
-        <label className="block font-medium mb-1">Imágenes (máximo 10)</label>
+        <label className="block font-medium text-[var(--text-default)] mb-1">Imágenes (máximo 10)</label>
         <input
           type="file"
           accept="image/*"
           multiple
           onChange={handleImageChange}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:border file:rounded-md file:text-sm file:font-semibold file:bg-gray-50 hover:file:bg-gray-100"
+          className="block w-full text-sm text-[var(--text-secondary)] file:mr-4 file:py-2 file:px-4 file:border file:rounded-md file:text-sm file:font-semibold file:bg-[var(--white)] hover:file:bg-[var(--gray-hover)]"
         />
         {errors.image && <p className="text-sm text-red-600 mt-1">{errors.image}</p>}
         {imagePreviews.length > 0 && (
@@ -239,7 +240,10 @@ export default function NuevaPropiedadForm() {
       </div>
 
       <div className="pt-6 flex justify-center">
-        <button type="submit" className="bg-[#0B1D3B] text-white px-6 py-3 rounded-md font-semibold hover:bg-[#10294f] transition duration-200">
+        <button
+          type="submit"
+          className="bg-[var(--btn-primary)] text-[var(--btn-secondary)] px-6 py-3 rounded-md font-semibold hover:bg-[var(--blue-hover)] transition duration-200"
+        >
           Publicar
         </button>
       </div>

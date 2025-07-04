@@ -6,14 +6,17 @@ import Image from "next/image";
 
 export default function Logo() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
 
+  const [hasMounted, setHasMounted] = useState(false);
   const [showPing, setShowPing] = useState(true);
 
   useEffect(() => {
+    setHasMounted(true);
     const timeout = setTimeout(() => setShowPing(false), 10000);
     return () => clearTimeout(timeout);
   }, []);
+
+  const isDark = hasMounted && theme === "dark";
 
   return (
     <Link

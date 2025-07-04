@@ -1,99 +1,49 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import dynamic from "next/dynamic";
-
 import { getCars } from "../../../lib/api";
-import InmovaScore from "../(components)/InmovaScore";
-import YoutubeEmbed from "../(components)/YoutubeEmbed";
-import CarHeaderInfo from "../(components)/CarHeaderInfo";
-import CarImageGallery from "../(components)/CarImageGallery";
-import MobileCarDetailTabs from "../(components)/MobileCarDetailTabs";
-import CarSpecsCard from "../(components)/CarSpecsCard";
-import FuelEfficiencyCard from "../(components)/FuelEfficiencyCard";
+import ClientView from "./ClientView";
 
-const MapView = dynamic(() => import("../../../components/MapView/MapView"), {
-  ssr: false,
-});
+export const dynamic = 'force-dynamic'; // SSR en rutas dinámicas
 
-const tabs = ["Video", "Mapa"];
+export async function generateMetadata({ params }) {
+  const allCars = await getCars();
+  const carro = allCars.find((c) => String(c.id) === params.id);
 
-export default function CarDetailPage() {
-  const { id } = useParams();
-  const [carro, setCarro] = useState(null);
-  const [activeTab, setActiveTab] = useState("Video");
-
-  useEffect(() => {
-    if (!id) return;
-    const fetchCarro = async () => {
-      try {
-        const cars = await getCars();
-        const foundCar = cars.find((c) => c.id.toString() === id.toString());
-        setCarro(foundCar);
-      } catch (error) {
-        console.error("Error al obtener el carro:", error);
-      }
+  if (!carro) {
+    return {
+      title: 'Vehículo no encontrado - Imnoba',
+      description: 'No se encontró el vehículo solicitado',
     };
-    fetchCarro();
-  }, [id]);
+  }
 
-  if (!carro) return <div className="p-8">Cargando...</div>;
+  return {
+    title: `${carro.title} - Imnoba`,
+    description: carro.description?.slice(0, 160) || 'Vehículo en venta en Imnoba',
+    openGraph: {
+      title: `${carro.title} - Imnoba`,
+      description: carro.description?.slice(0, 160),
+      url: `https://imnoba.com/vehiculo/${carro.id}`,
+      images: [
+        {
+          url: carro.images?.[0] || '/fallback.jpg',
+          width: 800,
+          height: 600,
+          alt: carro.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${carro.title} - Imnoba`,
+      description: carro.description?.slice(0, 160),
+      images: [carro.images?.[0] || '/fallback.jpg'],
+    },
+  };
+}
 
-  return (
-    <div className="px-4 sm:px-6 lg:px-12 xl:px-20 max-w-screen-2xl mx-auto py-6">
-      <CarHeaderInfo title={carro.title} price={carro.price} />
+export default async function Page({ params }) {
+  const allCars = await getCars();
+  const carro = allCars.find((c) => String(c.id) === params.id);
 
-      <div className="md:flex md:gap-6 mt-8">
-        <div className="md:flex-1">
-          <CarImageGallery images={carro.images} title={carro.title} />
-          <MobileCarDetailTabs carro={carro} />
-        </div>
+  if (!carro) return <div className="p-8">Vehículo no encontrado.</div>;
 
-        <div className="md:w-[500px] mt-6 md:mt-0 space-y-6 hidden md:block animate-fade-in-up">
-          <CarSpecsCard carro={carro} />
-        </div>
-      </div>
-
-      <section className="mt-12 animate-fade-in-up">
-        <InmovaScore carroId={id} />
-      </section>
-
-      <div className="mt-12">
-        <div className="flex gap-6 border-b border-[var(--gray-border)]">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`pb-2 text-sm font-medium transition-colors duration-300 border-b-2 ${
-                activeTab === tab
-                  ? "border-[var(--btn-primary)] text-[var(--btn-primary)]"
-                  : "border-transparent text-[var(--text-secondary)] hover:text-[var(--btn-primary)]"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-6 animate-fade-in-up">
-          {activeTab === "Video" && <YoutubeEmbed youtubeUrl={carro.youtube} />}
-          {activeTab === "Mapa" && (
-            <div className="rounded-xl overflow-hidden shadow-lg relative h-[420px]">
-              <div className="absolute top-3 left-3 z-10 bg-white/90 dark:bg-black/60 text-sm px-4 py-1 rounded-full shadow text-gray-800 dark:text-white">
-                Muestra la ubicación aproximada del auto respecto a ti
-              </div>
-              <MapView mode="detalle" city={carro.ciudad} />
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-12 flex justify-center animate-fade-in-up">
-        <button className="bg-[var(--blue-main)] hover:bg-[var(--blue-hover)] text-white px-6 py-3 rounded-lg shadow-md transition-all font-semibold">
-          Contactar vendedor
-        </button>
-      </div>
-    </div>
-  );
+  return <ClientView carro={carro} />;
 }

@@ -1,4 +1,4 @@
-// app/layout.jsx (sin "use client")
+// app/layout.jsx
 
 import { Analytics } from "@vercel/analytics/next";
 import AppShell from "./AppShell";
@@ -48,10 +48,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/images/favicon.ico" sizes="any" />
-        {/* Logo Schema for Google */}
+        {/* Logo Schema para Google */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -60,12 +62,15 @@ export default function RootLayout({ children }) {
               "@type": "Organization",
               name: "Imnoba",
               url: "https://imnoba.com",
-              logo: "https://imnoba.com/images/imlogo.png", // Asegúrate de que este logo exista
+              logo: "https://imnoba.com/images/imlogo.png",
             }),
           }}
         />
       </head>
-      <body className="min-h-screen">
+      <body
+        className="min-h-screen bg-[var(--background)] text-[var(--text-default)]"
+        suppressHydrationWarning
+      >
         <AppShell>{children}</AppShell>
         <Analytics />
       </body>

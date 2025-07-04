@@ -1,9 +1,5 @@
 import { getProperties } from '../../../lib/api';
-import ClientView from './ClientView';
 
-export const dynamic = 'force-dynamic'; // Asegura SSR para cada ID
-
-// ✅ Importar metadata del mismo archivo
 export async function generateMetadata({ params }) {
   const allProperties = await getProperties();
   const property = allProperties.find((p) => String(p.id) === params.id);
@@ -38,13 +34,4 @@ export async function generateMetadata({ params }) {
       images: [property.images?.[0] || '/fallback.jpg'],
     },
   };
-}
-
-export default async function Page({ params }) {
-  const allProperties = await getProperties();
-  const property = allProperties.find((p) => String(p.id) === params.id);
-
-  if (!property) return <div className="p-8">Propiedad no encontrada.</div>;
-
-  return <ClientView property={property} />;
 }

@@ -52,7 +52,7 @@ export default function PropertyCard({ property }) {
 
   return (
     <div
-      className="relative rounded-xl overflow-hidden border shadow-md hover:shadow-lg transition duration-300 transform hover:scale-[1.02] bg-[var(--navbackground)] flex flex-col h-full"
+      className="relative rounded-xl overflow-hidden shadow-[0_0_8px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(253,216,53,0.4)] transition-all duration-300 transform hover:scale-[1.015] bg-[var(--navbackground)] flex flex-col h-full"
       onMouseEnter={() => setAutoplay(true)}
       onMouseLeave={() => setAutoplay(false)}
     >
@@ -62,11 +62,7 @@ export default function PropertyCard({ property }) {
       {/* 📷 Imágenes */}
       <div className="h-[210px] w-full bg-gray-200 relative flex-shrink-0">
         {hasMultipleImages ? (
-          <Slider
-            {...settings}
-            key={autoplay ? "autoplay" : "no-autoplay"}
-            className="[&_.slick-dots]:!bottom-2 [&_.slick-dots]:!z-10 h-full"
-          >
+          <Slider {...settings} className="[&_.slick-dots]:!bottom-2 [&_.slick-dots]:!z-10 h-full">
             {images.map((img, idx) => (
               <div key={idx} className="h-[210px] w-full relative">
                 <Image
@@ -97,7 +93,7 @@ export default function PropertyCard({ property }) {
       </div>
 
       {/* 📄 Contenido */}
-      <div className="p-4 border-t flex flex-col justify-between flex-grow">
+      <div className="p-4 flex flex-col justify-between flex-grow">
         <span className="text-[var(--btn-primary)] font-bold text-lg mb-1 block">
           {formatPrice(property.price)}
         </span>

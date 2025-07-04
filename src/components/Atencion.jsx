@@ -1,6 +1,7 @@
-'use client';
+"use client";
 import { ShieldCheck, RefreshCcw, DollarSign } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const features = [
   {
@@ -24,6 +25,8 @@ const features = [
 ];
 
 export default function Atencion() {
+  const router = useRouter();
+
   return (
     <section
       className="relative py-24 px-4 text-center overflow-hidden"
@@ -33,12 +36,15 @@ export default function Atencion() {
       }}
     >
       {/* Óvalo superior */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-3 rounded-b-full z-0 pointer-events-none select-none"
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-3 rounded-b-full z-0 pointer-events-none select-none"
         style={{ backgroundColor: "var(--btn-primary)" }}
       />
-      
+
       <div className="relative max-w-6xl mx-auto z-10">
-        <h2 className="text-4xl text-white font-extrabold mb-4">¿Por qué elegirnos?</h2>
+        <h2 className="text-4xl text-white font-extrabold mb-4">
+          ¿Por qué elegirnos?
+        </h2>
         <div
           className="h-1 w-14 mx-auto mb-6 rounded-full"
           style={{ backgroundColor: "var(--btn-primary)" }}
@@ -71,7 +77,10 @@ export default function Atencion() {
               <h3 className="font-bold text-lg mb-2 text-center">
                 {feature.title}
               </h3>
-              <p className="text-sm text-center" style={{ color: "var(--text-secondary)" }}>
+              <p
+                className="text-sm text-center"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 {feature.description}
               </p>
               <div
@@ -84,6 +93,8 @@ export default function Atencion() {
 
         <motion.button
           whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => router.push("/sobre-nosotros")}
           className="mt-12 font-semibold px-8 py-3 rounded-full shadow-md hover:shadow-lg transition duration-300"
           style={{
             backgroundColor: "var(--btn-primary)",
@@ -95,7 +106,8 @@ export default function Atencion() {
       </div>
 
       {/* Degradado inferior */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[150%] h-3 rounded-t-full z-0 pointer-events-none select-none"
+      <div
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[150%] h-3 rounded-t-full z-0 pointer-events-none select-none"
         style={{ backgroundColor: "var(--btn-primary)" }}
       />
     </section>

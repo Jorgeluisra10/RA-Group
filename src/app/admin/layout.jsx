@@ -6,7 +6,7 @@ import { Toaster } from "react-hot-toast";
 
 export default function AdminLayout({ children }) {
   return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen">
         <Sidebar />
         <div className="md:pl-64">
           <main className="p-6">

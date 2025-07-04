@@ -59,7 +59,7 @@ export default function Sidebar() {
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="text-white bg-[#0B1D3B] p-2 rounded-md shadow-lg"
+          className="text-[var(--btn-secondary)] bg-[var(--btn-primary)] p-2 rounded-md shadow-lg"
         >
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -68,21 +68,21 @@ export default function Sidebar() {
       {/* Sidebar */}
       <aside
         className={clsx(
-          "fixed top-0 left-0 z-40 h-full w-64 bg-[#0B1D3B] text-white p-5 flex flex-col space-y-8 overflow-y-auto transition-transform duration-300",
+          "fixed top-0 left-0 z-40 h-full w-64 bg-[var(--sidebar-bg)] text-[var(--sidebar-text)] p-5 flex flex-col space-y-8 overflow-y-auto transition-transform duration-300",
           {
             "-translate-x-full md:translate-x-0": !isOpen,
             "translate-x-0": isOpen,
           }
         )}
       >
-        <div className="text-2xl font-bold text-yellow-400">
-          IM<span className="text-white">NOBA</span> •
+        <div className="text-2xl font-bold text-[var(--accent-yellow)]">
+          IM<span className="text-[var(--sidebar-text)]">NOBA</span> •
         </div>
 
         <nav className="flex flex-col space-y-6 text-sm">
           {navItems.map((section) => (
             <div key={section.title}>
-              <p className="text-gray-400 text-xs mb-2 uppercase tracking-wide">
+              <p className="text-[var(--text-muted)] text-xs mb-2 uppercase tracking-wide">
                 {section.title}
               </p>
               <ul className="space-y-1">
@@ -90,8 +90,8 @@ export default function Sidebar() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition"
-                      onClick={() => setIsOpen(false)} // Cierra menú al hacer clic
+                      className="flex items-center px-3 py-2 rounded-md hover:bg-[var(--sidebar-hover)] transition"
+                      onClick={() => setIsOpen(false)}
                     >
                       <link.icon className="w-4 h-4 mr-2" />
                       <span>{link.label}</span>

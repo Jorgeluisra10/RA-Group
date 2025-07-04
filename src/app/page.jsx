@@ -94,7 +94,7 @@ export default function Home() {
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.7, ease: "easeOut" }}
-          className="max-w-xl mx-auto mb-16 text-center text-[var(--text-secondary)] dark:text-[var(--text-hero-secondary)] text-lg leading-relaxed"
+          className="max-w-xl mx-auto text-center text-[var(--text-secondary)] dark:text-[var(--text-hero-secondary)] text-lg leading-relaxed"
         >
           Encuentra las mejores propiedades disponibles actualmente
         </motion.p>
@@ -117,7 +117,7 @@ export default function Home() {
 
           <div
             ref={propertyRef}
-            className="overflow-x-auto scrollbar-hide -mx-4 px-4"
+            className="overflow-x-auto scrollbar-hide -mx-4 px-4 py-8"
             style={{
               WebkitOverflowScrolling: "touch",
               scrollBehavior: "smooth",
@@ -155,7 +155,7 @@ export default function Home() {
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.7, ease: "easeOut" }}
-          className="max-w-xl mx-auto mb-16 text-center text-[var(--text-secondary)] dark:text-[var(--text-hero-secondary)] text-lg leading-relaxed"
+          className="max-w-xl mx-auto text-center text-[var(--text-secondary)] dark:text-[var(--text-hero-secondary)] text-lg leading-relaxed"
         >
           Explora nuestra selección de vehículos destacados.
         </motion.p>
@@ -178,7 +178,7 @@ export default function Home() {
 
           <div
             ref={carRef}
-            className="overflow-x-auto scrollbar-hide -mx-4 px-4"
+            className="overflow-x-auto scrollbar-hide -mx-4 px-4 py-8"
             style={{
               WebkitOverflowScrolling: "touch",
               scrollBehavior: "smooth",

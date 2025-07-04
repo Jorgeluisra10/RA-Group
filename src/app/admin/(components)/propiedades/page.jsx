@@ -41,7 +41,6 @@ export default function PropiedadesPage() {
     try {
       await deleteProperty(id);
       alert("Eliminado correctamente.");
-      // Actualizar lista
       setProperties((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
       console.error("Error al eliminar:", error.message);
@@ -72,32 +71,38 @@ export default function PropiedadesPage() {
 
   return (
     <div className="px-4 py-8 max-w-7xl mx-auto">
+      {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-[#0B1D3B]">
+        <h1 className="text-2xl font-bold text-[var(--blue-main)]">
           Propiedades Publicadas
         </h1>
-        <Button className="bg-[#0B1D3B] text-white hover:bg-[#13294b] flex items-center gap-2">
+        <Button className="bg-[var(--blue-main)] text-white hover:bg-[var(--blue-hover)] flex items-center gap-2">
           <PlusCircle className="w-4 h-4" /> Agregar Nueva Propiedad
         </Button>
       </div>
 
+      {/* Controles de vista y cantidad */}
       <div className="flex justify-between items-center mb-4">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--text-secondary)]">
           Mostrando {paginatedProperties.length} de {properties.length}{" "}
           propiedades
         </p>
         <div className="flex gap-2">
           <Button
-            className={`${
-              view === "grid" ? "bg-[#0B1D3B] text-white" : "border bg-white"
+            className={`$${
+              view === "grid"
+                ? "bg-[var(--blue-main)] text-white"
+                : "border bg-[var(--white)] text-[var(--text-default)]"
             }`}
             onClick={() => setView("grid")}
           >
             <LayoutGrid className="w-4 h-4" />
           </Button>
           <Button
-            className={`${
-              view === "list" ? "bg-[#0B1D3B] text-white" : "border bg-white"
+            className={`$${
+              view === "list"
+                ? "bg-[var(--blue-main)] text-white"
+                : "border bg-[var(--white)] text-[var(--text-default)]"
             }`}
             onClick={() => setView("list")}
           >
@@ -106,6 +111,7 @@ export default function PropiedadesPage() {
         </div>
       </div>
 
+      {/* Lista de propiedades */}
       <div
         className={`grid ${
           view === "grid"
@@ -116,7 +122,7 @@ export default function PropiedadesPage() {
         {paginatedProperties.map((prop) => (
           <motion.div
             key={prop.id}
-            className="bg-white rounded-2xl border shadow hover:shadow-md transition relative overflow-hidden"
+            className="rounded-2xl border border-[var(--gray-border)] bg-[var(--white)] shadow hover:shadow-md transition relative overflow-hidden"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -139,20 +145,22 @@ export default function PropiedadesPage() {
               >
                 {prop.status}
               </Badge>
-              <h3 className="text-md font-semibold text-[#0B1D3B]">
+              <h3 className="text-md font-semibold text-[var(--text-default)]">
                 {prop.title}
               </h3>
-              <p className="text-sm text-gray-500">{prop.location}</p>
-              <p className="text-[#0B1D3B] text-lg font-bold">
+              <p className="text-sm text-[var(--text-secondary)]">
+                {prop.location}
+              </p>
+              <p className="text-[var(--btn-primary)] text-lg font-bold">
                 ${prop.price.toLocaleString()}
               </p>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[var(--text-secondary)]">
                 Publicado: {format(new Date(prop.created_at), "dd/MM/yyyy")}
               </p>
               <div className="flex gap-4 mt-2">
                 <Link
                   href={`/admin/propiedades/editar-propiedad/${prop.id}`}
-                  className="px-4 py-2 rounded-xl border bg-white text-gray-800 hover:bg-gray-50 text-sm font-medium transition"
+                  className="px-4 py-2 rounded-xl border bg-[var(--white)] text-[var(--text-default)] hover:bg-[var(--gray-hover)] text-sm font-medium transition"
                 >
                   Editar
                 </Link>
@@ -168,6 +176,7 @@ export default function PropiedadesPage() {
         ))}
       </div>
 
+      {/* Paginación */}
       <div className="flex justify-between items-center mt-6">
         <div className="flex gap-2">
           {[...Array(totalPages)].map((_, index) => (
@@ -175,8 +184,8 @@ export default function PropiedadesPage() {
               key={index}
               className={`text-sm ${
                 currentPage === index + 1
-                  ? "bg-[#0B1D3B] text-white"
-                  : "border bg-white"
+                  ? "bg-[var(--blue-main)] text-white"
+                  : "border bg-[var(--white)] text-[var(--text-default)]"
               }`}
               onClick={() => setCurrentPage(index + 1)}
             >
