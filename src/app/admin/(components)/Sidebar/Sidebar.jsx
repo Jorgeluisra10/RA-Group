@@ -26,15 +26,16 @@ const navItems = [
     links: [
       { label: "Panel Principal", icon: Home, href: "/admin" },
       { label: "Propiedades", icon: Building, href: "/admin/propiedades" },
-      { label: "Carros", icon: Car, href: "/admin/carros" },
+      { label: "Vehículos", icon: Car, href: "/admin/carros" },
       { label: "Clientes", icon: Users, href: "/admin/clientes" },
-      { label: "Calendario", icon: Calendar, href: "/admin/calendario" },
-      { label: "Tareas", icon: ClipboardList, href: "/admin/tareas" },
+      { label: "Agentes", icon: Users, href: "/admin/agentes" },
     ],
   },
   {
     title: "GESTIÓN",
     links: [
+      { label: "Tareas", icon: ClipboardList, href: "/admin/tareas" },
+      { label: "Calendario", icon: Calendar, href: "/admin/calendario" },
       { label: "Finanzas", icon: DollarSign, href: "/admin/finanzas" },
       { label: "Reportes", icon: BarChart2, href: "/admin/reportes" },
       { label: "Marketing", icon: Megaphone, href: "/admin/marketing" },

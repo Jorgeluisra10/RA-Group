@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getCars, deleteCar } from "../../../../lib/api";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { CalendarIcon, PlusCircle, LayoutGrid, List } from "lucide-react";
+import { PlusCircle, LayoutGrid, List, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const pageSize = 20;
@@ -14,22 +14,20 @@ export default function CarrosPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState("grid");
   const [locations, setLocations] = useState([]);
-
-  const [filters, setFilters] = useState({
-    title: "",
-    location: "",
-    status: "",
-    date: "",
-  });
+  const [search, setSearch] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const router = useRouter();
+
+  const formatCOP = (value) => "$" + value.toLocaleString("es-CO");
 
   useEffect(() => {
     const fetchCars = async () => {
       try {
         const data = await getCars();
         setCars(data);
-
         const uniqueLocations = [...new Set(data.map((car) => car.location))];
         setLocations(uniqueLocations);
       } catch (error) {
@@ -39,19 +37,22 @@ export default function CarrosPage() {
     fetchCars();
   }, []);
 
-  const filteredCars = cars.filter((car) => {
-    const matchesTitle = car.title
-      .toLowerCase()
-      .includes(filters.title.toLowerCase());
-    const matchesLocation = filters.location
-      ? car.location === filters.location
-      : true;
-    const matchesStatus = filters.status ? car.status === filters.status : true;
-    const matchesDate = filters.date
-      ? format(new Date(car.created_at), "dd/MM/yyyy") === filters.date
-      : true;
-    return matchesTitle && matchesLocation && matchesStatus && matchesDate;
-  });
+  const priceOptions = [
+    0, 10000000, 20000000, 30000000, 50000000, 70000000,
+    100000000, 150000000, 200000000, 300000000, 500000000
+  ];
+
+  const filteredCars = useMemo(() => {
+    return cars
+      .filter((car) =>
+        `${car.title} ${car.marca}`.toLowerCase().includes(search.toLowerCase())
+      )
+      .filter((car) => (minPrice ? car.price >= parseInt(minPrice) : true))
+      .filter((car) => (maxPrice ? car.price <= parseInt(maxPrice) : true))
+      .sort((a, b) =>
+        sortOrder === "asc" ? a.price - b.price : b.price - a.price
+      );
+  }, [cars, search, minPrice, maxPrice, sortOrder]);
 
   const paginatedCars = filteredCars.slice(
     (currentPage - 1) * pageSize,
@@ -60,25 +61,26 @@ export default function CarrosPage() {
   const totalPages = Math.ceil(filteredCars.length / pageSize);
 
   const handleDelete = async (id) => {
-  const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este elemento?");
-  if (!confirmDelete) return;
+    const confirm = window.confirm("¿Estás seguro de que quieres eliminar este elemento?");
+    if (!confirm) return;
 
-  try {
-    await deleteCar(id); // o deleteCar(id)
-    alert("Eliminado correctamente.");
-    // Opcionalmente: refrescar lista de propiedades o navegar
-  } catch (error) {
-    console.error("Error al eliminar:", error.message);
-    alert("Ocurrió un error al eliminar.");
-  }
-};
-
-
-  const handleFilterChange = (key, value) => {
-    setFilters({ ...filters, [key]: value });
-    setCurrentPage(1);
+    try {
+      await deleteCar(id);
+      alert("Eliminado correctamente.");
+      setCars((prev) => prev.filter((c) => c.id !== id));
+    } catch (error) {
+      console.error("Error al eliminar:", error.message);
+      alert("Ocurrió un error al eliminar.");
+    }
   };
 
+  const handleClearFilters = () => {
+    setSearch("");
+    setMinPrice("");
+    setMaxPrice("");
+    setSortOrder("desc");
+    setCurrentPage(1);
+  };
 
   const Button = ({ children, className = "", ...props }) => (
     <button
@@ -89,17 +91,8 @@ export default function CarrosPage() {
     </button>
   );
 
-  const Input = ({ className = "", ...props }) => (
-    <input
-      className={`border px-3 py-2 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#0B1D3B] ${className}`}
-      {...props}
-    />
-  );
-
   const Badge = ({ children, className = "" }) => (
-    <span
-      className={`inline-block text-xs font-semibold px-2 py-1 rounded-xl ${className}`}
-    >
+    <span className={`inline-block text-xs font-semibold px-2 py-1 rounded-xl ${className}`}>
       {children}
     </span>
   );
@@ -108,87 +101,108 @@ export default function CarrosPage() {
     <div className={`p-4 space-y-2 ${className}`}>{children}</div>
   );
 
+  const selectClass =
+    "rounded-xl px-3 py-2 border text-sm bg-[var(--white)] text-[var(--text-default)] border-[var(--input-border)] focus:outline-none focus:ring-2 focus:ring-[var(--blue-main)]";
+
   return (
     <div className="px-4 py-8 max-w-7xl mx-auto">
+      {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-[#0B1D3B]">Carros Publicados</h1>
-        <Button className="bg-[#0B1D3B] text-white hover:bg-[#13294b] flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-[var(--btn-secondary)]">Carros Publicados</h1>
+        <Button
+          onClick={() => router.push("/admin")}
+          className="bg-[var(--blue-main)] text-white hover:bg-[var(--blue-hover)] flex items-center gap-2 shadow-sm"
+        >
           <PlusCircle className="w-4 h-4" /> Agregar Nuevo Carro
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6 items-end">
-        <Input
-          placeholder="Buscar carro..."
-          value={filters.title}
-          onChange={(e) => handleFilterChange("title", e.target.value)}
-          className="w-48"
+      {/* Filtros */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-2">
+        <input
+          type="text"
+          placeholder="Buscar por título o marca..."
+          className={`col-span-1 md:col-span-2 ${selectClass}`}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1);
+          }}
         />
         <select
-          className="border rounded-xl px-2 py-2 text-sm"
-          value={filters.location}
-          onChange={(e) => handleFilterChange("location", e.target.value)}
+          className={selectClass}
+          value={minPrice}
+          onChange={(e) => {
+            setMinPrice(e.target.value);
+            setCurrentPage(1);
+          }}
         >
-          <option value="">Todas las ubicaciones</option>
-          {locations.map((loc) => (
-            <option key={loc} value={loc}>
-              {loc}
+          <option value="">Desde</option>
+          {priceOptions.map((price) => (
+            <option key={price} value={price}>
+              {formatCOP(price)}
             </option>
           ))}
         </select>
         <select
-          className="border rounded-xl px-2 py-2 text-sm"
-          value={filters.status}
-          onChange={(e) => handleFilterChange("status", e.target.value)}
+          className={selectClass}
+          value={maxPrice}
+          onChange={(e) => {
+            setMaxPrice(e.target.value);
+            setCurrentPage(1);
+          }}
         >
-          <option value="">Todos los estados</option>
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
+          <option value="">Hasta</option>
+          {priceOptions.map((price) => (
+            <option key={price} value={price}>
+              {formatCOP(price)}
+            </option>
+          ))}
+          <option value="10000000000">+500.000.000</option>
         </select>
-        <div className="relative">
-          <Input
-            type="text"
-            placeholder="dd/mm/aaaa"
-            value={filters.date}
-            onChange={(e) => handleFilterChange("date", e.target.value)}
-            className="pr-10 w-36"
-          />
-          <CalendarIcon className="absolute right-2 top-2.5 h-4 w-4 text-gray-400" />
-        </div>
-        <Button
-          className="border bg-white hover:bg-gray-50"
-          onClick={() =>
-            setFilters({ title: "", location: "", status: "", date: "" })
-          }
+        <select
+          className={selectClass}
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
         >
-          Limpiar filtros
+          <option value="desc">Precio: Mayor a menor</option>
+          <option value="asc">Precio: Menor a mayor</option>
+        </select>
+      </div>
+
+      {/* Limpiar filtros */}
+      <div className="mb-6 flex justify-end">
+        <Button
+          onClick={handleClearFilters}
+          className="text-[var(--text-default)] border hover:bg-[var(--gray-hover)] flex items-center gap-2"
+        >
+          <X className="w-4 h-4" /> Limpiar filtros
         </Button>
       </div>
 
+      {/* Controles de vista */}
       <div className="flex justify-between items-center mb-4">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--text-secondary)]">
           Mostrando {paginatedCars.length} de {filteredCars.length} carros
         </p>
         <div className="flex gap-2">
-          <Button
-            className={`${
-              view === "grid" ? "bg-[#0B1D3B] text-white" : "border bg-white"
-            }`}
-            onClick={() => setView("grid")}
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </Button>
-          <Button
-            className={`${
-              view === "list" ? "bg-[#0B1D3B] text-white" : "border bg-white"
-            }`}
-            onClick={() => setView("list")}
-          >
-            <List className="w-4 h-4" />
-          </Button>
+          {["grid", "list"].map((type) => (
+            <Button
+              key={type}
+              className={`${
+                view === type
+                  ? "bg-[var(--blue-main)] text-white"
+                  : "border bg-[var(--white)] text-[var(--text-default)]"
+              }`}
+              onClick={() => setView(type)}
+            >
+              {type === "grid" ? <LayoutGrid className="w-4 h-4" /> : <List className="w-4 h-4" />}
+            </Button>
+          ))}
         </div>
       </div>
 
+      {/* Lista de carros */}
       <div
         className={`grid ${
           view === "grid"
@@ -199,16 +213,12 @@ export default function CarrosPage() {
         {paginatedCars.map((car) => (
           <motion.div
             key={car.id}
-            className="bg-white rounded-2xl border shadow hover:shadow-md transition relative overflow-hidden"
+            className="rounded-2xl border border-[var(--gray-border)] bg-[var(--white)] shadow-sm hover:shadow-md transition relative overflow-hidden"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            {view === "grid" && car.images && car.images.length > 0 ? (
-              <img
-                src={car.images[0]}
-                alt={car.title}
-                className="w-full h-44 object-cover"
-              />
+            {view === "grid" && car.images?.length > 0 ? (
+              <img src={car.images[0]} alt={car.title} className="w-full h-44 object-cover" />
             ) : view === "grid" ? (
               <div className="w-full h-44 bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                 Sin imagen
@@ -222,29 +232,23 @@ export default function CarrosPage() {
               >
                 {car.status}
               </Badge>
-              <h3 className="text-md font-semibold text-[#0B1D3B]">
-                {car.title}
-              </h3>
-              <p className="text-sm text-gray-500">{car.location}</p>
-              <p className="text-[#0B1D3B] text-lg font-bold">
-                ${car.price.toLocaleString()}
-              </p>
-              <p className="text-sm text-gray-400">
+              <h3 className="text-md font-semibold text-[var(--text-default)]">{car.title}</h3>
+              <p className="text-sm text-[var(--text-secondary)]">{car.location}</p>
+              <p className="text-[var(--btn-primary)] text-lg font-bold">{formatCOP(car.price)}</p>
+              <p className="text-sm text-[var(--text-secondary)]">
                 Publicado: {format(new Date(car.created_at), "dd/MM/yyyy")}
               </p>
               <div className="flex gap-4 mt-2">
                 <Button
-                  className="border bg-white text-gray-800 hover:bg-gray-50 text-sm"
-                  onClick={() =>
-                    router.push(`/admin/carros/editar-carro/${car.id}`)
-                  }
+                  onClick={() => router.push(`/admin/carros/editar-carro/${car.id}`)}
+                  className="border bg-[var(--white)] text-[var(--text-default)] hover:bg-[var(--gray-hover)] text-sm"
                 >
                   Editar
                 </Button>
-
-                <Button 
-                onClick={() => handleDelete(car.id)}
-                className="bg-red-600 text-white hover:bg-red-700 text-sm">
+                <Button
+                  onClick={() => handleDelete(car.id)}
+                  className="bg-red-600 text-white hover:bg-red-700 text-sm"
+                >
                   Eliminar
                 </Button>
               </div>
@@ -253,15 +257,16 @@ export default function CarrosPage() {
         ))}
       </div>
 
+      {/* Paginación */}
       <div className="flex justify-between items-center mt-6">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {[...Array(totalPages)].map((_, index) => (
             <Button
               key={index}
               className={`text-sm ${
                 currentPage === index + 1
-                  ? "bg-[#0B1D3B] text-white"
-                  : "border bg-white"
+                  ? "bg-[var(--blue-main)] text-white"
+                  : "border bg-[var(--white)] text-[var(--text-default)]"
               }`}
               onClick={() => setCurrentPage(index + 1)}
             >

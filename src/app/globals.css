@@ -23,12 +23,17 @@
   --navbackground: #F8F9FA;
   --sidebackground: #0f1c46;
   --footerbackground: #0f1c46;
-  --text-default: #171717;
+  --text-default: #333333;
   --text-active: #fdc700;
   --btn-primary: #fdc700;
   --btn-secondary: #171717;
   --link-hover: #0f1c46;
   --text-secondary: #4b5563;
+  --input-bg-light: #ffffff;
+  --input-border: #d1d5db;
+  --input-bg-dark: #1c1c24;
+  --range-thumb: #60a5fa;
+  --range-track: #4b5563;
 
   /* 🔹 Colores agregados desde FiltroBuscador.jsx */
   --blue-main: #0f1c46;
@@ -39,12 +44,6 @@
   --gray-hover: #f3f4f6;
   --white: #ffffff;
   --heart-button: #4b5563;
-
-  --input-bg-light: #ffffff;
-  --input-bg-dark: #1c1c24;
-  --input-border: #d1d5db;
-  --range-thumb: #60a5fa;
-  --range-track: #4b5563;
 
   /* 🌟 Variables específicas para Sidebar */
   --sidebar-bg: #0B1D3B;
@@ -87,9 +86,10 @@ html.dark {
   --text-secondary: #9ca3af;
   --gray-hover: #2A2A38;
   --white: #1C1C24;
-  --heart-button: #ffff;
+  --heart-button: #ffffff;
 
   --input-bg-light: #1c1c24;
+  --input-bg-dark: #ffff;
   --input-border: #4b5563;
   --range-thumb: #60a5fa;
   --range-track: #9ca3af;
